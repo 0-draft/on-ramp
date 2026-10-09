@@ -4,7 +4,7 @@ This page collects the places where people actually get confused when they conne
 
 ## The root cause in one picture
 
-Hybrid networking is hard because one connection is really five decisions (underlay, overlay, hub, VPC, service), and AWS gives the same kind of thing several names: three different "gateways", three kinds of "virtual interface", and three products called "VPN". Most mistakes are a right answer at one layer combined with a wrong assumption at another.
+Hybrid networking is hard because one connection is really five decisions (underlay, overlay, hub, VPC, service), and AWS gives the same kind of thing several names: three different "gateways", three kinds of "virtual interface", and two products called "VPN" (plus Verified Access, which does a similar job without being a VPN). Most mistakes are a right answer at one layer combined with a wrong assumption at another.
 
 ```mermaid
 flowchart LR
@@ -35,7 +35,7 @@ flowchart LR
 | 11 | **MTU and PMTUD** | Large packets black-hole after failover from DX (8500/9001) to VPN (max 1446) | AWS blog "Improving Performance on AWS and Hybrid Networks"; DX VIF MTU docs | A packet-size slider across a path picker; show fragmentation or drop where ICMP is blocked, and the fix (MSS clamping) |
 | 12 | **Edge-to-edge / transitive routing** | Reach a peered VPC through another VPC's VPN or DX link | re:Post "troubleshoot communication issues between Amazon VPCs over VPC peering": "VPC peering doesn't support edge-to-edge routing"; DX FAQ | A "can this packet get there?" maze with VGW, peering, TGW; only hub-based routes succeed |
 | 13 | **Overlapping CIDRs** | Assume TGW or DXGW can route overlapping VPCs and on-prem | DX docs: VPCs on one DXGW "cannot have overlapping CIDR blocks"; whitepaper "Private NAT Gateway"; re:Post "Use AWS Transit Gateway for overlapping CIDR blocks" | An IP-collision game: drop two 10.0.0.0/16 networks onto a hub and pick a fix (PrivateLink, private NAT, re-IP) to see trade-offs |
-| 14 | **"VPN" means three products** | Confuse Site-to-Site VPN, Client VPN and Verified Access (and WorkSpaces) when planning remote work | AWS VPN decision-framework blog (five VPN options, 2026-05); Client VPN vs Verified Access positioning | A persona switcher: pick "branch", "employee laptop", "contractor needing one app", "admin" and see the right product and its layer |
+| 14 | **"Remote access" means three products** | Confuse Site-to-Site VPN, Client VPN and Verified Access (and WorkSpaces) when planning remote work | AWS VPN decision-framework blog (five VPN options, 2026-05); Client VPN vs Verified Access positioning | A persona switcher: pick "branch", "employee laptop", "contractor needing one app", "admin" and see the right product and its layer |
 | 15 | **What "閉域" (closed network) requires** | Treat "we use DX" as satisfying "no internet", forgetting AWS API calls, DNS, IGWs and console access | SIOS blog "AWSで「インターネットに出てはいけない」要件を解決する方法～PrivateLink対応～"; Classmethod endpoint/Resolver consolidation articles; Serverworks Resolver + DNS Firewall article | A checklist overlay on the big map: each item (circuit, encryption, DNS, endpoints, no IGW via Block Public Access, console access) turns green only when its layer is closed |
 
 ## Honorable mentions

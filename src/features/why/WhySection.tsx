@@ -3,7 +3,7 @@ import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { NAV } from "@/data/nav";
 import { Section, Sources, Toggle } from "@/components/ui";
-import { GAPS, openGaps, type Fixes, type Gap } from "./gaps";
+import { GAPS, LAYER_OF, layerState, openGaps, type Fixes, type Gap } from "./gaps";
 
 /** The five decisions every hybrid path stacks up (docs/01, docs/14). */
 const STACK: { name: L; ex: L }[] = [
@@ -55,8 +55,8 @@ const GAP: Record<Gap, { q: L; open: L; fix: L; to: string }> = {
       ja: "いいえ。社内 DNS がパブリック IP を返し、通信はインターネットへ出ていきます。",
     },
     fix: {
-      en: "Resolver inbound endpoint + conditional forwarder",
-      ja: "Resolver インバウンドエンドポイント + 条件付きフォワーダー",
+      en: "VPC Resolver inbound endpoint + conditional forwarder",
+      ja: "VPC Resolver のインバウンドエンドポイント + 条件付きフォワーダー",
     },
     to: "dns",
   },
@@ -172,7 +172,7 @@ const CONFUSIONS: { title: L; wrong: L; to: string }[] = [
     to: "vpn",
   },
   {
-    title: { en: "MTU and path MTU discovery", ja: "MTU とパス MTU 探索" },
+    title: { en: "MTU and path MTU discovery", ja: "MTU とパス MTU 検出 (PMTUD)" },
     wrong: {
       en: "Big packets vanish after failover from DX to VPN",
       ja: "DX から VPN へ切り替わると大きなパケットが消える",
@@ -196,7 +196,10 @@ const CONFUSIONS: { title: L; wrong: L; to: string }[] = [
     to: "plan",
   },
   {
-    title: { en: '"VPN" is three products', ja: "「VPN」は 3 つの製品" },
+    title: {
+      en: '"Remote access" is three products',
+      ja: "「リモートアクセス」は 3 つの製品",
+    },
     wrong: {
       en: "Mixing up Site-to-Site VPN, Client VPN and Verified Access",
       ja: "Site-to-Site VPN・Client VPN・Verified Access を混同する",
@@ -252,8 +255,8 @@ export function WhySection() {
       id="why"
       title={{ en: "Why this is hard", ja: "なぜ難しいのか" }}
       lead={{
-        en: 'One connection to AWS is really five decisions stacked on top of each other, and AWS gives similar things similar names: three "gateways", three kinds of virtual interface, three products called "VPN". Most mistakes are a right answer at one layer plus a wrong assumption at another.',
-        ja: "AWS への接続は 1 つに見えて、実は 5 つの判断の積み重ねです。しかも AWS は似たものに似た名前を付けます。「ゲートウェイ」が 3 つ、仮想インターフェイスが 3 種類、「VPN」という名の製品が 3 つ。ほとんどの失敗は、ある層では正解、別の層では思い込み、という組み合わせです。",
+        en: 'One connection to AWS is really five decisions stacked on top of each other, and AWS gives similar things similar names: three "gateways", three kinds of virtual interface, two products called "VPN". Most mistakes are a right answer at one layer plus a wrong assumption at another.',
+        ja: "AWS への接続は 1 つに見えて、実は 5 つの判断の積み重ねです。しかも AWS は似たものに似た名前を付けます。「ゲートウェイ」が 3 つ、仮想インターフェイスが 3 種類、「VPN」という名の製品が 2 つ。ほとんどの失敗は、ある層では正解、別の層では思い込み、という組み合わせです。",
       }}
     >
       {/* The five layers, stacked bottom-up: underlay first, the service on top. */}
@@ -264,22 +267,42 @@ export function WhySection() {
           ja: "ハイブリッド経路の 5 層",
         })}
       >
-        {STACK.map((s, i) => (
-          <li
-            key={i}
-            className="flex flex-wrap items-baseline gap-x-3 rounded-lg px-4 py-2.5 text-[var(--sign-ink)]"
-            style={{
-              background: "var(--asphalt)",
-              // Underlay at the bottom and widest; each layer above sits on it.
-              marginInline: `${i * 1.25}rem`,
-            }}
-          >
-            <span className="font-black">
-              {i + 1}. {t(s.name)}
-            </span>
-            <span className="text-sm opacity-80">{t(s.ex)}</span>
-          </li>
-        ))}
+        {STACK.map((s, i) => {
+          // The gap lab below lights up the layer each gap lives on.
+          const state = layerState(fixes, i + 1);
+          return (
+            <li
+              key={i}
+              className="flex flex-wrap items-center gap-x-3 rounded-lg px-4 py-2.5 text-[var(--on-hub)] transition-shadow"
+              style={{
+                background: "var(--hub)",
+                // Underlay at the bottom and widest; each layer above sits on it.
+                marginInline: `${i * 1.25}rem`,
+                boxShadow:
+                  state === "open"
+                    ? "inset 6px 0 0 var(--bad)"
+                    : state === "closed"
+                      ? "inset 6px 0 0 var(--ok)"
+                      : undefined,
+              }}
+            >
+              <span className="font-black">
+                {i + 1}. {t(s.name)}
+              </span>
+              <span className="text-sm">{t(s.ex)}</span>
+              {state && (
+                <span
+                  className="ml-auto rounded px-2 py-0.5 text-xs font-black text-[var(--on-color)]"
+                  style={{ background: state === "open" ? "var(--bad)" : "var(--ok)" }}
+                >
+                  {state === "open"
+                    ? t({ en: "✕ gap here", ja: "✕ 穴あり" })
+                    : t({ en: "✓ fixed", ja: "✓ 対策済み" })}
+                </span>
+              )}
+            </li>
+          );
+        })}
       </ol>
 
       <h3 className="mt-12 text-xl font-extrabold">
@@ -290,8 +313,8 @@ export function WhySection() {
       </h3>
       <p className="mt-2 max-w-3xl">
         {t({
-          en: "That one sentence hides four separate gaps, each at a different layer. Fixing one closes only that one. Switch the fixes on and watch which gaps stay open.",
-          ja: "この一文には、層の違う 4 つの穴が隠れています。1 つを塞いでも塞がるのはその 1 つだけ。対策をオンにして、どの穴が残るか見てください。",
+          en: "That one sentence hides four separate gaps on three different layers. Fixing one closes only that one. Switch the fixes on and watch the layers above light up.",
+          ja: "この一文には、3 つの層にまたがる 4 つの穴が隠れています。1 つを塞いでも塞がるのはその 1 つだけ。対策をオンにして、上の層の表示が変わるのを見てください。",
         })}
       </p>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -304,7 +327,12 @@ export function WhySection() {
               style={{ borderLeft: `6px solid ${isOpen ? "var(--bad)" : "var(--ok)"}` }}
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="font-bold">{t(GAP[g].q)}</p>
+                <p className="font-bold">
+                  <span className="mr-2 rounded bg-[var(--hub)] px-1.5 py-0.5 text-xs font-black whitespace-nowrap text-[var(--on-hub)]">
+                    {t({ en: `Layer ${LAYER_OF[g]}`, ja: `第 ${LAYER_OF[g]} 層` })}
+                  </span>
+                  {t(GAP[g].q)}
+                </p>
                 <span
                   className="shrink-0 rounded px-2 py-0.5 text-xs font-black text-[var(--on-color)]"
                   style={{ background: isOpen ? "var(--bad)" : "var(--ok)" }}
