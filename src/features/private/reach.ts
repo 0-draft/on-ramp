@@ -62,8 +62,8 @@ export function reach(client: Client, target: Target): Verdict {
         return {
           result: "partial",
           why: {
-            en: "The endpoint is one ENI per AZ with a private IP, so packets over DX or VPN get there. The catch is DNS: the private DNS records are visible only to that VPC's Resolver. Forward the service name to a Resolver inbound endpoint, or use the endpoint-specific vpce- name, or on-prem gets public IPs.",
-            ja: "エンドポイントは AZ ごとの ENI でプライベート IP を持つので、DX / VPN 越しにパケットは届きます。落とし穴は DNS: プライベート DNS のレコードはその VPC の Resolver にしか見えません。サービス名を Resolver インバウンドエンドポイントへ転送するか、エンドポイント固有の vpce- 名を使わないと、オンプレはパブリック IP を引きます。",
+            en: "The endpoint is one ENI per AZ with a private IP, so packets over DX or VPN get there. The catch is DNS: the private DNS records are visible only to that VPC's Resolver. Forward the service name to a VPC Resolver inbound endpoint, or use the endpoint-specific vpce- name, or on-prem gets public IPs.",
+            ja: "エンドポイントは AZ ごとの ENI でプライベート IP を持つので、DX / VPN 越しにパケットは届きます。落とし穴は DNS: プライベート DNS のレコードはその VPC の Resolver にしか見えません。サービス名を VPC Resolver のインバウンドエンドポイントへ転送するか、エンドポイント固有の vpce- 名を使わないと、オンプレはパブリック IP を引きます。",
           },
         };
       return {
@@ -79,8 +79,8 @@ export function reach(client: Client, target: Target): Verdict {
         return {
           result: "yes",
           why: {
-            en: "This is what the option is for. A query that arrives through a Resolver inbound endpoint gets the interface endpoint's private IPs, so on-prem traffic rides DX or VPN to the endpoint ($0.01/GB processing).",
-            ja: "まさにこのためのオプション。Resolver インバウンドエンドポイント経由で届いたクエリにはインターフェイスエンドポイントのプライベート IP が返るので、オンプレの通信は DX / VPN でエンドポイントへ ($0.01/GB の処理料金)。",
+            en: "This is what the option is for. A query that arrives through a VPC Resolver inbound endpoint gets the interface endpoint's private IPs, so on-prem traffic rides DX or VPN to the endpoint ($0.01/GB processing).",
+            ja: "まさにこのためのオプション。VPC Resolver のインバウンドエンドポイント経由で届いたクエリにはインターフェイスエンドポイントのプライベート IP が返るので、オンプレの通信は DX / VPN でエンドポイントへ ($0.01/GB の処理料金)。",
           },
         };
       if (client === "sameVpc")
@@ -94,8 +94,8 @@ export function reach(client: Client, target: Target): Verdict {
       return {
         result: "partial",
         why: {
-          en: "Packets can reach the endpoint IPs through a transit gateway, but the private DNS zone only applies to the endpoint's own VPC. Use the vpce- name or share the endpoint with Route 53 Profiles.",
-          ja: "Transit Gateway 経由でエンドポイント IP には届きますが、プライベート DNS のゾーンはエンドポイント自身の VPC にしか効きません。vpce- 名を使うか、Route 53 Profiles でエンドポイントを共有します。",
+          en: "Packets can reach the endpoint IPs through a transit gateway, but with 'private DNS only for inbound endpoint' queries from VPCs get S3's public IPs. A spoke should use its own free S3 gateway endpoint, or the vpce- name if it must use this endpoint.",
+          ja: "Transit Gateway 経由でエンドポイント IP には届きますが、「インバウンドエンドポイントのみプライベート DNS」では VPC からのクエリに S3 のパブリック IP が返ります。スポークは自前の無料ゲートウェイ型エンドポイントを使うか、どうしてもこのエンドポイントを使うなら vpce- 名を指定します。",
         },
       };
 

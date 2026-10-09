@@ -28,6 +28,14 @@ describe("reach", () => {
     expect(reach("sameVpc", "s3Inbound").why.en).toMatch(/gateway endpoint/);
   });
 
+  it("a spoke VPC gets S3 public IPs from an inbound-only endpoint and should use its own gateway endpoint", () => {
+    const v = reach("otherVpc", "s3Inbound");
+    expect(v.result).toBe("partial");
+    expect(v.why.en).toMatch(/public IPs/);
+    expect(v.why.en).toMatch(/own free S3 gateway endpoint/);
+    expect(v.why.en).not.toMatch(/Profiles/);
+  });
+
   it("Lattice VPC associations are link-local; service network endpoints are not", () => {
     expect(reach("onprem", "latticeAssoc").result).toBe("no");
     expect(reach("onprem", "latticeAssoc").why.en).toMatch(/169\.254\.171\.0\/24/);

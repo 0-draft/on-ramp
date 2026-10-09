@@ -1,7 +1,15 @@
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
-import { Callout, MetaphorLimit, Section, Sources, Spec } from "@/components/ui";
-import { ROUTE } from "@/data/routes";
+import {
+  Callout,
+  DataTable,
+  MetaphorLimit,
+  Section,
+  Sources,
+  Spec,
+  Traps,
+} from "@/components/ui";
+import { ReverseStrip } from "./ReverseStrip";
 import { ReachLab } from "./ReachLab";
 
 const WAYS: { way: L; talks: L; dns: L; cost: L }[] = [
@@ -14,7 +22,7 @@ const WAYS: { way: L; talks: L; dns: L; cost: L }[] = [
     dns: { en: "None", ja: "不要" },
     cost: {
       en: "Internet egress on the AWS side. Not private.",
-      ja: "AWS 側のインターネット転送料。閉域ではない。",
+      ja: "AWS 側のインターネット向けデータ転送料。閉域ではない。",
     },
   },
   {
@@ -34,14 +42,14 @@ const WAYS: { way: L; talks: L; dns: L; cost: L }[] = [
       en: "Interface endpoint (PrivateLink) over DX or VPN",
       ja: "DX / VPN の先のインターフェイスエンドポイント (PrivateLink)",
     },
-    talks: { en: "ENIs with your private IPs", ja: "自分のプライベート IP を持つ ENI" },
+    talks: { en: "ENIs with your private IPs", ja: "自社のプライベート IP を持つ ENI" },
     dns: {
-      en: "Inbound Resolver endpoint + forwarders, or vpce- names",
-      ja: "インバウンド Resolver エンドポイント + フォワーダー、または vpce- 名",
+      en: "VPC Resolver inbound endpoint + forwarders, or vpce- names",
+      ja: "VPC Resolver のインバウンドエンドポイント + フォワーダー、または vpce- 名",
     },
     cost: {
       en: "$0.014 per endpoint per AZ-hour + $0.01/GB (Tokyo)",
-      ja: "エンドポイント×AZ あたり $0.014/時 + $0.01/GB (東京)",
+      ja: "エンドポイントの AZ 1 時間 $0.014 + $0.01/GB (東京)",
     },
   },
   {
@@ -60,7 +68,6 @@ const WAYS: { way: L; talks: L; dns: L; cost: L }[] = [
 
 export function PrivateSection() {
   const { t } = useLang();
-  const color = ROUTE.private.color;
   return (
     <Section
       id="private"
@@ -70,7 +77,7 @@ export function PrivateSection() {
       }}
       lead={{
         en: "You have DX or a VPN into a VPC. Now an app on-prem wants S3, KMS or STS. What sits at the AWS end decides whether the request ever arrives, and one rule explains almost every case: from outside a VPC you can only reach an IP address that lives inside it.",
-        ja: "DX か VPN で VPC までつながった。次はオンプレのアプリが S3・KMS・STS を使いたい。届くかどうかは AWS 側の終点で決まり、ほぼすべてのケースは 1 つのルールで説明できます: VPC の外からは、VPC の中にある IP アドレスにしか届かない。",
+        ja: "DX か VPN で VPC までつながったとします。次にオンプレのアプリが S3・KMS・STS を使いたくなります。届くかどうかは AWS 側の終点で決まり、ほぼすべてのケースは 1 つのルールで説明できます: VPC の外からは、VPC の中にある IP アドレスにしか届きません。",
       }}
     >
       <div className="max-w-3xl space-y-3">
@@ -82,8 +89,8 @@ export function PrivateSection() {
         </p>
         <p>
           {t({
-            en: "Try the lab: pick who is asking and what they aim at, guess, then see the reason.",
-            ja: "ラボで試してみてください: 誰が、何を目指すかを選び、予想してから理由を確認。",
+            en: "Try the lab: pick who is asking and which endpoint they aim at, guess, then see the reason.",
+            ja: "ラボで試してみてください: 誰が、どのエンドポイント宛てに送るかを選び、予想してから理由を確認。",
           })}
         </p>
       </div>
@@ -98,36 +105,16 @@ export function PrivateSection() {
           ja: "オンプレから AWS API へ行く 4 つの方法",
         })}
       </h3>
-      <div className="mt-3 overflow-x-auto">
-        <table className="panel w-full min-w-[40rem] text-left text-sm">
-          <thead>
-            <tr className="border-b border-[var(--line)]">
-              <th className="p-3">{t({ en: "Option", ja: "方法" })}</th>
-              <th className="p-3">
-                {t({ en: "On-prem talks to", ja: "オンプレの通信先" })}
-              </th>
-              <th className="p-3">{t({ en: "DNS work", ja: "必要な DNS 作業" })}</th>
-              <th className="p-3">
-                {t({ en: "AWS charge, notes", ja: "AWS 料金・備考" })}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {WAYS.map((w, i) => (
-              <tr
-                key={i}
-                className="border-b border-[var(--line)] last:border-b-0 align-top"
-              >
-                <th scope="row" className="p-3 font-bold">
-                  {t(w.way)}
-                </th>
-                <td className="p-3">{t(w.talks)}</td>
-                <td className="p-3">{t(w.dns)}</td>
-                <td className="p-3">{t(w.cost)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-3">
+        <DataTable
+          columns={[
+            { en: "Option", ja: "方法" },
+            { en: "On-prem talks to", ja: "オンプレの通信先" },
+            { en: "DNS work", ja: "必要な DNS 作業" },
+            { en: "AWS charge, notes", ja: "AWS 料金・備考" },
+          ]}
+          rows={WAYS.map((w) => [t(w.way), t(w.talks), t(w.dns), t(w.cost)])}
+        />
       </div>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -165,9 +152,8 @@ export function PrivateSection() {
           k={{ en: "Bandwidth", ja: "帯域" }}
           v={{
             en: "10 Gbps per AZ, auto-scales to 100",
-            ja: "AZ あたり 10 Gbps、100 まで自動拡張",
+            ja: "AZ あたり 10 Gbps、100 Gbps まで自動拡張",
           }}
-          color={color}
         />
         <Spec
           k={{ en: "MTU", ja: "MTU" }}
@@ -175,27 +161,22 @@ export function PrivateSection() {
             en: "8,500 bytes; larger dropped, no PMTUD",
             ja: "8,500 バイト。超過は破棄、PMTUD なし",
           }}
-          color={color}
         />
         <Spec
           k={{ en: "Interface endpoints per VPC", ja: "VPC あたりの数" }}
           v={{ en: "50 (adjustable)", ja: "50 (引き上げ可)" }}
-          color={color}
         />
         <Spec
           k={{ en: "Endpoint policy", ja: "エンドポイントポリシー" }}
           v={{ en: "20,480 characters, fixed", ja: "20,480 文字 (固定)" }}
-          color={color}
         />
         <Spec
           k={{ en: "DynamoDB endpoint", ja: "DynamoDB エンドポイント" }}
           v={{ en: "50,000 requests/s", ja: "50,000 リクエスト/秒" }}
-          color={color}
         />
         <Spec
           k={{ en: "Price (Tokyo)", ja: "料金 (東京)" }}
-          v={{ en: "$0.014/AZ-hour + $0.01/GB", ja: "$0.014/AZ・時 + $0.01/GB" }}
-          color={color}
+          v={{ en: "$0.014/AZ-hour + $0.01/GB", ja: "AZ 1 時間 $0.014 + $0.01/GB" }}
         />
       </dl>
       <p className="mt-3 max-w-3xl text-sm text-[var(--muted)]">
@@ -205,7 +186,7 @@ export function PrivateSection() {
         })}
       </p>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-2">
+      <div className="mt-12 flex flex-col gap-10">
         <div>
           <h3 className="text-xl font-extrabold">
             {t({ en: "Across Regions", ja: "リージョンをまたぐ" })}
@@ -238,78 +219,42 @@ export function PrivateSection() {
               ja: "逆方向: AWS からオンプレへ",
             })}
           </h3>
-          <ol
-            className="mt-3 flex flex-col gap-2"
-            aria-label={t({ en: "Hops", ja: "経由地" })}
-          >
-            {[
-              {
-                en: "App in a consumer VPC or account",
-                ja: "利用側 VPC / アカウントのアプリ",
-              },
-              {
-                en: "Its own interface endpoint",
-                ja: "自分のインターフェイスエンドポイント",
-              },
-              {
-                en: "Provider NLB, target type ip",
-                ja: "提供側 NLB (ターゲットタイプ ip)",
-              },
-              { en: "DX or VPN", ja: "DX または VPN" },
-              {
-                en: "On-prem service 10.20.5.10:443",
-                ja: "オンプレのサービス 10.20.5.10:443",
-              },
-            ].map((h, i) => (
-              <li key={i} className="flex items-center gap-3">
-                <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-[var(--on-color)]"
-                  style={{ background: color }}
-                >
-                  {i + 1}
-                </span>
-                <span className="font-semibold">{t(h)}</span>
-              </li>
-            ))}
-          </ol>
+          <ReverseStrip />
           <p className="mt-3 text-sm">
             {t({
               en: "NLB targets outside the VPC must be IPs in 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 or 100.64.0.0/10. The consumer only sees its own endpoint IPs, so overlapping CIDRs with on-prem do not matter. Since December 2024 a Lattice resource gateway with a resource configuration can point at an on-prem IP or DNS name without an NLB, and PrivateLink tunnel endpoints (2026-09-18) extend that to a whole CIDR.",
-              ja: "VPC 外の NLB ターゲットは 10.0.0.0/8・172.16.0.0/12・192.168.0.0/16・100.64.0.0/10 の IP であること。利用側には自分のエンドポイント IP しか見えないので、オンプレと CIDR が重複していても問題なし。2024 年 12 月からは Lattice のリソースゲートウェイ + リソース設定で NLB なしにオンプレの IP / DNS 名を指せ、PrivateLink トンネルエンドポイント (2026-09-18) で CIDR 全体に広がりました。",
+              ja: "VPC 外の NLB ターゲットは 10.0.0.0/8・172.16.0.0/12・192.168.0.0/16・100.64.0.0/10 の IP であること。利用側には自分のエンドポイント IP しか見えないので、オンプレと CIDR が重複していても問題なし。2024 年 12 月からは Lattice のリソースゲートウェイ + リソース設定で NLB なしにオンプレの IP / DNS 名を指せ、PrivateLink トンネルエンドポイント (2026-09-18) で CIDR 全体を対象にできるようになりました。",
             })}
           </p>
         </div>
       </div>
 
-      <h3 className="mt-12 text-xl font-extrabold">
-        {t({ en: "Common traps", ja: "よくある落とし穴" })}
-      </h3>
-      <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5">
-        {[
-          {
-            en: "Creating an S3 gateway endpoint and expecting on-prem to use it over DX. There is no IP to send to.",
-            ja: "S3 のゲートウェイ型エンドポイントを作り、DX 越しにオンプレから使えると思う。送り先の IP がありません。",
-          },
-          {
-            en: "Private DNS works in the VPC but on-prem still resolves public IPs. Forward the specific service names to an inbound Resolver endpoint (see the next exit).",
-            ja: "VPC 内ではプライベート DNS が効くのに、オンプレはパブリック IP を引く。特定のサービス名をインバウンド Resolver エンドポイントへ転送する (次の出口)。",
-          },
-          {
-            en: "Forwarding all of amazonaws.com to AWS. It works, but every AWS name on-prem then depends on the inbound endpoint and its 10,000 queries/s per ENI.",
-            ja: "amazonaws.com を丸ごと AWS へ転送する。動きはするが、オンプレの全 AWS 名がインバウンドエンドポイント (ENI あたり 10,000 クエリ/秒) 頼みになる。",
-          },
-          {
-            en: "Using a Lattice VPC association for on-prem clients. Use a service network endpoint.",
-            ja: "オンプレ向けに Lattice の VPC 関連付けを使う。サービスネットワークエンドポイントを使うこと。",
-          },
-          {
-            en: "A bucket policy with an aws:SourceVpce deny also blocks the console and anyone not going through that endpoint.",
-            ja: "aws:SourceVpce で Deny するバケットポリシーは、コンソールやそのエンドポイントを通らない全員も締め出す。",
-          },
-        ].map((x, i) => (
-          <li key={i}>{t(x)}</li>
-        ))}
-      </ul>
+      <div className="mt-12 max-w-3xl">
+        <Traps
+          items={[
+            {
+              en: "Creating an S3 gateway endpoint and expecting on-prem to use it over DX. There is no IP to send to.",
+              ja: "S3 のゲートウェイ型エンドポイントを作り、DX 越しにオンプレから使えると思う。送り先の IP がありません。",
+            },
+            {
+              en: "Private DNS works in the VPC but on-prem still resolves public IPs. Forward the specific service names to a VPC Resolver inbound endpoint (see the next exit).",
+              ja: "VPC 内ではプライベート DNS が効くのに、オンプレはパブリック IP を引く。特定のサービス名を VPC Resolver のインバウンドエンドポイントへ転送する (次の出口)。",
+            },
+            {
+              en: "Forwarding all of amazonaws.com to AWS. It works, but every AWS name on-prem then depends on the inbound endpoint and its limit of 10,000 UDP queries/s per IP.",
+              ja: "amazonaws.com を丸ごと AWS へ転送する。動きはするが、オンプレの全 AWS 名がインバウンドエンドポイント (IP あたり 10,000 UDP クエリ/秒) 頼みになる。",
+            },
+            {
+              en: "Using a Lattice VPC association for on-prem clients. Use a service network endpoint.",
+              ja: "オンプレ向けに Lattice の VPC 関連付けを使う。サービスネットワークエンドポイントを使うこと。",
+            },
+            {
+              en: "A bucket policy with an aws:SourceVpce deny also blocks the console and anyone not going through that endpoint.",
+              ja: "aws:SourceVpce で Deny するバケットポリシーは、コンソールやそのエンドポイントを通らない全員も締め出す。",
+            },
+          ]}
+        />
+      </div>
 
       <MetaphorLimit>
         {t({

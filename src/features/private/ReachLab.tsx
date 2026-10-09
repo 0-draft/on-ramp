@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { useNarrow } from "@/hooks/useNarrow";
-import { Segmented } from "@/components/ui";
+import { DataTable, Segmented } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
 import { ROUTE } from "@/data/routes";
 import { reach, type Client, type Result, type Target } from "./reach";
@@ -43,7 +43,7 @@ const TARGETS: TargetInfo[] = [
     id: "s3Inbound",
     label: {
       en: "S3 interface, inbound-only DNS",
-      ja: "S3 インターフェイス型 (受信のみ DNS)",
+      ja: "S3 インターフェイス型 (DNS はインバウンドのみ)",
     },
     title: { en: "S3 interface endpoint", ja: "S3 インターフェイス型" },
     sub: { en: "private DNS: inbound only", ja: "DNS はインバウンドのみ" },
@@ -54,7 +54,7 @@ const TARGETS: TargetInfo[] = [
     label: { en: "DX public VIF", ja: "DX パブリック VIF" },
     title: { en: "Public VIF", ja: "パブリック VIF" },
     sub: { en: "AWS public prefixes", ja: "AWS のパブリック経路" },
-    service: { en: "AWS public endpoints", ja: "AWS パブリック EP" },
+    service: { en: "AWS public endpoints", ja: "AWS のパブリック API" },
   },
   {
     id: "latticeAssoc",
@@ -65,7 +65,7 @@ const TARGETS: TargetInfo[] = [
   },
   {
     id: "latticeEndpoint",
-    label: { en: "Service network endpoint", ja: "サービスネットワーク EP" },
+    label: { en: "Service network endpoint", ja: "サービスネットワークエンドポイント" },
     title: { en: "Service network", ja: "サービスネットワーク" },
     sub: { en: "endpoint, real VPC IPs", ja: "エンドポイント (VPC の IP)" },
     service: { en: "Lattice service", ja: "Lattice サービス" },
@@ -226,7 +226,7 @@ export function ReachLab() {
           </div>
           <div>
             <p className="mb-1 text-sm font-semibold text-[var(--muted)]">
-              {t({ en: "What it aims at", ja: "何を通って" })}
+              {t({ en: "Which endpoint it aims at", ja: "どのエンドポイント宛てか" })}
             </p>
             <Segmented
               label={{ en: "Endpoint type", ja: "エンドポイントの種類" }}
@@ -237,10 +237,42 @@ export function ReachLab() {
             />
           </div>
         </div>
+      </div>
 
+      {/* Predict sits between the controls and the diagram: guess first, then
+          the diagram shows what happens. Option buttons reveal; "Try again"
+          hides. */}
+      <div
+        onClick={(e) => {
+          const btn = (e.target as HTMLElement).closest("button");
+          if (!btn || btn.getAttribute("aria-disabled") === "true") return;
+          setRevealedFor(btn.hasAttribute("aria-pressed") ? key : null);
+        }}
+      >
+        <Predict
+          resetKey={key}
+          question={{
+            en: "Can this request reach the service through this endpoint?",
+            ja: "このリクエストはこのエンドポイント経由でサービスに届く?",
+          }}
+          options={OPTIONS}
+          answer={v.result}
+          why={<p>{t(v.why)}</p>}
+        />
+      </div>
+
+      <div className="panel p-4 sm:p-5">
+        {!shown && (
+          <p className="mb-2 text-sm font-semibold text-[var(--muted)]">
+            {t({
+              en: "Answer above to see the path light up.",
+              ja: "上で答えると経路が色付きで表示されます。",
+            })}
+          </p>
+        )}
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="diagram mt-5 block h-auto w-full"
+          className="diagram block h-auto w-full"
           role="img"
           aria-label={`${t(CLIENTS.find((x) => x.id === client)!.label)} → ${t(info.label)} → ${t(info.service)}`}
         >
@@ -342,72 +374,35 @@ export function ReachLab() {
         </p>
       </div>
 
-      {/* Predict owns the question; the diagram mirrors it. Before the answer
-          only the option buttons are enabled, after it only "Try again". */}
-      <div
-        onClick={(e) => {
-          if (!(e.target as HTMLElement).closest("button")) return;
-          setRevealedFor(shown ? null : key);
-        }}
-      >
-        <Predict
-          resetKey={key}
-          question={{
-            en: "Can this request reach the service through this endpoint?",
-            ja: "このリクエストはこのエンドポイント経由でサービスに届く?",
-          }}
-          options={OPTIONS}
-          answer={v.result}
-          why={<p>{t(v.why)}</p>}
-        />
-      </div>
-
       <details className="panel p-4">
         <summary className="cursor-pointer font-bold">
           {t({ en: "Show the whole answer grid", ja: "全組み合わせの答えを見る" })}
         </summary>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-[34rem] text-left text-sm">
-            <thead>
-              <tr className="border-b border-[var(--line)]">
-                <th className="py-2 pr-3 font-semibold">
-                  {t({ en: "Endpoint", ja: "エンドポイント" })}
-                </th>
-                {CLIENTS.map((cl) => (
-                  <th key={cl.id} className="py-2 pr-3 font-semibold">
-                    {t(cl.label)}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {TARGETS.map((tgt) => (
-                <tr
-                  key={tgt.id}
-                  className="border-b border-[var(--line)] last:border-b-0"
-                >
-                  <th scope="row" className="py-2 pr-3 font-semibold">
-                    {t(tgt.label)}
-                  </th>
-                  {CLIENTS.map((cl) => {
-                    const r = reach(cl.id, tgt.id).result;
-                    return (
-                      <td key={cl.id} className="py-2 pr-3">
-                        <span
-                          className="font-black"
-                          style={{ color: MARK[r].color }}
-                          aria-hidden="true"
-                        >
-                          {MARK[r].sym}
-                        </span>{" "}
-                        {t(OPTIONS.find((o) => o.id === r)!.label)}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="mt-3">
+          <DataTable
+            columns={[
+              { en: "Endpoint", ja: "エンドポイント" },
+              ...CLIENTS.map((cl) => cl.label),
+            ]}
+            rows={TARGETS.map((tgt) => [
+              t(tgt.label),
+              ...CLIENTS.map((cl) => {
+                const r = reach(cl.id, tgt.id).result;
+                return (
+                  <span key={cl.id}>
+                    <span
+                      className="font-black"
+                      style={{ color: MARK[r].color }}
+                      aria-hidden="true"
+                    >
+                      {MARK[r].sym}
+                    </span>{" "}
+                    {t(OPTIONS.find((o) => o.id === r)!.label)}
+                  </span>
+                );
+              }),
+            ])}
+          />
         </div>
       </details>
     </div>

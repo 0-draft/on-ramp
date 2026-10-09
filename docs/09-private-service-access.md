@@ -166,6 +166,7 @@ Worked example: an S3 interface endpoint in 2 AZs in Tokyo with 5 TB/month from 
 - **Forwarding all of `amazonaws.com` to AWS**: works, but every AWS name on-prem becomes dependent on the inbound endpoint and its 10,000 QPS per ENI; forward only the service names you have endpoints for (for example `s3.ap-northeast-1.amazonaws.com`).
 - **DynamoDB private hosted zone override**: explicitly unsupported; use the endpoint URL.
 - **S3 "inbound only" without a gateway endpoint**: the API refuses it; without the gateway endpoint in-VPC traffic would otherwise pay endpoint processing.
+- **S3 "inbound only" endpoint from spoke VPCs**: with `PrivateDnsOnlyForInboundResolverEndpoint` on, queries from VPCs resolve S3 to public IPs, so sharing the zone (for example through a Route 53 Profile) most likely still gives spokes public IPs. Give each spoke its own free S3 gateway endpoint, or have it call the endpoint-specific `vpce-` name. (Inference: no AWS page documents Profiles combined with this flag.)
 - **Centralized endpoints in a hub VPC**: spokes and on-prem reach them via TGW, but private DNS PHZs only apply to the hub VPC; share them with Route 53 Profiles (interface endpoint association since 2025-04-28) or self-managed PHZs.
 - **Lattice association vs endpoint**: a VPC association uses link-local addresses that on-prem can never reach; use a service network endpoint.
 - **Cross-Region endpoint in `apne1-az3`**: not supported in that AZ ID.
