@@ -1,4 +1,4 @@
-# 16. Glossary
+# Glossary
 
 This glossary covers about 60 terms used across the research set. Each entry gives the English name, the Japanese name used in AWS documentation or the console, a one-line definition, and the term it is most often confused with. Verified as of 2026-10-10. Japanese names marked **✓** were checked against the `docs.aws.amazon.com/ja_jp/` page listed under Sources. Note that AWS marks those pages as machine-translated and says the English version takes precedence. Names marked **–** were not found on a Japanese AWS page during this research. For those, the column shows the commonly used katakana or keeps the English, and the site should show it as unverified.
 

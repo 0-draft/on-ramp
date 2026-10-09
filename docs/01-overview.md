@@ -1,4 +1,4 @@
-# 01. The map: every path from a corporate network to AWS
+# The map: every path from a corporate network to AWS
 
 This page is the index for the whole research set. It sorts every way a corporate network (head office, branch, factory, data center, colocation cage, or a person working from home) can reach AWS. It sorts them two ways: by network layer and by who is connecting. It then compares every path side by side. Each path has its own deep-dive page; this page only gives the overview and the comparison. Facts are verified as of 2026-10-10 against AWS documentation, What's New posts, SLA pages and AWS blogs listed under Sources. Where a number is a quota or list price, check the linked page before relying on it, because AWS changes these often (four of the numbers on this page changed between November 2025 and September 2026).
 

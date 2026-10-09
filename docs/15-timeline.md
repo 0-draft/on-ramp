@@ -1,4 +1,4 @@
-# 15. Timeline of AWS hybrid networking, 2009–2026
+# Timeline of AWS hybrid networking, 2009–2026
 
 This page lists the launches that changed how a corporate network can reach AWS. It starts with Amazon VPC and its IPsec VPN in 2009 and runs through the 2025–2026 wave (large VPN tunnels, VPN Concentrator, AWS Interconnect, Client VPN on Transit Gateway, Direct Connect flat-rate pricing). Verified as of 2026-10-10. Each entry links to the AWS What's New post or, where that post could not be found, to the AWS blog or doc that records the date. Dates are the posted date when it was confirmed. `YYYY-MM` means only the month was confirmed (from the What's New URL path). Regional expansions are left out unless they changed what was possible.
 

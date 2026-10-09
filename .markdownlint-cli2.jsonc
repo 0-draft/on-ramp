@@ -9,5 +9,5 @@
     "MD041": false,
   },
   "globs": ["**/*.md"],
-  "ignores": ["node_modules/**", "dist/**", "coverage/**"],
+  "ignores": ["node_modules/**", "dist/**", "coverage/**", "test-results/**", "playwright-report/**", ".playwright-mcp/**"],
 }

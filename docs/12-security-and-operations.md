@@ -1,4 +1,4 @@
-# 12. Security, operations and cost across all paths
+# Security, operations and cost across all paths
 
 This page cuts across every on-premises-to-AWS path in this repo and compares them on five axes: encryption, overlapping address space, IPv6, MTU/MSS, observability, and data-transfer cost (with ap-northeast-1 Tokyo prices and a worked 10 TB/month example). Behaviors come from AWS documentation, What's New posts and blogs; prices come from the AWS Price List API offer files for ap-northeast-1 published in September–October 2026. Verified as of 2026-10-10.
 

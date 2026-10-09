@@ -1,4 +1,4 @@
-# 14. Why hybrid networking is hard
+# Why hybrid networking is hard
 
 This page collects the places where people actually get confused when they connect a corporate network to AWS. Each point comes with evidence: an AWS re:Post Knowledge Center article, an AWS documentation rule that exists *because* people trip on it, or Japanese community material (Qiita, DevelopersIO / Classmethod, Serverworks, AWS Japan Black Belt, AWS Japan blog). Each point also gets a proposed visual or interactive fix for the explainer site. Verified as of 2026-10-10. The ranking is an editorial judgment that weighs how often the topic shows up in Knowledge Center and community articles against how badly a mistake hurts (outage, data exposure, or a redesign). It is not a measured statistic.
 

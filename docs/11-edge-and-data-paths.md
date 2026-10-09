@@ -1,4 +1,4 @@
-# 11. Edge and data-movement paths
+# Edge and data-movement paths
 
 This page covers the on-premises-to-AWS paths that are not "a link from your router to a Region": AWS hardware inside your building (Outposts), AWS infrastructure in your metro (Local Zones, Dedicated Local Zones, Wavelength), the bulk-data services whose whole job is moving bytes between on-premises storage and AWS (DataSync, Storage Gateway, Transfer Family, Snowball, Data Transfer Terminal), and the 2025–2026 "AWS Interconnect" family (multicloud and last mile). Everything here was checked against AWS documentation, What's New posts, blogs and the AWS Price List API, verified as of 2026-10-10.
 

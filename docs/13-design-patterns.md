@@ -1,4 +1,4 @@
-# 13. Design patterns and decision tree
+# Design patterns and decision tree
 
 This page turns the path catalogue in [01-overview](01-overview.md) into reference architectures. It covers seven patterns: a small office, multi-VPC with Direct Connect and a VPN backup, multi-Region, SD-WAN, a Japan-style regulated "closed network only" (閉域) design, remote workforce, and M&A with overlapping CIDRs. A decision tree picks between them, a list of anti-patterns follows, and each pattern is mapped to AWS Well-Architected guidance and the Direct Connect resiliency models. Verified as of 2026-10-10. The decision tree is written as explicit rules so the explainer site can code it directly.
 

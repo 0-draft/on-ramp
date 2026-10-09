@@ -1,4 +1,4 @@
-# 10. Hybrid DNS: Route 53 VPC Resolver, endpoints, rules and Profiles
+# Hybrid DNS: Route 53 VPC Resolver, endpoints, rules and Profiles
 
 A private path is useless if the name resolves to the wrong address: an on-prem host that resolves `s3.ap-northeast-1.amazonaws.com` to a public IP will ignore your interface endpoint, and an EC2 instance that cannot resolve `corp.example.com` will never use your Direct Connect. This page covers Route 53 VPC Resolver (renamed from "Route 53 Resolver" in November 2025), inbound and outbound Resolver endpoints, forwarding/system/delegation rules, sharing via AWS RAM and Route 53 Profiles, private hosted zones, DNS Firewall, query logging, Resolver on Outposts, DNS over HTTPS, and the newer Global Resolver. Verified as of 2026-10-10 against Route 53 documentation, What's New posts, AWS blogs and the AWS Price List API. Prices are USD for Asia Pacific (Tokyo) unless stated.
 

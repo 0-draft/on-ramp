@@ -1,4 +1,4 @@
-# 09. Private access to AWS services and SaaS from on-premises
+# Private access to AWS services and SaaS from on-premises
 
 This page covers how a corporate network (data center, office, branch) reaches AWS *service APIs* (S3, DynamoDB, KMS, ECR, STS, ...) and third-party SaaS without the public internet, and the reverse: how AWS workloads reach on-premises services privately. It assumes you already have a Direct Connect (DX) or Site-to-Site VPN path into a VPC (see the earlier pages); here the question is what sits at the AWS end of that path and how the names resolve to it. Verified as of 2026-10-10 against AWS documentation, What's New posts, the AWS Price List API and AWS blogs. Prices are USD for Asia Pacific (Tokyo, `ap-northeast-1`) unless stated.
 
