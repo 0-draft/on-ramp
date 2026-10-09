@@ -27,37 +27,59 @@ export function Section({
   children: ReactNode;
 }) {
   const { t } = useLang();
-  const exit = NAV.findIndex((n) => n.id === id) + 1;
+  const i = NAV.findIndex((n) => n.id === id);
+  const exit = i + 1;
+  const next = NAV[i + 1];
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className="py-14 sm:py-20">
+    <section id={id} aria-labelledby={`${id}-title`} className="pt-12 pb-4 sm:pt-16">
       <div className="sign inline-flex max-w-full items-stretch overflow-hidden">
-        <span className="flex items-center bg-[var(--sign-ink)] px-3 py-2 text-sm font-black text-[var(--sign)] [border-radius:7px_0_0_7px] m-[5px] mr-0 sm:px-4 sm:text-base">
+        <span className="m-[5px] mr-0 flex shrink-0 items-center whitespace-nowrap bg-[var(--sign-ink)] px-3 py-2 text-sm font-black text-[var(--sign)] [border-radius:7px_0_0_7px] sm:px-4 sm:text-base">
           <span className="sr-only">{t({ en: "Exit", ja: "出口" })} </span>
           <span aria-hidden="true">{t({ en: "EXIT", ja: "出口" })}&nbsp;</span>
           {exit}
         </span>
         <h2
           id={`${id}-title`}
-          className="px-4 py-3 text-2xl font-extrabold tracking-tight sm:px-5 sm:text-3xl"
+          className="px-4 py-3 text-xl font-extrabold tracking-tight sm:px-5 sm:text-3xl"
         >
           {t(title)}
         </h2>
       </div>
       <p className="mt-5 max-w-3xl text-lg text-[var(--muted)]">{t(lead)}</p>
       <div className="mt-8">{children}</div>
+      {next && (
+        // An advance sign for the next exit, so the page reads as one drive.
+        <a
+          href={`#${next.id}`}
+          className="mt-10 ml-auto flex w-fit items-center gap-3 rounded-lg border-2 border-[var(--sign)] px-3 py-2 text-sm font-bold text-[var(--ink)] hover:bg-[var(--paper)]"
+        >
+          <span className="text-[var(--muted)]">
+            {t({ en: "Next exit", ja: "次の出口" })}
+          </span>
+          <span className="whitespace-nowrap rounded bg-[var(--sign)] px-2 py-0.5 text-[var(--sign-ink)]">
+            {exit + 1}
+          </span>
+          {t(next.label)}
+          <span aria-hidden="true">↓</span>
+        </a>
+      )}
     </section>
   );
 }
 
+/**
+ * Callout meaning is fixed site-wide: info is a neutral note, warn is a
+ * caveat or something new, bad is a trap that bites, ok is a confirmed fix.
+ */
 export type Tone = "info" | "warn" | "bad" | "ok";
 const TONE: Record<Tone, string> = {
-  info: "var(--r-vpn)",
+  info: "var(--asphalt-2)",
   warn: "var(--lane)",
   bad: "var(--bad)",
   ok: "var(--ok)",
 };
 
-/** A roadside notice. Yellow-and-black for traps, like a real warning sign. */
+/** A roadside notice. */
 export function Callout({
   tone = "info",
   title,
@@ -115,16 +137,23 @@ export interface SegOption<K extends string> {
  */
 export function Segmented<K extends string>({
   label,
+  labelledBy,
   options,
   value,
   onChange,
-  color = "var(--sign)",
+  color = "var(--ink)",
+  renderLabel,
 }: {
   label: L;
+  /** Id of a visible question that names the group; overrides `label`. */
+  labelledBy?: string;
   options: SegOption<K>[];
   value: K;
   onChange: (k: K) => void;
+  /** Fill of the selected option. Ink by default; a route colour in that route's section. */
   color?: string;
+  /** Custom option content (e.g. a shield plus a name). */
+  renderLabel?: (o: SegOption<K>, on: boolean) => ReactNode;
 }) {
   const { t } = useLang();
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -144,7 +173,8 @@ export function Segmented<K extends string>({
   return (
     <div
       role="radiogroup"
-      aria-label={t(label)}
+      aria-label={labelledBy ? undefined : t(label)}
+      aria-labelledby={labelledBy}
       className="inline-flex max-w-full flex-wrap gap-1 rounded-xl border border-[var(--line)] bg-[var(--paper-2)] p-1"
     >
       {options.map((o, i) => {
@@ -161,19 +191,18 @@ export function Segmented<K extends string>({
             tabIndex={on ? 0 : -1}
             onClick={() => onChange(o.id)}
             onKeyDown={(e) => onKey(e, i)}
-            className="rounded-lg px-3 py-1.5 text-sm font-bold transition-colors"
+            className="min-h-9 rounded-lg px-3 py-1.5 text-sm font-bold transition-colors"
             style={
               on
                 ? {
                     background: color,
-                    // White on sign green in both themes; route colours flip.
-                    color:
-                      color === "var(--sign)" ? "var(--sign-ink)" : "var(--on-color)",
+                    // Ink flips to paper; route colours flip via --on-color.
+                    color: color === "var(--ink)" ? "var(--paper)" : "var(--on-color)",
                   }
                 : { color: "var(--muted)" }
             }
           >
-            {t(o.label)}
+            {renderLabel ? renderLabel(o, on) : t(o.label)}
           </button>
         );
       })}
@@ -204,8 +233,8 @@ export function Toggle({
         role="switch"
         aria-checked={checked}
         onClick={() => onChange(!checked)}
-        className="relative h-6 w-11 shrink-0 rounded-full transition-colors"
-        style={{ background: checked ? "var(--sign)" : "var(--asphalt-2)" }}
+        className="relative h-6 w-11 shrink-0 rounded-full transition-colors before:absolute before:-inset-2.5 before:content-['']"
+        style={{ background: checked ? "var(--ok)" : "var(--asphalt-2)" }}
       >
         <span
           className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform"
@@ -287,5 +316,99 @@ export function MetaphorLimit({ children }: { children: ReactNode }) {
         <div className="mt-0.5 text-[var(--muted)]">{children}</div>
       </div>
     </aside>
+  );
+}
+
+/**
+ * The one table style on the site. On phones each row becomes a stacked card
+ * (column name above each value) instead of a table you scroll sideways.
+ */
+export function DataTable({
+  caption,
+  columns,
+  rows,
+}: {
+  caption?: L;
+  columns: L[];
+  rows: ReactNode[][];
+}) {
+  const { t } = useLang();
+  return (
+    <div>
+      {caption && <p className="mb-2 font-bold">{t(caption)}</p>}
+      <div className="panel hidden overflow-x-auto sm:block">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b-2 border-[var(--line)] bg-[var(--paper-2)]">
+              {columns.map((c, i) => (
+                <th key={i} scope="col" className="px-3 py-2 font-bold">
+                  {t(c)}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr
+                key={i}
+                className="border-t border-[var(--line)] align-top first:border-t-0"
+              >
+                {r.map((cell, j) =>
+                  j === 0 ? (
+                    <th key={j} scope="row" className="px-3 py-2 font-bold">
+                      {cell}
+                    </th>
+                  ) : (
+                    <td key={j} className="px-3 py-2">
+                      {cell}
+                    </td>
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <ul className="flex flex-col gap-2 sm:hidden">
+        {rows.map((r, i) => (
+          <li key={i} className="panel p-3 text-sm">
+            <p className="font-bold">{r[0]}</p>
+            <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+              {r.slice(1).map((cell, j) => (
+                <div key={j} className="contents">
+                  <dt className="text-xs font-semibold text-[var(--muted)]">
+                    {t(columns[j + 1])}
+                  </dt>
+                  <dd>{cell}</dd>
+                </div>
+              ))}
+            </dl>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/** The one "common traps" style on the site: warning-sign bullets. */
+export function Traps({ title, items }: { title?: L; items: L[] }) {
+  const { t } = useLang();
+  return (
+    <div className="panel border-l-[6px] border-l-[var(--bad)] px-4 py-3">
+      <p className="font-bold">
+        {t(title ?? { en: "Common traps", ja: "よくある落とし穴" })}
+      </p>
+      <ul className="mt-2 flex flex-col gap-2 text-[0.95rem]">
+        {items.map((it, i) => (
+          <li key={i} className="flex gap-2">
+            <span
+              aria-hidden="true"
+              className="mt-1 inline-block h-3.5 w-3.5 shrink-0 rotate-45 rounded-[2px] border-2 border-black bg-[var(--lane)]"
+            />
+            <span>{t(it)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

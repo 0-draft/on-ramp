@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { ReactNode } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
@@ -22,6 +22,7 @@ export function Predict({
   resetKey?: string;
 }) {
   const { t } = useLang();
+  const result = useRef<HTMLDivElement>(null);
   const [pick, setPick] = useState<{ key?: string; id: string } | null>(null);
   const picked = pick && pick.key === resetKey ? pick.id : null;
   const right = picked === answer;
@@ -42,9 +43,16 @@ export function Predict({
             <button
               key={o.id}
               type="button"
-              disabled={picked !== null}
-              onClick={() => setPick({ key: resetKey, id: o.id })}
-              className="rounded-lg border-2 px-3 py-1.5 text-sm font-bold disabled:cursor-default"
+              aria-disabled={picked !== null}
+              aria-pressed={picked === o.id}
+              onClick={() => {
+                if (picked !== null) return;
+                setPick({ key: resetKey, id: o.id });
+                // Move focus to the explanation so keyboard and screen-reader
+                // users land on the answer.
+                requestAnimationFrame(() => result.current?.focus());
+              }}
+              className="min-h-10 rounded-lg border-2 px-3 py-1.5 text-sm font-bold aria-disabled:cursor-default"
               style={{
                 borderColor:
                   state === "answer"
@@ -61,23 +69,34 @@ export function Predict({
           );
         })}
       </div>
-      {picked !== null && (
-        <div className="mt-3" aria-live="polite">
-          <p className="font-bold" style={{ color: right ? "var(--ok)" : "var(--bad)" }}>
-            {right
-              ? t({ en: "Right.", ja: "正解。" })
-              : t({ en: "Not quite.", ja: "残念。" })}
-          </p>
-          <div className="mt-1">{why}</div>
-          <button
-            type="button"
-            onClick={() => setPick(null)}
-            className="mt-2 text-sm font-semibold underline"
-          >
-            {t({ en: "Try again", ja: "もう一度" })}
-          </button>
-        </div>
-      )}
+      {/* The live region stays mounted; only its content changes. */}
+      <div ref={result} tabIndex={-1} className="outline-none" aria-live="polite">
+        {picked !== null && (
+          <div className="mt-3">
+            <p
+              className="font-bold"
+              style={{ color: right ? "var(--ok)" : "var(--bad)" }}
+            >
+              {right
+                ? t({ en: "Right.", ja: "正解。" })
+                : t({ en: "Not quite.", ja: "残念。" })}
+            </p>
+            <div className="mt-1">{why}</div>
+            <button
+              type="button"
+              onClick={() => {
+                setPick(null);
+                requestAnimationFrame(() =>
+                  result.current?.parentElement?.querySelector("button")?.focus(),
+                );
+              }}
+              className="mt-2 text-sm font-semibold underline"
+            >
+              {t({ en: "Try again", ja: "もう一度" })}
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

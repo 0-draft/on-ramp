@@ -38,16 +38,17 @@ export function Stepper({
       <div className="mt-3 flex flex-wrap items-center gap-3">
         <button
           type="button"
+          // aria-disabled rather than disabled, so focus never drops to <body>.
           onClick={() => go(index - 1)}
-          disabled={index === 0}
-          className="rounded-lg border border-[var(--line)] px-3 py-1.5 text-sm font-bold disabled:opacity-40"
+          aria-disabled={index === 0}
+          className="min-h-10 rounded-lg border border-[var(--line)] px-4 py-1.5 text-sm font-bold aria-disabled:opacity-40"
         >
           {t({ en: "Back", ja: "戻る" })}
         </button>
         <button
           type="button"
           onClick={() => go(index === last ? 0 : index + 1)}
-          className="rounded-lg px-3 py-1.5 text-sm font-bold text-[var(--on-color)]"
+          className="min-h-10 rounded-lg px-4 py-1.5 text-sm font-bold text-[var(--on-color)]"
           style={{ background: color }}
         >
           {index === last
