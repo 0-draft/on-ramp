@@ -16,7 +16,7 @@ export interface Launch {
 const W = "https://aws.amazon.com/about-aws/whats-new/";
 
 /** docs/15-timeline.md, in date order. */
-export const LAUNCHES: Launch[] = [
+const RAW: Launch[] = [
   {
     date: "2009-08-25",
     family: "vpn",
@@ -32,8 +32,8 @@ export const LAUNCHES: Launch[] = [
     family: "dx",
     title: { en: "AWS Direct Connect", ja: "AWS Direct Connect" },
     why: {
-      en: "Private dedicated circuits; one location, 1 and 10 Gbps",
-      ja: "専用線で AWS へ。1 ロケーション、1 / 10 Gbps から",
+      en: "Dedicated connections into AWS; one location, 1 and 10 Gbps",
+      ja: "専用接続で AWS へ。1 ロケーション、1 / 10 Gbps から",
     },
     url: `${W}2011/08/03/Announcing-AWS-Direct-Connect/`,
   },
@@ -143,7 +143,7 @@ export const LAUNCHES: Launch[] = [
   {
     date: "2019-12-03",
     family: "vpn",
-    title: { en: "Accelerated Site-to-Site VPN", ja: "高速化 Site-to-Site VPN" },
+    title: { en: "Accelerated Site-to-Site VPN", ja: "高速 Site-to-Site VPN" },
     why: {
       en: "VPN enters the AWS backbone at the nearest edge",
       ja: "最寄りのエッジから AWS バックボーンに入る VPN",
@@ -280,7 +280,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2023/04/aws-verified-access-generally-available/`,
   },
   {
-    date: "2023-10",
+    date: "2023-10-24",
     family: "sdwan",
     title: {
       en: "Cloud WAN tunnel-less Connect",
@@ -369,7 +369,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2024/12/access-vpc-resources-aws-privatelink`,
   },
   {
-    date: "2025-01",
+    date: "2025-01-22",
     family: "people",
     title: { en: "Client VPN concurrent connections", ja: "Client VPN 同時接続" },
     why: {
@@ -379,7 +379,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2025/01/aws-client-vpn-concurrent-vpn-connections`,
   },
   {
-    date: "2025-02",
+    date: "2025-02-06",
     family: "people",
     title: {
       en: "Verified Access for TCP, SSH, RDP",
@@ -427,7 +427,10 @@ export const LAUNCHES: Launch[] = [
   {
     date: "2025-11-19",
     family: "vpn",
-    title: { en: "Site-to-Site VPN Concentrator", ja: "Site-to-Site VPN Concentrator" },
+    title: {
+      en: "Site-to-Site VPN Concentrator",
+      ja: "Site-to-Site VPN コンセントレータ",
+    },
     why: {
       en: "Many small sites on one TGW attachment",
       ja: "多数の小拠点を 1 つの TGW アタッチメントに",
@@ -448,7 +451,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2025/11/preview-aws-interconnect-multicloud/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-21",
     family: "hub",
     title: { en: "TGW Flexible Cost Allocation", ja: "TGW の柔軟なコスト配分" },
     why: {
@@ -463,7 +466,7 @@ export const LAUNCHES: Launch[] = [
     title: { en: "Cloud WAN Routing Policy", ja: "Cloud WAN ルーティングポリシー" },
     why: {
       en: "Filtering, summarization and BGP attributes in policy",
-      ja: "フィルタ・集約・BGP 属性をポリシーで",
+      ja: "フィルター・集約・BGP 属性をポリシーで",
     },
     url: `${W}2025/11/aws-cloud-wan-routing-policy/`,
   },
@@ -481,7 +484,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2025/11/aws-privatelink-cross-region-connectivity-aws-services/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-30",
     family: "dns",
     title: {
       en: "Route 53 Global Resolver (preview); Resolver renamed VPC Resolver",
@@ -494,17 +497,17 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2025/11/amazon-route-53-global-resolver-secure-anycast-dns-resolution-preview/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-21",
     family: "private",
     title: { en: "VPC Encryption Controls", ja: "VPC 暗号化コントロール" },
     why: {
-      en: "Audit and enforce encryption in transit",
-      ja: "通信の暗号化を監査・強制",
+      en: "Audit and enforce encryption in transit (free until 2026-03)",
+      ja: "通信の暗号化を監査・強制 (2026-03 まで無料)",
     },
     url: `${W}2025/11/aws-vpc-encryption-controls/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-30",
     family: "dx",
     title: {
       en: "Interconnect – last mile (gated preview)",
@@ -512,12 +515,12 @@ export const LAUNCHES: Launch[] = [
     },
     why: {
       en: "Managed last-mile private circuits from the console",
-      ja: "コンソールからラストワンマイルの閉域回線を",
+      ja: "コンソールからラストマイルの閉域回線を",
     },
     url: `${W}2025/11/gated-preview-interconnect-last-mile/`,
   },
   {
-    date: "2025-12",
+    date: "2025-12-18",
     family: "dx",
     title: { en: "DX resilience testing with AWS FIS", ja: "AWS FIS で DX の障害テスト" },
     why: { en: "Inject BGP failures on VIFs", ja: "VIF に BGP 障害を注入" },
@@ -531,12 +534,12 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/01/aws-client-vpn-onboarding-quickstart-setup/`,
   },
   {
-    date: "2026-03",
+    date: "2026-03-09",
     family: "dns",
     title: { en: "Route 53 Global Resolver GA", ja: "Route 53 Global Resolver GA" },
     why: {
       en: "Anycast DNS with filtering for remote clients",
-      ja: "リモート端末向けフィルタ付きエニーキャスト DNS",
+      ja: "リモート端末向けフィルター付きエニーキャスト DNS",
     },
     url: `${W}2026/03/amazon-route-53-global-resolver/`,
   },
@@ -554,7 +557,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/03/aws-direct-connect-supports-aws-cloudformation/`,
   },
   {
-    date: "2026-03",
+    date: "2026-03-01",
     family: "private",
     title: {
       en: "VPC Encryption Controls becomes paid",
@@ -577,14 +580,14 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/04/aws-announces-ga-AWS-interconnect-last-mile/`,
   },
   {
-    date: "2026-04-13",
+    date: "2026-04-14",
     family: "dx",
     title: { en: "Interconnect – multicloud GA", ja: "Interconnect – multicloud GA" },
     why: { en: "Google Cloud first", ja: "まずは Google Cloud から" },
     url: `${W}2026/04/aws-announces-ga-AWS-interconnect-multicloud/`,
   },
   {
-    date: "2026-04",
+    date: "2026-04-23",
     family: "people",
     title: {
       en: "Client VPN on Transit Gateway",
@@ -597,7 +600,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/04/aws-client-vpn-transit-gateway/`,
   },
   {
-    date: "2026-05",
+    date: "2026-05-06",
     family: "vpn",
     title: {
       en: "Change VPN tunnel bandwidth in place",
@@ -605,12 +608,12 @@ export const LAUNCHES: Launch[] = [
     },
     why: {
       en: "Standard ↔ large without new tunnel IPs",
-      ja: "トンネル IP を変えずに標準 ↔ 大容量",
+      ja: "トンネル IP を変えずに標準 ↔ 広帯域幅",
     },
     url: `${W}2026/05/aws-site-to-site-vpn-modify-bandwidth/`,
   },
   {
-    date: "2026-05",
+    date: "2026-05-07",
     family: "dns",
     title: {
       en: "Resolver endpoints: DNS64 and IPv6 forwarding",
@@ -646,7 +649,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/05/aws-announces-AWS-interconnect-multicloud-oci-preview/`,
   },
   {
-    date: "2026-06",
+    date: "2026-06-30",
     family: "dx",
     title: {
       en: "Interconnect – last mile with AT&T (preview)",
@@ -669,7 +672,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/07/aws-transit-gateway-policy-based-routing/`,
   },
   {
-    date: "2026-07",
+    date: "2026-07-30",
     family: "dx",
     title: { en: "DX BGP route visibility", ja: "DX の BGP 経路の可視化" },
     why: {
@@ -679,7 +682,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/07/aws-direct-connect-bgp-visibility/`,
   },
   {
-    date: "2026-07",
+    date: "2026-07-29",
     family: "dx",
     title: {
       en: "Interconnect – multicloud with OCI GA",
@@ -699,7 +702,7 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/07/vpc-encryption-controls-declarative-controls/`,
   },
   {
-    date: "2026-08",
+    date: "2026-08-20",
     family: "dx",
     title: {
       en: "DX inbound prefix controls; limit 100 → 1,000",
@@ -732,9 +735,12 @@ export const LAUNCHES: Launch[] = [
     url: `${W}2026/09/aws-direct-connect-announces-flat-rate-pricing/`,
   },
   {
-    date: "2026-10",
+    date: "2026-10-05",
     family: "people",
-    title: { en: "Client VPN device posture", ja: "Client VPN の端末ポスチャ評価" },
+    title: {
+      en: "Client VPN device posture",
+      ja: "Client VPN の端末の状態 (ポスチャ) 評価",
+    },
     why: {
       en: "CrowdStrike, Jamf and JumpCloud checks move into the VPN",
       ja: "CrowdStrike・Jamf・JumpCloud のチェックが VPN に",
@@ -743,6 +749,14 @@ export const LAUNCHES: Launch[] = [
   },
 ];
 
+/** Month-only dates sort after exact dates in the same month. */
+const sortKey = (d: string) => (d.length === 7 ? `${d}-99` : d);
+
+/** docs/15-timeline.md, in date order. */
+export const LAUNCHES: Launch[] = [...RAW].sort((a, b) =>
+  sortKey(a.date) < sortKey(b.date) ? -1 : sortKey(a.date) > sortKey(b.date) ? 1 : 0,
+);
+
 export function byYear(list: Launch[]): [string, Launch[]][] {
   const m = new Map<string, Launch[]>();
   for (const l of list) {
@@ -750,4 +764,22 @@ export function byYear(list: Launch[]): [string, Launch[]][] {
     m.set(y, [...(m.get(y) ?? []), l]);
   }
   return [...m.entries()];
+}
+
+/** The first month of the late-2025 wave that changed most answers. */
+export const RECENT_FROM = "2025-11";
+
+/**
+ * What the timeline shows: one road family (or all), either the recent wave
+ * or everything since 2009.
+ */
+export function filterLaunches(
+  list: Launch[],
+  family: Family | "all",
+  recentOnly: boolean,
+): Launch[] {
+  return list.filter(
+    (l) =>
+      (family === "all" || l.family === family) && (!recentOnly || l.date >= RECENT_FROM),
+  );
 }
