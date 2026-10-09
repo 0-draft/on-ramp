@@ -1,7 +1,6 @@
 # on-ramp
 
 [![ci](https://github.com/0-draft/on-ramp/actions/workflows/ci.yml/badge.svg)](https://github.com/0-draft/on-ramp/actions/workflows/ci.yml)
-[![deploy](https://github.com/0-draft/on-ramp/actions/workflows/deploy.yml/badge.svg)](https://github.com/0-draft/on-ramp/actions/workflows/deploy.yml)
 
 社内ネットワークから AWS に入るすべての道を、道路地図として描いたインタラクティブ解説 (英語 / 日本語)。インターネット、Site-to-Site VPN、Direct Connect、SD-WAN、AWS 側のハブ (仮想プライベートゲートウェイ、Direct Connect ゲートウェイ、Transit Gateway、Cloud WAN)、PrivateLink、ハイブリッド DNS、人のアクセス、Outposts を 1 枚の地図に載せ、それぞれの道を「AWS がどう動くか予想 → 1 ステップずつ理由を確認」しながら走れます。
 
@@ -52,9 +51,8 @@ npm run test:e2e   # 実ブラウザでの確認 (要: npx playwright install ch
 
 | ワークフロー | 内容 |
 | --- | --- |
-| `ci.yml` | 型チェック、ESLint、Prettier、markdownlint、ビルド、カバレッジつきテスト、Playwright E2E (デスクトップ・スマホ、英・日)、actionlint、`npm audit`、PR の依存関係レビュー |
+| `ci.yml` | 型チェック、ESLint、Prettier、markdownlint、ビルド、カバレッジつきテスト、Playwright E2E と axe による WCAG 2.2 AA チェック (デスクトップ・スマホ、英・日、ライト・ダーク)、actionlint、`npm audit`、PR の依存関係レビュー。`main` で全部通ったら GitHub Pages へデプロイ |
 | `codeql.yml` | JavaScript/TypeScript と GitHub Actions の CodeQL |
-| `deploy.yml` | `main` への push ごとに GitHub Pages へビルド・デプロイ |
 | `freshness.yml` | 料金・クォータ・新機能の再確認 issue を毎月作成 |
 | Dependabot | npm と GitHub Actions の週次グループ更新 |
 

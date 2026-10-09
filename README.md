@@ -1,7 +1,6 @@
 # on-ramp
 
 [![ci](https://github.com/0-draft/on-ramp/actions/workflows/ci.yml/badge.svg)](https://github.com/0-draft/on-ramp/actions/workflows/ci.yml)
-[![deploy](https://github.com/0-draft/on-ramp/actions/workflows/deploy.yml/badge.svg)](https://github.com/0-draft/on-ramp/actions/workflows/deploy.yml)
 
 Every way from a corporate network into AWS, drawn as a road map. A bilingual (English / 日本語) interactive explainer that puts the internet, Site-to-Site VPN, Direct Connect, SD-WAN, the AWS-side hubs (virtual private gateway, Direct Connect gateway, Transit Gateway, Cloud WAN), PrivateLink, hybrid DNS, user access and Outposts on one map, then lets you drive each road: predict what AWS will do, then step through why.
 
@@ -52,9 +51,8 @@ The source is organized by feature: `src/features/<section>/` holds a section, i
 
 | Workflow | What it does |
 | --- | --- |
-| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E (desktop and phone, EN and JA), actionlint, `npm audit`, dependency review on PRs |
+| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E and axe WCAG 2.2 AA checks (desktop and phone, EN and JA, light and dark), actionlint, `npm audit`, dependency review on PRs; then deploys to GitHub Pages when everything on `main` is green |
 | `codeql.yml` | CodeQL for JavaScript/TypeScript and GitHub Actions |
-| `deploy.yml` | Builds and deploys to GitHub Pages on every push to `main` |
 | `freshness.yml` | Opens a monthly issue to re-verify prices, quotas and launches |
 | Dependabot | Weekly grouped updates for npm and GitHub Actions |
 
