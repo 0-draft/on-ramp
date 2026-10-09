@@ -51,7 +51,7 @@ The service link is a set of encrypted VPN connections from each Outpost host to
 
 Transport options: public internet, Direct Connect public VIF, or **private connectivity** over a Direct Connect private or transit VIF to service-link endpoints placed as ENIs in a VPC you own. Private connectivity is chosen when you create the Outpost.
 
-AWS recommends redundant service link connectivity of at least 500 Mbps (1 Gbps is better). The network between the Outpost and the service link endpoints must support a 1500-byte MTU.
+AWS requires redundant service link connectivity of at least 500 Mbps per compute rack and at most 175 ms round-trip latency to the Region (Outposts servers: at least 500 Mbps redundant, and each server uses at most 500 Mbps). AWS Prescriptive Guidance adds that 1 Gbps is better. The network between the Outpost and the service link endpoints must support a 1500-byte MTU.
 
 Per the Snowball-alternatives page (2025), both Outposts form factors "can operate without AWS connectivity for up to 7 days" in disconnected (DDIL) environments; treat this as AWS's stated design point, not a guarantee that every control-plane action works while disconnected.
 

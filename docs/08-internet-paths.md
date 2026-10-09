@@ -145,7 +145,7 @@ Workloads in private subnets reach the internet (or public endpoints of other pr
 | Protocols | TCP, UDP, ICMP; NAT64 with DNS64 |
 | Price, US East (Ohio) example | USD 0.045 per hour plus USD 0.045 per GB |
 | Price, Tokyo | USD 0.062 per hour plus USD 0.062 per GB |
-| Regional mode (since 2025-11-19) | One NAT gateway that expands across AZs, no public subnet needed; billed per AZ-hour (USD 0.062 per AZ-hour in Tokyo) |
+| Regional mode (since 2025-11-19) | One NAT gateway that expands across AZs, no public subnet needed; billed hourly (USD 0.062 per hour in Tokyo per the price list; check the VPC pricing page for how AZ expansion is counted) |
 
 Data transfer out to the internet is billed on top of NAT processing (Tokyo: USD 0.114/GB first 10 TB, then 0.089, 0.086, 0.084).
 

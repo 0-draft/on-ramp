@@ -105,7 +105,7 @@ A link aggregation group bundles dedicated connections of the same speed on the 
 
 - Multi-Site SLAs require an Enterprise Support plan, private endpoints in 2+ AZs, and for 99.99% also a Well-Architected Review with an AWS SA.
 - Service credits: 10% / 25% / 100% of port-hour charges, at thresholds 99.0% and 95.0% for the multi-site tiers, and 92.5% and 90.0% for the single tier.
-- Hosted connections and hosted VIFs from partners are not covered by the SLA. Dedicated connections ordered through a partner are covered.
+- Hosted connections and hosted VIFs from partners are not covered by the SLA. Dedicated connections ordered through a partner are covered only if your AWS account owns them.
 - Planned maintenance is announced 14 days ahead and can last up to 4 hours. AWS says it will not take down redundant connections at the same time.
 - Flat-rate billing (2026-09-15) includes a free second port in a "port-pair" on a different device or location, but usable bandwidth stays at one port.
 - Depth: [cross-connect 07-resiliency](https://github.com/0-draft/cross-connect/blob/main/docs/07-resiliency.md).
@@ -198,7 +198,7 @@ Most Japanese enterprises reach AWS through a carrier's closed network (閉域�
 | Service | DX model the carrier uses | Notes from the carrier's own pages |
 | --- | --- | --- |
 | NTT DOCOMO Business (formerly NTT Com) Flexible InterConnect (FIC) | L2: a hosted connection you accept, then you create the VIF. L3: FIC-Router creates the VIF for you | Private, transit and public VIF. 50 Mbps to 10 Gbps. Bandwidth cannot be changed in place (recreate). TGW support since 2021-01-06. Hourly billing with a monthly cap |
-| KDDI Wide Area Virtual Switch 2 (cloud access) | Hosted connection or hosted VIF; TGW requires a hosted connection | Tokyo or Osaka connection location for the Tokyo Region. Shortest 5 business days from application |
+| KDDI Wide Area Virtual Switch 2 (cloud access) | Multi-cloud gateway: hosted connection or hosted VIF; TGW requires a hosted connection. AWS direct connection menu: best-effort or reserved bandwidth | AWS direct connection: Tokyo or Osaka connection location for the Tokyo Region, shortest 5 business days from application. No lead time published for the multi-cloud gateway |
 | SoftBank Direct Access for AWS | Private VIF on SoftBank's own DX connection, handed to the customer as a logical line | Attach to a VGW or DXGW; TGW not listed. 10 Mbps to 2 Gbps. About 3 weeks lead time. Customer pays only AWS DTO on the VIF |
 | IIJ Smart HUB (AWS connection) | Hosted connection (logical slice of IIJ's dedicated ports); IIJ or customer-held DX | 12 access points in Japan, Kanto/Kansai location redundancy, NAT included for public VIF use (S3, DynamoDB), TGW supported |
 
@@ -212,7 +212,7 @@ Because these are hosted connections or hosted VIFs, the AWS DX SLA does not app
 | Reply to an AWS request for more information | Within 7 days or the request is deleted |
 | LOA-CFA validity | 90 days; port billing starts at port-up or 90 days after LOA issue, whichever is first |
 | Cross connect in the colo | Set by the colo operator, not by AWS |
-| Hosted connection via a Japanese carrier | KDDI: shortest 5 business days. SoftBank: about 3 weeks. NTT FIC: provisioned through its portal |
+| Hosted connection via a Japanese carrier | KDDI (AWS direct connection menu): shortest 5 business days. SoftBank: about 3 weeks. NTT FIC: provisioned through its portal |
 
 AWS does not publish an end-to-end lead time for a dedicated connection. The carrier last-mile circuit is usually the long pole and is quoted by the carrier.
 

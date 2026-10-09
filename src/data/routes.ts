@@ -567,8 +567,8 @@ export const ROUTES: Route[] = [
       {
         k: BW,
         v: {
-          en: "Service link: 500 Mbps+ recommended",
-          ja: "サービスリンク: 500 Mbps 以上推奨",
+          en: "Service link: 500 Mbps+ per rack, ≤175 ms RTT (required)",
+          ja: "サービスリンク: ラックごとに 500 Mbps 以上、RTT 175 ms 以下 (必須)",
         },
       },
       { k: ENC, v: { en: "Service link is encrypted", ja: "サービスリンクは暗号化" } },
