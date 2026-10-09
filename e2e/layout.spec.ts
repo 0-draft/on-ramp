@@ -142,9 +142,13 @@ test("the routing lab reveals why after a guess", async ({ page }) => {
   await lab.getByRole("button", { name: "Direct Connect", exact: true }).click();
   await expect(lab.getByText("Not quite.")).toBeVisible();
   await expect(lab.getByText("Result: VPN 1")).toBeVisible();
-  // Changing the scenario re-arms the question and locks the ladder again.
-  await lab.getByRole("radio", { name: "Virtual private gateway" }).click();
-  await expect(lab.getByRole("button", { name: "Skip and show the lab" })).toBeVisible();
+  // Changing the scenario re-arms the question but keeps the lab open.
+  // Phones get a <select> for the hub, wider screens a radio group.
+  const hubSelect = lab.locator("select:has(option[value=vgw])");
+  if (await hubSelect.count()) await hubSelect.selectOption("vgw");
+  else await lab.getByRole("radio", { name: "Virtual private gateway" }).click();
+  await expect(lab.getByText("Not quite.")).toHaveCount(0);
+  await expect(lab.getByText(/^Result:/)).toBeVisible();
 });
 
 test("diagram text stays legible on phones", async ({ page }, info) => {

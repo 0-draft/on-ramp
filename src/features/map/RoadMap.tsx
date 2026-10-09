@@ -238,7 +238,9 @@ export function RoadMap({
     // their right, open road straight above.
     const LEFT_EDGES = [370, 690, 836, 846];
     const RIGHT_EDGES = [210, 530, 810];
-    const dx = LEFT_EDGES.includes(x) ? -18 : RIGHT_EDGES.includes(x) ? 18 : 0;
+    // At x=690 the AWS Region frame sits 20px to the left, so step clear of it.
+    const dx =
+      x === 690 ? -30 : LEFT_EDGES.includes(x) ? -18 : RIGHT_EDGES.includes(x) ? 18 : 0;
     return { x: x + dx + dup * 26, y: y - 20 };
   });
   const lit = new Set(selected ? TOUCH[selected] : []);
