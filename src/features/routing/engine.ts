@@ -142,13 +142,19 @@ export function decide(
     return { winners: pool.map((a) => a.id), ecmp: false, steps };
   }
 
-  // Several identical routes are left. Only a TGW spreads traffic across them,
-  // and only for attachment types that support ECMP.
+  // Several identical routes are left. Only TGW and Cloud WAN spread traffic
+  // across them, never across attachment types, and never for static VPNs.
+  // A VGW always uses one. Cloud WAN's VPN ECMP (vpn-ecmp-support) is on by
+  // default; AWS documents no Cloud WAN ECMP across DX gateway attachments.
   const kind = pool[0].path;
+  const sameKind = pool.every((a) => a.path === kind);
+  const anyStatic = pool.some((a) => a.path === "vpn" && a.vpnRouting === "static");
   const ecmp =
-    hub === "tgw" &&
-    pool.every((a) => a.path === kind) &&
-    (kind === "dx" || kind === "connect" || (kind === "vpn" && !!opts.vpnEcmp));
+    sameKind &&
+    !anyStatic &&
+    ((hub === "tgw" &&
+      (kind === "dx" || kind === "connect" || (kind === "vpn" && !!opts.vpnEcmp))) ||
+      (hub === "cloudwan" && (kind === "connect" || kind === "vpn")));
   if (ecmp) {
     steps.push({ rule: "ecmp", kept: pool.map((a) => a.id), dropped: [] });
     return { winners: pool.map((a) => a.id), ecmp: true, steps };

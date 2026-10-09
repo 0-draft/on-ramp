@@ -118,4 +118,21 @@ describe("decide: worked examples from docs/06", () => {
         .winners,
     ).toEqual(["b"]);
   });
+
+  it("Cloud WAN spreads equal BGP VPNs (vpn-ecmp-support defaults to true)", () => {
+    expect(
+      decide("cloudwan", "10.0.0.1", [vpn({ id: "a" }), vpn({ id: "b" })]),
+    ).toMatchObject({
+      winners: ["a", "b"],
+      ecmp: true,
+    });
+  });
+
+  it("static VPNs never ECMP, even with the TGW option on", () => {
+    const ads = [
+      vpn({ id: "a", vpnRouting: "static" }),
+      vpn({ id: "b", vpnRouting: "static" }),
+    ];
+    expect(decide("tgw", "10.0.0.1", ads, { vpnEcmp: true }).ecmp).toBe(false);
+  });
 });

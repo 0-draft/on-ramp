@@ -18,8 +18,8 @@ const TWO: L[] = [
     ja: "AWS がトンネル 1 のエンドポイントの交換を開始 (パッチ適用、ハードウェア退役、不調など)。交換は 1 本ずつで、外部 IP は変わりません。",
   },
   {
-    en: "Tunnel 1 stops answering. Dead peer detection notices: AWS sends R-U-THERE every 10 seconds and gives up after 3 misses (the DPD timeout default is 40 s in the user guide). With BGP, the 30-second hold timer can expire first.",
-    ja: "トンネル 1 が応答しなくなり、DPD (デッドピア検出) が気付きます。AWS は 10 秒ごとに R-U-THERE を送り、3 回応答がなければ断と判断 (DPD タイムアウトの既定値はユーザーガイドで 40 秒)。BGP なら 30 秒のホールドタイマーが先に切れることも。",
+    en: "Tunnel 1 stops answering. Dead peer detection notices: AWS sends R-U-THERE every 10 seconds, and when the DPD timeout runs out it ends the tunnel (30 s minimum; the default is 40 s in the user guide and 30 s in the API reference). With BGP, the 30-second hold timer can expire first.",
+    ja: "トンネル 1 が応答しなくなり、DPD (デッドピア検出) が気付きます。AWS は 10 秒ごとに R-U-THERE を送り、DPD タイムアウトが切れるとトンネルを終了 (最小 30 秒。既定値はユーザーガイドでは 40 秒、API リファレンスでは 30 秒)。BGP なら 30 秒のホールドタイマーが先に切れることも。",
   },
   {
     en: "Traffic moves to tunnel 2. You have lost redundancy, not connectivity. This is why your customer gateway must accept traffic arriving on either tunnel (asymmetric routing).",

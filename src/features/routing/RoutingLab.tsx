@@ -156,8 +156,8 @@ const PRESETS: Preset[] = [
     ecmp: true,
     lanes: (l) => set(set(l, "dx", { present: false }), "vpn2", { present: true }),
     note: {
-      en: "Two BGP VPNs with identical routes on a Transit Gateway with VPN ECMP on: flows are spread across every tunnel. Each flow still sticks to one tunnel, so one big transfer never goes faster than one tunnel. Switch to VGW: no ECMP at all.",
-      ja: "Transit Gateway で VPN ECMP を有効にし、同じ経路の BGP VPN が 2 本: フローが全トンネルに分散。ただし 1 フローは 1 トンネルに固定なので、単一の大きな転送は 1 トンネル分より速くならない。VGW に切り替えると ECMP は一切なし。",
+      en: "Two BGP VPNs with identical routes on a Transit Gateway with VPN ECMP on: flows are spread across every tunnel. Each flow still sticks to one tunnel, so one big transfer never goes faster than one tunnel. Switch to Cloud WAN: ECMP is on by default there. Switch to VGW: no ECMP at all.",
+      ja: "Transit Gateway で VPN ECMP を有効にし、同じ経路の BGP VPN が 2 本: フローが全トンネルに分散。ただし 1 フローは 1 トンネルに固定なので、単一の大きな転送は 1 トンネル分より速くならない。Cloud WAN に切り替えると既定で ECMP が有効。VGW に切り替えると ECMP は一切なし。",
     },
   },
 ];
