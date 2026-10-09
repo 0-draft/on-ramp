@@ -68,15 +68,8 @@ export function StopStrip({
   );
 }
 
-export function RouteCard({
-  route,
-  hop,
-  onHop,
-}: {
-  route: Route;
-  hop: number;
-  onHop: (i: number) => void;
-}) {
+/** What the route is, what it costs you and where to read more. */
+export function RouteCard({ route }: { route: Route }) {
   const { t } = useLang();
   return (
     <article
@@ -92,29 +85,42 @@ export function RouteCard({
           </div>
           <a
             href={`#${route.section}`}
-            className="ml-auto rounded-lg px-3 py-2 text-sm font-bold text-[var(--on-color)]"
-            style={{ background: route.color }}
+            className="ml-auto inline-flex min-h-10 items-center rounded-lg bg-[var(--ink)] px-4 py-2 text-sm font-bold text-[var(--paper)]"
           >
             {t({ en: "Take this exit", ja: "この出口へ" })}
           </a>
         </div>
         <p className="mt-4 max-w-3xl">{t(route.tagline)}</p>
-        <div className="mt-6">
-          <Stepper
-            steps={route.stops.map((s) => s.say)}
-            index={hop}
-            onChange={onHop}
-            color={route.color}
-          >
-            <StopStrip route={route} hop={hop} onHop={onHop} />
-          </Stepper>
-        </div>
-        <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--line)] pt-4 sm:grid-cols-4">
+        <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-[var(--line)] pt-4 sm:grid-cols-4">
           {route.specs.map((s, i) => (
             <Spec key={i} k={s.k} v={s.v} />
           ))}
         </dl>
       </div>
     </article>
+  );
+}
+
+/** Step the packet along the route, one stop at a time. */
+export function RouteJourney({
+  route,
+  hop,
+  onHop,
+  strip = true,
+}: {
+  route: Route;
+  hop: number;
+  onHop: (i: number) => void;
+  strip?: boolean;
+}) {
+  return (
+    <Stepper
+      steps={route.stops.map((s) => s.say)}
+      index={hop}
+      onChange={onHop}
+      color={route.color}
+    >
+      {strip && <StopStrip route={route} hop={hop} onHop={onHop} />}
+    </Stepper>
   );
 }

@@ -57,8 +57,8 @@ const BOX = {
     y: 48,
     w: 170,
     h: 60,
-    label: { en: "Public endpoints", ja: "パブリックエンドポイント" },
-    sub: { en: "S3, APIs, ALB", ja: "S3・API・ALB" },
+    label: { en: "Public endpoints", ja: "パブリック" },
+    sub: { en: "S3, APIs, ALB", ja: "エンドポイント (S3・API)" },
   },
   hub: {
     x: 690,
@@ -74,7 +74,7 @@ const BOX = {
     w: 120,
     h: 60,
     label: { en: "User access", ja: "ユーザー接続" },
-    sub: { en: "Client VPN, AVA", ja: "Client VPN・AVA" },
+    sub: { en: "Verified Access", ja: "Verified Access" },
   },
   app: { x: 846, y: 190, w: 120, h: 50, label: { en: "Your app", ja: "アプリ" } },
   endpoint: {
@@ -82,7 +82,7 @@ const BOX = {
     y: 290,
     w: 120,
     h: 50,
-    label: { en: "VPC endpoint", ja: "VPC エンドポイント" },
+    label: { en: "VPC endpoint", ja: "エンドポイント" },
   },
   resolver: {
     x: 846,
@@ -306,7 +306,7 @@ export function RoadMap({
         const on = selected === id;
         const dim = selected !== null && !on;
         return (
-          <g key={id} opacity={dim ? 0.18 : 1}>
+          <g key={id} opacity={dim ? 0.12 : 1}>
             <path
               d={D[id]}
               fill="none"

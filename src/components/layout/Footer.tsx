@@ -1,5 +1,7 @@
 import { useLang } from "@/i18n/useLang";
 import { AS_OF } from "@/data/asOf";
+import { ROUTES } from "@/data/routes";
+import { Shield } from "@/components/ui";
 
 const C = {
   disclaimer: {
@@ -22,7 +24,29 @@ export function Footer() {
   return (
     <footer className="mt-16 border-t-4 border-[var(--lane)] bg-[var(--sign)] py-10 text-[var(--sign-ink)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm sm:px-6">
-        <p className="text-lg font-black">On-ramp</p>
+        {/* The destination sign: every road again, each one a way back in. */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+          <p className="text-2xl font-black">
+            {t({ en: "You have arrived", ja: "到着しました" })}
+          </p>
+          <ul className="flex flex-wrap gap-2">
+            {ROUTES.map((r) => (
+              <li key={r.id}>
+                <a
+                  href={`#${r.section}`}
+                  title={t(r.name)}
+                  aria-label={t(r.name)}
+                  className="inline-flex min-h-10 items-center"
+                >
+                  <Shield label={r.shield} color={r.color} />
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a href="#top" className="ml-auto font-bold underline">
+            {t({ en: "Back to the map ↑", ja: "地図に戻る ↑" })}
+          </a>
+        </div>
         <p>{t(C.asOf)}</p>
         <p>{t(C.disclaimer)}</p>
         <p className="mt-2 font-bold">{t(C.more)}</p>

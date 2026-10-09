@@ -72,8 +72,8 @@ export const ROUTES: Route[] = [
       {
         name: { en: "AWS edge", ja: "AWS エッジ" },
         say: {
-          en: "It enters the AWS network at the nearest edge and rides the AWS backbone the rest of the way.",
-          ja: "最寄りのエッジで AWS ネットワークに入り、以降は AWS のバックボーンを走ります。",
+          en: "It enters the AWS network wherever your ISP hands it over, and rides the AWS backbone the rest of the way.",
+          ja: "ISP が AWS に引き渡した地点で AWS ネットワークに入り、以降は AWS のバックボーンを走ります。",
         },
         at: 2,
       },
@@ -122,8 +122,8 @@ export const ROUTES: Route[] = [
       {
         name: { en: "Internet (or DX)", ja: "インターネット (または DX)" },
         say: {
-          en: "The encrypted packet crosses the internet like any other. With Private IP VPN it rides a Direct Connect transit VIF instead.",
-          ja: "暗号化されたパケットは普通にインターネットを渡ります。Private IP VPN なら代わりに Direct Connect のトランジット VIF を通ります。",
+          en: "The encrypted packet crosses the internet like any other. With a Private IP VPN it rides a Direct Connect transit VIF instead.",
+          ja: "暗号化されたパケットは普通にインターネットを渡ります。プライベート IP VPN なら代わりに Direct Connect のトランジット VIF を通ります。",
         },
         at: 1,
       },
@@ -134,7 +134,7 @@ export const ROUTES: Route[] = [
         },
         say: {
           en: "AWS decrypts it at the tunnel endpoint on your gateway. Each standard tunnel tops out at 1.25 Gbps; large tunnels (TGW and Cloud WAN only) at 5 Gbps.",
-          ja: "ゲートウェイのトンネル終端で AWS が復号。標準トンネルは 1 本 1.25 Gbps、大容量トンネル (TGW と Cloud WAN のみ) は 5 Gbps が上限。",
+          ja: "ゲートウェイのトンネル終端で AWS が復号。標準トンネルは 1 本 1.25 Gbps、広帯域幅トンネル (TGW と Cloud WAN のみ) は 5 Gbps が上限。",
         },
         at: 3,
       },
@@ -152,7 +152,7 @@ export const ROUTES: Route[] = [
         k: BW,
         v: {
           en: "1.25 Gbps per tunnel (large: 5 Gbps)",
-          ja: "1 トンネル 1.25 Gbps (大容量: 5 Gbps)",
+          ja: "1 トンネル 1.25 Gbps (広帯域幅トンネル: 5 Gbps)",
         },
       },
       { k: ENC, v: { en: "Yes, IPsec", ja: "はい (IPsec)" } },
@@ -222,7 +222,10 @@ export const ROUTES: Route[] = [
     specs: [
       {
         k: BW,
-        v: { en: "50 Mbps to 400 Gbps per connection", ja: "1 接続 50 Mbps〜400 Gbps" },
+        v: {
+          en: "50 Mbps to 400 Gbps per connection (400G not in Japan)",
+          ja: "1 接続 50 Mbps〜400 Gbps (400G は日本未提供)",
+        },
       },
       {
         k: ENC,
@@ -476,8 +479,8 @@ export const ROUTES: Route[] = [
           ja: "VPC Resolver インバウンドエンドポイント",
         },
         say: {
-          en: "The inbound endpoint answers as if the query came from inside that VPC, so private hosted zones and endpoint names resolve. Up to 10,000 queries per second per IP.",
-          ja: "インバウンドエンドポイントは VPC 内からの問い合わせとして答えるので、プライベートホストゾーンやエンドポイント名が引けます。IP あたり最大 10,000 クエリ/秒。",
+          en: "The inbound endpoint answers as if the query came from inside that VPC, so private hosted zones and endpoint names resolve. Up to 10,000 UDP queries per second per IP.",
+          ja: "インバウンドエンドポイントは VPC 内からの問い合わせとして答えるので、プライベートホストゾーンやエンドポイント名が引けます。IP あたり最大 10,000 UDP クエリ/秒。",
         },
         at: 5,
       },
@@ -494,8 +497,8 @@ export const ROUTES: Route[] = [
       {
         k: BW,
         v: {
-          en: "Up to 10,000 queries/s per endpoint IP",
-          ja: "エンドポイント IP あたり最大 10,000 クエリ/秒",
+          en: "Up to 10,000 UDP queries/s per endpoint IP",
+          ja: "エンドポイント IP あたり最大 10,000 UDP クエリ/秒",
         },
       },
       { k: ENC, v: { en: "Optional DoH", ja: "DoH は任意" } },
@@ -584,3 +587,13 @@ export const ROUTES: Route[] = [
 export const ROUTE: Record<RouteId, Route> = Object.fromEntries(
   ROUTES.map((r) => [r.id, r]),
 ) as Record<RouteId, Route>;
+
+export type Zone = "you" | "between" | "aws";
+
+/** Which band of the map a stop sits in: your network, the road between, or AWS. */
+export function zoneOf(route: Route, stop: Stop): Zone {
+  if (stop.at === 0) return "you";
+  if (route.id === "edge") return stop.at === 1 ? "between" : "aws";
+  if (route.id === "internet") return stop.at === 1 ? "between" : "aws";
+  return stop.at <= 2 ? "between" : "aws";
+}
