@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Overpass", "BIZ UDPGothic", system-ui, sans-serif;
+  --font-display: "Overpass", "BIZ UDPGothic", system-ui, sans-serif;
+  --font-mono: "Overpass Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
+/* Road-map tokens. Light is the base (concrete by day), dark is the same
+   road at night. Every route color is a text color too, so the light values
+   are dark enough for 4.5:1 on --paper. */
+:root {
+  --bg: #e6ebe9;
+  --paper: #f7f9f8;
+  --paper-2: #edf1ef;
+  --ink: #142228;
+  --muted: #4d5f66;
+  --line: #c4cfcd;
+  --grid: rgba(20, 34, 40, 0.06);
+  --sign: #006b4f;
+  --sign-2: #00583f;
+  --sign-ink: #ffffff;
+  --lane: #f2b300;
+  --lane-ink: #7a5800;
+  --asphalt: #33403f;
+  --asphalt-2: #5c6a69;
+  --ok: #0f7a45;
+  --bad: #b3261e;
+  --warn: #8a5a00;
+  --r-internet: #5a6b72;
+  --r-vpn: #1d5fce;
+  --r-dx: #c42f26;
+  --r-sdwan: #7a3fc4;
+  --r-people: #b85400;
+  --r-private: #00776f;
+  --r-dns: #a8166a;
+  --r-edge: #6f5320;
+  --shadow: rgba(20, 34, 40, 0.14);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1416;
+    --paper: #152024;
+    --paper-2: #1b282d;
+    --ink: #e5eeec;
+    --muted: #9db0b1;
+    --line: #2b3c41;
+    --grid: rgba(229, 238, 236, 0.045);
+    --sign: #138a66;
+    --sign-2: #0d6e51;
+    --sign-ink: #ffffff;
+    --lane: #ffc61a;
+    --lane-ink: #ffd35c;
+    --asphalt: #3b4a4e;
+    --asphalt-2: #64777a;
+    --ok: #4cd18c;
+    --bad: #ff8178;
+    --warn: #ffbf47;
+    --r-internet: #a9b8bd;
+    --r-vpn: #79a8ff;
+    --r-dx: #ff7d72;
+    --r-sdwan: #c6a1ff;
+    --r-people: #ffa257;
+    --r-private: #43d1c3;
+    --r-dns: #ff7ec2;
+    --r-edge: #d7b46a;
+    --shadow: rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1416;
+  --paper: #152024;
+  --paper-2: #1b282d;
+  --ink: #e5eeec;
+  --muted: #9db0b1;
+  --line: #2b3c41;
+  --grid: rgba(229, 238, 236, 0.045);
+  --sign: #138a66;
+  --sign-2: #0d6e51;
+  --sign-ink: #ffffff;
+  --lane: #ffc61a;
+  --lane-ink: #ffd35c;
+  --asphalt: #3b4a4e;
+  --asphalt-2: #64777a;
+  --ok: #4cd18c;
+  --bad: #ff8178;
+  --warn: #ffbf47;
+  --r-internet: #a9b8bd;
+  --r-vpn: #79a8ff;
+  --r-dx: #ff7d72;
+  --r-sdwan: #c6a1ff;
+  --r-people: #ffa257;
+  --r-private: #43d1c3;
+  --r-dns: #ff7ec2;
+  --r-edge: #d7b46a;
+  --shadow: rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 4.5rem;
+}
+body {
+  background-color: var(--bg);
+  /* A survey grid, like the back of a road atlas. */
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+html:lang(ja) body {
+  font-feature-settings: "palt";
+  line-break: strict;
+  line-height: 1.75;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  text-wrap: balance;
+  line-height: 1.15;
+}
+html:lang(ja) :is(h1, h2, h3, h4) {
+  word-break: auto-phrase;
+  line-height: 1.3;
+}
+:focus-visible {
+  outline: 3px solid var(--lane);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* A highway sign: green plate, white inner border, white letters. */
+.sign {
+  background: var(--sign);
+  color: var(--sign-ink);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 0 0 3px var(--sign),
+    inset 0 0 0 5px var(--sign-ink),
+    0 6px 0 -2px var(--shadow);
+}
+
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* Packets travelling along a road. */
+@keyframes flow {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+.flow {
+  stroke-dasharray: 2 12;
+  stroke-linecap: round;
+  animation: flow 0.7s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .flow {
+    animation: none;
+  }
+}
+
+.diagram text {
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+.diagram .mono {
+  font-family: var(--font-mono);
+}
+
+/* Grid items default to min-width: auto, which lets a wide diagram push the
+   whole page sideways on phones. Diagrams scroll inside their own box. */
+.grid > * {
+  min-width: 0;
+}
+
+.prose-ish p + p {
+  margin-top: 0.75rem;
+}

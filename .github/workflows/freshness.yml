@@ -1,0 +1,38 @@
+name: freshness
+
+# Prices, quotas and launches on the site are pinned to a date. Once a month,
+# open (or reuse) an issue with the checklist for re-verifying them.
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reminder:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Open the monthly freshness issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          title="Freshness check: $(date -u +%Y-%m)"
+          if gh issue list --repo "$REPO" --state open --search "\"$title\" in:title" --json number --jq 'length' | grep -qv '^0$'; then
+            echo "Issue already open: $title"
+            exit 0
+          fi
+          gh issue create --repo "$REPO" --title "$title" --body-file - <<'BODY'
+          Re-verify the facts the site pins to a date, then update `UI.asOf` and the docs.
+
+          - [ ] Site-to-Site VPN quotas and pricing — https://docs.aws.amazon.com/vpn/latest/s2svpn/vpn-limits.html
+          - [ ] Direct Connect pricing and quotas — https://aws.amazon.com/directconnect/pricing/
+          - [ ] Transit Gateway and Cloud WAN pricing — https://aws.amazon.com/transit-gateway/pricing/
+          - [ ] PrivateLink, Route 53 Resolver, Client VPN, Verified Access pricing
+          - [ ] New launches since the last check — https://aws.amazon.com/about-aws/whats-new/networking_and_content_delivery/
+          - [ ] Timeline (`src/content/timeline.ts`, `docs/15-timeline.md`)
+          BODY
