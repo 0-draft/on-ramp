@@ -244,10 +244,14 @@ export function ReachLab() {
             )}
             {blocked && (
               <g transform={`translate(${stop.x} ${stop.y})`}>
+                {/* A drawn cross, not a glyph: it sits on the VPC's edge on purpose. */}
                 <circle r={14} fill="var(--bad)" />
-                <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
-                  ✕
-                </text>
+                <path
+                  d="M-5 -5 L5 5 M5 -5 L-5 5"
+                  stroke="var(--on-color)"
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                />
               </g>
             )}
 
@@ -289,12 +293,22 @@ export function ReachLab() {
               fontSize={15}
             />
 
-            <g transform={`translate(${tg.x + tg.w - 4} ${tg.y + 4})`}>
-              <circle r={14} fill={MARK[v.result].color} />
-              <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
-                {MARK[v.result].sym}
-              </text>
-            </g>
+            {/* A verdict badge pinned to the target's corner, overlapping its edge
+                on purpose (so it carries its own transform). */}
+            <circle
+              cx={tg.x + tg.w - 4}
+              cy={tg.y + 4}
+              r={14}
+              fill={MARK[v.result].color}
+            />
+            <text
+              transform={`translate(${tg.x + tg.w - 4} ${tg.y + 10})`}
+              textAnchor="middle"
+              fontSize={17}
+              fill="var(--on-color)"
+            >
+              {MARK[v.result].sym}
+            </text>
           </svg>
           <p className="mt-2 text-xs text-[var(--muted)]">
             {t({
