@@ -1,14 +1,27 @@
 import { Header } from "@/components/layout/Header";
 import { useLang } from "@/i18n/useLang";
+import { lazyExit, usePreload } from "./LazyExit";
+
+const Quiz = lazyExit("quiz", () =>
+  import("@/features/quiz/QuizSection").then((m) => ({ default: m.QuizSection })),
+);
+const Timeline = lazyExit("timeline", () =>
+  import("@/features/timeline/TimelineSection").then((m) => ({
+    default: m.TimelineSection,
+  })),
+);
+const Glossary = lazyExit("glossary", () =>
+  import("@/features/glossary/GlossarySection").then((m) => ({
+    default: m.GlossarySection,
+  })),
+);
+const LAZY = [Quiz.preload, Timeline.preload, Glossary.preload];
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/features/hero/Hero";
 import { WhySection } from "@/features/why/WhySection";
 import { BasicsSection } from "@/features/basics/BasicsSection";
 import { PeopleSection } from "@/features/people/PeopleSection";
 import { EdgeSection } from "@/features/edge/EdgeSection";
-import { QuizSection } from "@/features/quiz/QuizSection";
-import { TimelineSection } from "@/features/timeline/TimelineSection";
-import { GlossarySection } from "@/features/glossary/GlossarySection";
 import { InternetSection } from "@/features/internet/InternetSection";
 import { VpnSection } from "@/features/vpn/VpnSection";
 import { DxSection } from "@/features/dx/DxSection";
@@ -23,6 +36,7 @@ import { PlanSection } from "@/features/plan/PlanSection";
 
 export default function App() {
   const { t } = useLang();
+  usePreload(LAZY);
   return (
     <>
       <a
@@ -50,9 +64,9 @@ export default function App() {
         <MtuSection />
         <CostSection />
         <PlanSection />
-        <QuizSection />
-        <TimelineSection />
-        <GlossarySection />
+        <Quiz.Component />
+        <Timeline.Component />
+        <Glossary.Component />
       </main>
       <Footer />
     </>
