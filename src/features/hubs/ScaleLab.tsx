@@ -1,6 +1,7 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
+import { Slider } from "@/components/ui/Slider";
 import { plan, type Design } from "./scale";
 
 const DESIGNS: { id: Design; name: L; how: L }[] = [
@@ -37,43 +38,6 @@ const DESIGNS: { id: Design; name: L; how: L }[] = [
     },
   },
 ];
-
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  onChange,
-}: {
-  label: L;
-  value: number;
-  min: number;
-  max: number;
-  onChange: (n: number) => void;
-}) {
-  const { t } = useLang();
-  const id = useId();
-  return (
-    <div className="min-w-0">
-      <label
-        htmlFor={id}
-        className="flex items-baseline justify-between text-sm font-semibold"
-      >
-        {t(label)}
-        <span className="num text-2xl font-black">{value}</span>
-      </label>
-      <input
-        id={id}
-        type="range"
-        min={min}
-        max={max}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1 w-full"
-      />
-    </div>
-  );
-}
 
 const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 

@@ -1,7 +1,8 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { Segmented } from "@/components/ui";
+import { Slider } from "@/components/ui/Slider";
 import { capacity, fits, GBPS_PER_GRE_PEER, PEERS_MAX, type Mode } from "./connect";
 
 const MODES: { id: Mode; label: L }[] = [
@@ -21,9 +22,8 @@ const DEMANDS = [2, 5, 10, 20, 40];
 /** How many Gbps one Connect attachment carries as you add peers. */
 export function CapacityLab() {
   const { t } = useLang();
-  const id = useId();
   const [mode, setMode] = useState<Mode>("tgw-gre");
-  // Starts on a case that fits, so the lab does not give away the question above it.
+  // Starts on a case that fits; the lab is also locked until the question is answered.
   const [peers, setPeers] = useState(2);
   const [demand, setDemand] = useState(5);
   const cap = capacity(mode, peers);
@@ -41,24 +41,13 @@ export function CapacityLab() {
         color="var(--r-sdwan)"
       />
       <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor={id}
-            className="flex items-baseline justify-between text-sm font-semibold"
-          >
-            {t({ en: "Connect peers", ja: "Connect ピア数" })}
-            <span className="num text-2xl font-black">{peers}</span>
-          </label>
-          <input
-            id={id}
-            type="range"
-            min={1}
-            max={PEERS_MAX}
-            value={peers}
-            onChange={(e) => setPeers(Number(e.target.value))}
-            className="mt-1 w-full"
-          />
-        </div>
+        <Slider
+          label={{ en: "Connect peers", ja: "Connect ピア数" }}
+          value={peers}
+          min={1}
+          max={PEERS_MAX}
+          onChange={setPeers}
+        />
         <label className="flex items-center justify-between gap-2 text-sm font-semibold">
           {t({ en: "Traffic from your branches", ja: "拠点からのトラフィック" })}
           <select

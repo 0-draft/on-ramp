@@ -1,6 +1,6 @@
 /**
  * Connect attachment capacity and GRE overhead
- * (docs/03-sd-wan-and-connect.md, verified 2026-10-10).
+ * (docs/03-sd-wan-and-connect.md, verified as of AS_OF in @/data/asOf).
  */
 
 export type Mode = "tgw-gre" | "cwan-gre" | "cwan-tunnelless";

@@ -1,3 +1,4 @@
+import { DiagramBox } from "@/components/ui/DiagramBox";
 import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
@@ -151,38 +152,15 @@ export function ApplianceLab() {
     const [x, y] = P[spot];
     const dead = s.dropped && spot === s.at;
     return (
-      <g>
-        <rect
-          x={x - w / 2}
-          y={y - 24}
-          width={w}
-          height={48}
-          rx={8}
-          fill={spot === "tgw" ? "var(--hub)" : "var(--paper)"}
-          stroke={dead ? "var(--bad)" : spot === "tgw" ? "var(--hub)" : "var(--ink)"}
-          strokeWidth={dead ? 3 : 1.5}
-        />
-        <text
-          x={x}
-          y={sub ? y - 3 : y + 5}
-          textAnchor="middle"
-          fontSize={14}
-          fill={spot === "tgw" ? "var(--on-hub)" : dead ? "var(--bad)" : "var(--ink)"}
-        >
-          {t(label)}
-        </text>
-        {sub && (
-          <text
-            x={x}
-            y={y + 14}
-            textAnchor="middle"
-            fontSize={13}
-            fill={spot === "tgw" ? "var(--on-hub)" : "var(--muted)"}
-          >
-            {t(sub)}
-          </text>
-        )}
-      </g>
+      <DiagramBox
+        r={{ x: x - w / 2, y: y - 24, w, h: 48 }}
+        title={t(label)}
+        sub={sub ? t(sub) : undefined}
+        fill={spot === "tgw" ? "var(--hub)" : "var(--paper)"}
+        stroke={dead ? "var(--bad)" : spot === "tgw" ? "var(--hub)" : "var(--ink)"}
+        ink={spot === "tgw" ? "var(--on-hub)" : dead ? "var(--bad)" : "var(--ink)"}
+        strokeWidth={dead ? 3 : 1.5}
+      />
     );
   };
 

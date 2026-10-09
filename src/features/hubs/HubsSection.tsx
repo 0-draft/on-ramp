@@ -149,25 +149,7 @@ export function HubsSection() {
         ja: "VPN も DX も、AWS 側のどこかで終端します。その「どこか」は 4 種類あり、名前がややこしく似ています。どれを選ぶかで、1 本の接続で届く VPC やリージョンの数、VPC 同士が通信できるか、時間あたりの料金が決まります。",
       }}
     >
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {HUBS.map((h) => (
-          <article key={h.name} className="panel p-3">
-            <h3 className="font-extrabold">{h.name}</h3>
-            <p className="text-sm text-[var(--muted)]">{t(h.analogy)}</p>
-            <div className="mt-2">
-              <HubSketch kind={h.kind} />
-            </div>
-          </article>
-        ))}
-      </div>
-      <div className="mt-4">
-        <DataTable
-          columns={[{ en: "Hub", ja: "ハブ" }, ...HUBS[0].facts.map((f) => f.k)]}
-          rows={HUBS.map((h) => [h.name, ...h.facts.map((f) => t(f.v))])}
-        />
-      </div>
-
-      <div className="mt-5">
+      <div>
         <Predict
           question={{
             en: "VPC A and VPC B are both associated with the same Direct Connect gateway. Can A send packets to B through it?",
@@ -182,7 +164,25 @@ export function HubsSection() {
             en: "A DX gateway is a set of BGP route reflectors outside the data path. It tells each side which prefixes exist, but no packet ever passes through it, so VPC-to-VPC through a DXGW is not supported. If VPCs must talk, use a Transit Gateway or Cloud WAN (or peering).",
             ja: "DX ゲートウェイはデータパスの外にある BGP ルートリフレクターの集まりです。どのプレフィックスがあるかを双方に伝えるだけで、パケットは一切通りません。DXGW 経由の VPC 間通信はサポート外。VPC 同士を通信させるなら Transit Gateway か Cloud WAN (またはピアリング) を使います。",
           })}
-        />
+        >
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {HUBS.map((h) => (
+              <article key={h.name} className="panel p-3">
+                <h3 className="font-extrabold">{h.name}</h3>
+                <p className="text-sm text-[var(--muted)]">{t(h.analogy)}</p>
+                <div className="mt-2">
+                  <HubSketch kind={h.kind} />
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="mt-4">
+            <DataTable
+              columns={[{ en: "Hub", ja: "ハブ" }, ...HUBS[0].facts.map((f) => f.k)]}
+              rows={HUBS.map((h) => [h.name, ...h.facts.map((f) => t(f.v))])}
+            />
+          </div>
+        </Predict>
       </div>
 
       <h3 className="mt-10 text-xl font-extrabold">

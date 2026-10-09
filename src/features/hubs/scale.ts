@@ -3,7 +3,7 @@ import type { L } from "@/i18n/lang";
 /**
  * What each hub design needs as you add VPCs, Regions and sites, and which
  * documented quota you run into first (docs/04-direct-connect.md and
- * docs/05-hubs.md, verified 2026-10-10).
+ * docs/05-hubs.md, verified as of AS_OF in @/data/asOf).
  *
  * Assumptions, stated on screen too: every site has one dedicated DX
  * connection; VPCs are spread evenly across Regions, and there are never more
