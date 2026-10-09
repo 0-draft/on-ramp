@@ -1,6 +1,13 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/features/hero/Hero";
+import { WhySection } from "@/features/why/WhySection";
+import { BasicsSection } from "@/features/basics/BasicsSection";
+import { PeopleSection } from "@/features/people/PeopleSection";
+import { EdgeSection } from "@/features/edge/EdgeSection";
+import { QuizSection } from "@/features/quiz/QuizSection";
+import { TimelineSection } from "@/features/timeline/TimelineSection";
+import { GlossarySection } from "@/features/glossary/GlossarySection";
 import { InternetSection } from "@/features/internet/InternetSection";
 import { VpnSection } from "@/features/vpn/VpnSection";
 import { HubsSection } from "@/features/hubs/HubsSection";
@@ -25,6 +32,8 @@ export default function App() {
       <main id="main" className="mx-auto max-w-6xl px-4 sm:px-6">
         <span id="top" />
         <Hero />
+        <WhySection />
+        <BasicsSection />
         <InternetSection />
         <VpnSection />
         <HubsSection />
@@ -32,9 +41,14 @@ export default function App() {
         <RoutingSection />
         <PrivateSection />
         <DnsSection />
+        <PeopleSection />
+        <EdgeSection />
         <MtuSection />
         <CostSection />
         <PlanSection />
+        <QuizSection />
+        <TimelineSection />
+        <GlossarySection />
       </main>
       <Footer />
     </>
