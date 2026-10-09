@@ -26,9 +26,9 @@ const STROKE: Record<Kind, string> = {
  * stations on phones. Walked one message at a time.
  */
 export function DnsLab() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const narrow = useNarrow();
-  const uid = useId().replace(/:/g, "");
+  const uid = useId();
   const [id, setId] = useState<ScenarioId>("endpoint");
   const [step, setStep] = useState(0);
   const s = SCENARIO[id];
@@ -62,7 +62,7 @@ export function DnsLab() {
   );
 
   const answerText = s.answer
-    ? `${t({ en: "Answer", ja: "答え" })}: ${s.answer === "public IPs" ? t({ en: "public IPs", ja: "パブリック IP" }) : s.answer}`
+    ? `${t({ en: "Answer", ja: "答え" })}: ${typeof s.answer === "string" ? s.answer : t(s.answer)}`
     : t({ en: "No answer: SERVFAIL", ja: "答えなし: SERVFAIL" });
   const answerColor = s.ok ? color : "var(--bad)";
 
@@ -97,7 +97,10 @@ export function DnsLab() {
       const a = x(col(h.from));
       const b = x(col(h.to));
       const on = i === step;
-      const op = i < step ? 0.35 : 1;
+      // Future messages are faint ghosts with no label, so the whole shape of
+      // the lookup is visible before you step through it.
+      const ghost = i > step;
+      const op = ghost ? 0.14 : i < step ? 0.35 : 1;
       const dash = h.kind === "answer" ? "7 5" : h.kind === "fail" ? "3 5" : undefined;
       if (a === b) {
         return (
@@ -109,9 +112,11 @@ export function DnsLab() {
               strokeWidth={on ? 3 : 2}
               markerEnd={marker(h.kind)}
             />
-            <text x={a + 48} y={y + 5} fontSize={13} fill="var(--ink)">
-              {t(h.label)}
-            </text>
+            {!ghost && (
+              <text x={a + 48} y={y + 5} fontSize={13} fill="var(--ink)">
+                {t(h.label)}
+              </text>
+            )}
           </g>
         );
       }
@@ -128,20 +133,22 @@ export function DnsLab() {
             strokeDasharray={dash}
             markerEnd={marker(h.kind)}
           />
-          <text
-            x={(a + b) / 2}
-            y={y - 7}
-            textAnchor="middle"
-            fontSize={13}
-            fill={h.kind === "fail" ? "var(--bad)" : "var(--ink)"}
-            className={h.kind === "answer" ? "mono" : undefined}
-            // A halo keeps labels legible where they cross a zone border.
-            stroke="var(--paper-2)"
-            strokeWidth={5}
-            paintOrder="stroke"
-          >
-            {t(h.label)}
-          </text>
+          {!ghost && (
+            <text
+              x={(a + b) / 2}
+              y={y - 7}
+              textAnchor="middle"
+              fontSize={13}
+              fill={h.kind === "fail" ? "var(--bad)" : "var(--ink)"}
+              className={h.kind === "answer" ? "mono" : undefined}
+              // A halo keeps labels legible where they cross a zone border.
+              stroke="var(--paper-2)"
+              strokeWidth={5}
+              paintOrder="stroke"
+            >
+              {t(h.label)}
+            </text>
+          )}
         </g>
       );
     };
@@ -163,14 +170,14 @@ export function DnsLab() {
               height={H - 8}
               rx={12}
               fill="var(--paper-2)"
-              stroke={z.side === "aws" ? "var(--sign)" : "none"}
+              stroke={z.side === "aws" ? "var(--hub)" : "none"}
               strokeDasharray="6 5"
             />
             <text
               x={colW * z.from + 16}
               y={24}
               fontSize={13}
-              fill={z.side === "aws" ? "var(--sign)" : "var(--muted)"}
+              fill={z.side === "aws" ? "var(--ink)" : "var(--muted)"}
             >
               {t(zoneLabel[z.side as keyof typeof zoneLabel])}
             </text>
@@ -224,7 +231,7 @@ export function DnsLab() {
             </g>
           );
         })}
-        {s.hops.slice(0, step + 1).map(arrow)}
+        {s.hops.map(arrow)}
         {done && (
           <g>
             <rect
@@ -380,13 +387,21 @@ export function DnsLab() {
           {diagram}
         </Stepper>
       </div>
-      {done && (
-        <p
-          className="mt-2 border-l-4 pl-3 text-[0.95rem]"
-          style={{ borderColor: answerColor }}
-          aria-live="polite"
-        >
-          {t(s.outcome)}
+      {/* Always mounted, so screen readers announce the outcome when it appears. */}
+      <div aria-live="polite">
+        {done && (
+          <p
+            className="mt-2 border-l-4 pl-3 text-[0.95rem]"
+            style={{ borderColor: answerColor }}
+          >
+            {t(s.outcome)}
+          </p>
+        )}
+      </div>
+      {lang === "ja" && (
+        <p className="mt-2 text-xs text-[var(--muted)]">
+          図中の「EP」は Route 53 VPC Resolver のエンドポイント (インバウンド /
+          アウトバウンド) のことです。
         </p>
       )}
     </div>

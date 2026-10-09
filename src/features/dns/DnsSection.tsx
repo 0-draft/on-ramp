@@ -1,8 +1,15 @@
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
-import { Callout, MetaphorLimit, Section, Sources, Spec } from "@/components/ui";
+import {
+  Callout,
+  DataTable,
+  MetaphorLimit,
+  Section,
+  Sources,
+  Spec,
+  Traps,
+} from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
-import { ROUTE } from "@/data/routes";
 import { DnsLab } from "./DnsLab";
 
 const BLOCKS: { name: L; where: L; job: L }[] = [
@@ -91,7 +98,6 @@ const TRAPS: L[] = [
 
 export function DnsSection() {
   const { t } = useLang();
-  const color = ROUTE.dns.color;
   return (
     <Section
       id="dns"
@@ -108,7 +114,7 @@ export function DnsSection() {
         <p>
           {t({
             en: "Inbound endpoints answer questions from your network about AWS names. Outbound endpoints, with forwarding rules, ask your DNS servers about corporate names on behalf of VPCs. The VPC's own resolver at base + 2 serves only clients inside the VPC: it is not reachable over VPN or Direct Connect. Step through a lookup below.",
-            ja: "インバウンドエンドポイントは、社内からの AWS の名前に関する質問に答えます。アウトバウンドエンドポイントは転送ルールに従い、VPC に代わって社内の名前を社内 DNS に尋ねます。VPC 自身の「ベース + 2」のリゾルバーは VPC 内のクライアント専用で、VPN や Direct Connect 越しには届きません。下で 1 ステップずつたどってみてください。",
+            ja: "インバウンドエンドポイントは、社内からの AWS 側の名前の問い合わせに答えます。アウトバウンドエンドポイントは転送ルールに従い、VPC に代わって社内の名前を社内 DNS に尋ねます。VPC 自身の「ベース + 2」のリゾルバーは VPC 内のクライアント専用で、VPN や Direct Connect 越しには届きません。下で 1 ステップずつたどってみてください。",
           })}
         </p>
         <p className="text-sm text-[var(--muted)]">
@@ -119,7 +125,7 @@ export function DnsSection() {
         </p>
       </div>
 
-      <div className="mt-6 max-w-3xl">
+      <div className="mt-6">
         <Predict
           question={{
             en: "Corp DNS forwards aws.corp.example.com to the VPC's resolver at 10.0.0.2 over Direct Connect. Does it work?",
@@ -136,8 +142,8 @@ export function DnsSection() {
           why={
             <p>
               {t({
-                en: 'The base + 2 resolver is not reachable from on-prem over VPN or Direct Connect, and AWS calls forwarding to it unsupported. Point the forwarder at a Resolver inbound endpoint\'s IPs instead. Pick "Broken: forward to .2" below to watch it fail.',
-                ja: "「ベース + 2」のリゾルバーは VPN / Direct Connect 越しのオンプレからは届かず、AWS もそこへの転送を非サポートとしています。フォワーダーは Resolver インバウンドエンドポイントの IP に向けます。下の「失敗: .2 へ転送」で失敗の様子を見られます。",
+                en: 'The base + 2 resolver is not reachable from on-prem over VPN or Direct Connect, and AWS calls forwarding to it unsupported. Point the forwarder at a VPC Resolver inbound endpoint\'s IPs instead. Pick "Broken: forward to .2" below to watch it fail.',
+                ja: "「ベース + 2」のリゾルバーは VPN / Direct Connect 越しのオンプレからは届かず、AWS もそこへの転送を非サポートとしています。フォワーダーは VPC Resolver のインバウンドエンドポイントの IP に向けます。下の「失敗: .2 へ転送」で失敗の様子を見られます。",
               })}
             </p>
           }
@@ -151,30 +157,15 @@ export function DnsSection() {
       <h3 className="mt-12 text-xl font-extrabold">
         {t({ en: "The building blocks", ja: "部品" })}
       </h3>
-      <div className="mt-3 overflow-x-auto">
-        <table className="panel w-full min-w-[38rem] text-left text-sm">
-          <thead>
-            <tr className="border-b border-[var(--line)]">
-              <th className="p-3">{t({ en: "Component", ja: "コンポーネント" })}</th>
-              <th className="p-3">{t({ en: "Lives where", ja: "どこにある" })}</th>
-              <th className="p-3">{t({ en: "Job", ja: "役割" })}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {BLOCKS.map((b, i) => (
-              <tr
-                key={i}
-                className="border-b border-[var(--line)] align-top last:border-b-0"
-              >
-                <th scope="row" className="p-3 font-bold">
-                  {t(b.name)}
-                </th>
-                <td className="p-3">{t(b.where)}</td>
-                <td className="p-3">{t(b.job)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-3">
+        <DataTable
+          columns={[
+            { en: "Component", ja: "コンポーネント" },
+            { en: "Lives where", ja: "どこにある" },
+            { en: "Job", ja: "役割" },
+          ]}
+          rows={BLOCKS.map((b) => [t(b.name), t(b.where), t(b.job)])}
+        />
       </div>
 
       <h3 className="mt-12 text-xl font-extrabold">
@@ -187,22 +178,18 @@ export function DnsSection() {
             en: "Up to 10,000/s (UDP); add ENIs above 50%",
             ja: "最大 10,000 クエリ/秒 (UDP)。50% を超えたら ENI 追加",
           }}
-          color={color}
         />
         <Spec
           k={{ en: "With connection tracking", ja: "接続追跡あり" }}
           v={{ en: "About 1,500/s per IP", ja: "IP あたり約 1,500 クエリ/秒" }}
-          color={color}
         />
         <Spec
           k={{ en: "IPs per endpoint", ja: "エンドポイントあたり IP" }}
           v={{ en: "6 (adjustable), at least 2 AZs", ja: "6 (引き上げ可)、2 AZ 以上" }}
-          color={color}
         />
         <Spec
           k={{ en: "Endpoint ENI (Tokyo)", ja: "エンドポイント ENI (東京)" }}
           v={{ en: "$0.125 per ENI-hour", ja: "ENI あたり $0.125/時" }}
-          color={color}
         />
         <Spec
           k={{ en: "Queries through endpoints", ja: "エンドポイント経由のクエリ" }}
@@ -210,7 +197,6 @@ export function DnsSection() {
             en: "$0.40 per million (first billion)",
             ja: "100 万件あたり $0.40 (最初の 10 億件)",
           }}
-          color={color}
         />
         <Spec
           k={{ en: "Profiles", ja: "Profiles" }}
@@ -218,7 +204,6 @@ export function DnsSection() {
             en: "$0.75/hour per account, up to 100 VPC associations",
             ja: "アカウントあたり $0.75/時 (VPC 関連付け 100 まで)",
           }}
-          color={color}
         />
       </dl>
       <p className="mt-3 max-w-3xl text-sm text-[var(--muted)]">
@@ -229,7 +214,7 @@ export function DnsSection() {
       </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <Callout tone="info" title={{ en: "Newer tools", ja: "新しめの機能" }}>
+        <Callout tone="warn" title={{ en: "Newer tools", ja: "新しめの機能" }}>
           <ul className="list-disc space-y-1 pl-5">
             <li>
               {t({
@@ -240,13 +225,13 @@ export function DnsSection() {
             <li>
               {t({
                 en: "Delegation (2025-06-24): inbound and outbound endpoints can follow NS delegation, so a subdomain can be delegated instead of forwarded.",
-                ja: "デリゲーション (2025-06-24): インバウンド / アウトバウンドエンドポイントが NS 委任をたどれるようになり、サブドメインを転送でなく委任できる。",
+                ja: "委任 (2025-06-24): インバウンド / アウトバウンドエンドポイントが NS 委任をたどれるようになり、サブドメインを転送でなく委任できる。インバウンド側は「インバウンド委任エンドポイント」。",
               })}
             </li>
             <li>
               {t({
                 en: "DNS over HTTPS on endpoints, and DNS64 on inbound endpoints since 2026-05-07.",
-                ja: "エンドポイントでの DNS over HTTPS、2026-05-07 からはインバウンドエンドポイントで DNS64。",
+                ja: "エンドポイントでの DNS over HTTPS、2026-05-07 からはインバウンドエンドポイントで DNS64 にも対応。",
               })}
             </li>
           </ul>
@@ -260,19 +245,14 @@ export function DnsSection() {
         >
           {t({
             en: "DNS Firewall filters queries going through VPC Resolver by domain name (allow, block, alert); Advanced (2024-11-15) adds DNS tunneling and DGA detection. Forward on-prem queries to an inbound endpoint in a VPC with the rule group associated, and on-prem clients are filtered as well. It filters names only, not IPs. $0.60 per million queries in Tokyo.",
-            ja: "DNS Firewall は VPC Resolver を通るクエリをドメイン名で許可・ブロック・アラート。Advanced (2024-11-15) で DNS トンネリングと DGA 検知が追加。ルールグループを関連付けた VPC のインバウンドエンドポイントへオンプレのクエリを転送すれば、オンプレのクライアントにも効きます。フィルタ対象は名前のみで IP は対象外。東京で 100 万クエリあたり $0.60。",
+            ja: "DNS Firewall は VPC Resolver を通るクエリをドメイン名で許可・ブロック・アラート。Advanced (2024-11-15) で DNS トンネリングと DGA 検知が追加。ルールグループを関連付けた VPC のインバウンドエンドポイントへオンプレのクエリを転送すれば、オンプレのクライアントにも効きます。フィルター対象は名前のみで IP は対象外。東京で 100 万クエリあたり $0.60。",
           })}
         </Callout>
       </div>
 
-      <h3 className="mt-12 text-xl font-extrabold">
-        {t({ en: "Common traps", ja: "よくある落とし穴" })}
-      </h3>
-      <ul className="mt-3 max-w-3xl list-disc space-y-2 pl-5">
-        {TRAPS.map((x, i) => (
-          <li key={i}>{t(x)}</li>
-        ))}
-      </ul>
+      <div className="mt-12 max-w-3xl">
+        <Traps items={TRAPS} />
+      </div>
 
       <MetaphorLimit>
         {t({

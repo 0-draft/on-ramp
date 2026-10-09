@@ -41,6 +41,14 @@ describe("hybrid DNS flows", () => {
     expect(SCENARIO.outbound.answer).toBe("10.10.5.30");
   });
 
+  it("the leak without a forwarder answers with public IPs in both languages", () => {
+    expect(SCENARIO.noForwarder.ok).toBe(false);
+    expect(SCENARIO.noForwarder.answer).toEqual({
+      en: "public IPs",
+      ja: "パブリック IP",
+    });
+  });
+
   it("has a caption in both languages for every hop", () => {
     for (const s of SCENARIOS)
       for (const h of s.hops) {

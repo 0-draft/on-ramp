@@ -79,8 +79,9 @@ export interface Scenario {
   question: string;
   parties: Party[];
   hops: Hop[];
-  /** Final answer the asker gets, or null when the lookup fails. */
-  answer: string | null;
+  /** Final answer the asker gets (an address, or words to translate), or
+   * null when the lookup fails. */
+  answer: L | string | null;
   outcome: L;
   ok: boolean;
 }
@@ -124,7 +125,7 @@ export const SCENARIOS: Scenario[] = [
         from: "inbound",
         to: "resolver",
         kind: "query",
-        label: { en: "in VPC context", ja: "VPC として" },
+        label: { en: "in VPC context", ja: "VPC 内の扱いで" },
         caption: {
           en: "The inbound endpoint hands the query to VPC Resolver, which answers as if the question came from inside the hub VPC.",
           ja: "インバウンドエンドポイントはクエリを VPC Resolver に渡し、Resolver はハブ VPC の中から聞かれたかのように答えます。",
@@ -194,7 +195,7 @@ export const SCENARIOS: Scenario[] = [
     ok: true,
     outcome: {
       en: "The private hosted zone must be associated with the inbound endpoint's VPC (directly or through a Route 53 Profile), or the answer is NXDOMAIN. Since June 2025 a delegation-type inbound endpoint lets corp DNS follow an NS record instead of a forwarder.",
-      ja: "プライベートホストゾーンはインバウンドエンドポイントの VPC に関連付ける (直接か Route 53 Profile 経由) 必要があり、なければ NXDOMAIN。2025 年 6 月からはデリゲーション型インバウンドエンドポイントで、フォワーダーの代わりに NS レコードをたどらせることもできます。",
+      ja: "プライベートホストゾーンはインバウンドエンドポイントの VPC に関連付ける (直接か Route 53 Profile 経由) 必要があり、なければ NXDOMAIN。2025 年 6 月からはインバウンド委任エンドポイントで、フォワーダーの代わりに NS レコードをたどらせることもできます。",
     },
     hops: [
       {
@@ -215,7 +216,7 @@ export const SCENARIOS: Scenario[] = [
         from: "inbound",
         to: "resolver",
         kind: "query",
-        label: { en: "in VPC context", ja: "VPC として" },
+        label: { en: "in VPC context", ja: "VPC 内の扱いで" },
         caption: {
           en: "VPC Resolver takes the query in the context of the inbound endpoint's VPC.",
           ja: "VPC Resolver がインバウンドエンドポイントの VPC の立場でクエリを受けます。",
@@ -406,7 +407,7 @@ export const SCENARIOS: Scenario[] = [
     label: { en: "Leak: no forwarder", ja: "漏れ: フォワーダーなし" },
     question: "ec2.ap-northeast-1.amazonaws.com",
     parties: ["host", "corpDns", "publicDns"],
-    answer: "public IPs",
+    answer: { en: "public IPs", ja: "パブリック IP" },
     ok: false,
     outcome: {
       en: "You get an answer, just the wrong one: public IPs. The traffic then leaves over the internet (or a public VIF) and never touches the interface endpoint you paid for.",
