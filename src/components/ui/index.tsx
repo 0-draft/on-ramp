@@ -2,6 +2,7 @@ import { useId, useRef } from "react";
 import type { KeyboardEvent, ReactNode } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
+import { NAV } from "@/data/nav";
 
 /** Renders a bilingual string in the current language. */
 export function T({ c }: { c: L }) {
@@ -16,18 +17,17 @@ export function T({ c }: { c: L }) {
  */
 export function Section({
   id,
-  exit,
   title,
   lead,
   children,
 }: {
   id: string;
-  exit: string;
   title: L;
   lead: L;
   children: ReactNode;
 }) {
   const { t } = useLang();
+  const exit = NAV.findIndex((n) => n.id === id) + 1;
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="py-14 sm:py-20">
       <div className="sign inline-flex max-w-full items-stretch overflow-hidden">

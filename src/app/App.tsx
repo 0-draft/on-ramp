@@ -1,5 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Hero } from "@/features/hero/Hero";
+import { RoutingSection } from "@/features/routing/RoutingSection";
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <main id="main" className="mx-auto max-w-6xl px-4 sm:px-6">
         <span id="top" />
         <Hero />
+        <RoutingSection />
       </main>
     </>
   );
