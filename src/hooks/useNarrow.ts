@@ -1,11 +1,15 @@
 import { useSyncExternalStore } from "react";
 
-const QUERY = "(max-width: 639px)";
-
-function subscribe(cb: () => void) {
-  const mq = window.matchMedia?.(QUERY);
-  mq?.addEventListener("change", cb);
-  return () => mq?.removeEventListener("change", cb);
+function useMedia(query: string): boolean {
+  return useSyncExternalStore(
+    (cb) => {
+      const mq = window.matchMedia?.(query);
+      mq?.addEventListener("change", cb);
+      return () => mq?.removeEventListener("change", cb);
+    },
+    () => window.matchMedia?.(query).matches ?? false,
+    () => false,
+  );
 }
 
 /**
@@ -13,9 +17,13 @@ function subscribe(cb: () => void) {
  * top-to-bottom layout there instead of shrinking into illegibility.
  */
 export function useNarrow(): boolean {
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia?.(QUERY).matches ?? false,
-    () => false,
-  );
+  return useMedia("(max-width: 639px)");
+}
+
+/**
+ * True below tablet width. The big topology map needs more room than a lab
+ * diagram, so it swaps to a strip map earlier.
+ */
+export function useCompact(): boolean {
+  return useMedia("(max-width: 767px)");
 }

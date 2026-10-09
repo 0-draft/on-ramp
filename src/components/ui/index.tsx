@@ -255,3 +255,28 @@ export function Spec({ k, v, color }: { k: L; v: L; color?: string }) {
     </div>
   );
 }
+
+/**
+ * Where the road metaphor stops being true. One vivid analogy tends to become
+ * the reader's only model, so every section that leans on it says where it
+ * breaks.
+ */
+export function MetaphorLimit({ children }: { children: ReactNode }) {
+  const { t } = useLang();
+  return (
+    <aside className="mt-6 flex gap-3 rounded-xl border-2 border-dashed border-[var(--line)] px-4 py-3 text-sm">
+      <span
+        aria-hidden="true"
+        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded bg-[var(--lane)] text-xs font-black text-black"
+      >
+        !
+      </span>
+      <div>
+        <p className="font-bold">
+          {t({ en: "Where the road map is wrong", ja: "道路のたとえが当てはまらない所" })}
+        </p>
+        <div className="mt-0.5 text-[var(--muted)]">{children}</div>
+      </div>
+    </aside>
+  );
+}
