@@ -8,6 +8,19 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   base: process.env.BASE_PATH ?? "/on-ramp/",
   plugins: [react(), tailwindcss()],
+  build: {
+    rolldownOptions: {
+      output: {
+        // React changes far less often than the copy; give it its own
+        // long-cached chunk.
+        codeSplitting: {
+          groups: [
+            { name: "react", test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/ },
+          ],
+        },
+      },
+    },
+  },
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
