@@ -88,7 +88,7 @@ SiteLink lets on-prem sites talk to each other across the AWS backbone between D
 | Private IP Site-to-Site VPN | L3 IPsec | Over a transit VIF to a Transit Gateway (or Cloud WAN), outer IPs private |
 | Public IP VPN over a public VIF | L3 IPsec | To the public VPN endpoints, not accelerated |
 
-MACsec encrypts only the cross connect between your device and the AWS device. 100 and 400 Gbps require GCM-AES-XPN-256; 10 Gbps allows GCM-AES-256 or the XPN variant. Only static CAK mode is supported. Depth: [cross-connect 03-lag-and-macsec](https://github.com/0-draft/cross-connect/blob/main/docs/03-lag-and-macsec.md).
+MACsec is hop by hop: it encrypts the link between your MACsec device and the AWS device, which need a direct Layer 2 adjacency. If your MACsec device sits in the colocation cage, that is just the cross connect; the carrier circuit to your building is covered only if your device is at your end and the carrier passes Layer 2 through transparently (ask the carrier). 100 and 400 Gbps require GCM-AES-XPN-256; 10 Gbps allows GCM-AES-256 or the XPN variant. Only static CAK mode is supported. Depth: [cross-connect 03-lag-and-macsec](https://github.com/0-draft/cross-connect/blob/main/docs/03-lag-and-macsec.md).
 
 ## LAGs
 
@@ -226,7 +226,7 @@ AWS does not publish an end-to-end lead time for a dedicated connection. The car
 - Enabling jumbo frames briefly drops every VIF on the connection.
 - Gateway endpoints for S3 and DynamoDB do not work for on-prem traffic arriving over DX.
 - Prepending with a private ASN on a public VIF does nothing, because AWS rewrites it to 7224.
-- MACsec covers only the cross connect, not the carrier circuit or the path into the Region.
+- MACsec covers the hop between your MACsec device and AWS's, not the path into the Region. With your device in the colo cage it covers only the cross connect; the carrier circuit is covered only if your device is at your end and the carrier is Layer 2 transparent.
 - A DX fault inside the AWS path to one Region (for example the 2021-09-02 Tokyo event) is not fixed by location diversity. Keep a different kind of backup, such as VPN or another Region.
 
 ## Sources
