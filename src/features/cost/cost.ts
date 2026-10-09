@@ -1,4 +1,5 @@
 import type { L } from "@/i18n/lang";
+import { AS_OF } from "@/data/asOf";
 
 /**
  * Monthly AWS charges for sending data from ap-northeast-1 (Tokyo) to your
@@ -7,7 +8,8 @@ import type { L } from "@/i18n/lang";
  * calculator"). Excludes tax, carrier circuits, colocation and partner fees.
  */
 
-export const PRICES_AS_OF = "2026-10-10";
+/** Prices were read on the site-wide verification date. */
+export const PRICES_AS_OF = AS_OF;
 export const HOURS = 730;
 
 export const P = {

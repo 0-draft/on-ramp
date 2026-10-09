@@ -10,6 +10,11 @@ describe("MtuSection", () => {
       </LangProvider>,
     );
     expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Low clearance");
+    // The lab is locked until the question is answered (or skipped).
+    expect(
+      screen.queryByRole("radio", { name: /Internet \(internet gateway\)/ }),
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Silently dropped" }));
     // Default path is VPN AES-GCM: a 1500 B packet is black-holed.
     expect(screen.getByText("Too tall: silently dropped")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("radio", { name: /Internet \(internet gateway\)/ }));

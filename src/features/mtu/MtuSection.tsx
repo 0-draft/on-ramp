@@ -24,6 +24,32 @@ export function MtuSection() {
             ja: "経路を選ぶとパケットの中身が開きます。IPsec や GRE で包むとヘッダーが増え、その分だけデータに使える余地が減ります。次にパケットサイズを動かして、トラックが橋にぶつかるか見てみてください。",
           })}
         </p>
+      </div>
+
+      <Predict
+        question={{
+          en: "Your data center normally reaches a VPC over Direct Connect into a Transit Gateway. DX fails and traffic moves to the BGP VPN backup. An app sends a 1500-byte UDP packet with Don't Fragment set. What happens?",
+          ja: "データセンターは普段 Direct Connect から Transit Gateway 経由で VPC につながっています。DX が落ち、通信は BGP の VPN バックアップへ。アプリが DF ビット付きの 1500 バイトの UDP パケットを送ります。どうなる?",
+        }}
+        options={[
+          { id: "fits", label: { en: "It arrives", ja: "届く" } },
+          {
+            id: "pmtud",
+            label: { en: "Sender is told to shrink", ja: "縮めるよう通知される" },
+          },
+          { id: "drop", label: { en: "Silently dropped", ja: "黙って破棄される" } },
+        ]}
+        answer="drop"
+        why={t({
+          en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives only if MSS is clamped on your router; UDP with DF set just vanishes. Pick the VPN path below and drag to 1500 to see it.",
+          ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP はルーターで MSS をクランプしていれば助かりますが、DF 付きの UDP はただ消えます。下で VPN の経路を選び 1500 にして確かめてください。",
+        })}
+      >
+        <MtuLab />
+      </Predict>
+
+      {/* The takeaway comes after the lab so it cannot spoil the question. */}
+      <div className="prose-ish mt-6 max-w-3xl">
         <p>
           {t({
             en: "The takeaway: the path MTU is the smallest clearance along the way, and AWS gives you no PMTUD on VPN or on Direct Connect into a Transit Gateway. A failover from DX to VPN quietly drops the clearance to 1446 (and with a VPN advertising the same prefix as a private VIF, AWS already caps that prefix at 1500). Set the MSS on your router (1406 or lower for VPN) and let ICMP 'fragmentation needed' through where PMTUD does exist.",
@@ -31,30 +57,6 @@ export function MtuSection() {
           })}
         </p>
       </div>
-
-      <div className="mb-4">
-        <Predict
-          question={{
-            en: "Your data center normally reaches a VPC over Direct Connect into a Transit Gateway. DX fails and traffic moves to the BGP VPN backup. An app sends a 1500-byte UDP packet with Don't Fragment set. What happens?",
-            ja: "データセンターは普段 Direct Connect から Transit Gateway 経由で VPC につながっています。DX が落ち、通信は BGP の VPN バックアップへ。アプリが DF ビット付きの 1500 バイトの UDP パケットを送ります。どうなる?",
-          }}
-          options={[
-            { id: "fits", label: { en: "It arrives", ja: "届く" } },
-            {
-              id: "pmtud",
-              label: { en: "Sender is told to shrink", ja: "縮めるよう通知される" },
-            },
-            { id: "drop", label: { en: "Silently dropped", ja: "黙って破棄される" } },
-          ]}
-          answer="drop"
-          why={t({
-            en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives only if MSS is clamped on your router; UDP with DF set just vanishes. Pick the VPN path below and drag to 1500 to see it.",
-            ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP はルーターで MSS をクランプしていれば助かりますが、DF 付きの UDP はただ消えます。下で VPN の経路を選び 1500 にして確かめてください。",
-          })}
-        />
-      </div>
-
-      <MtuLab />
 
       <div className="mt-6">
         <Callout

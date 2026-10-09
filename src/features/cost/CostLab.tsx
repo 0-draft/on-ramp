@@ -1,7 +1,8 @@
-import { useId, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useLang } from "@/i18n/useLang";
 import { ROUTE } from "@/data/routes";
 import { Shield, Toggle } from "@/components/ui";
+import { Slider } from "@/components/ui/Slider";
 import { OPTIONS, SLIDER, avgMbps, bills, gbAt, tooSmall } from "./cost";
 
 const usd = (n: number) =>
@@ -41,7 +42,6 @@ const PART = {
 
 export function CostLab() {
   const { t } = useLang();
-  const id = useId();
   // The slider keeps its own position: deriving it from the rounded volume
   // made arrow-key steps round straight back to where they started.
   const [pos, setPos] = useState(Math.log10(10_240));
@@ -57,30 +57,22 @@ export function CostLab() {
 
   return (
     <div className="panel p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-3">
-        <label htmlFor={id} className="font-bold">
-          {t({
-            en: "Sent from Tokyo to your DC per month",
-            ja: "東京リージョンから自社 DC へ送る量 (月)",
-          })}
-        </label>
-        <input
-          id={id}
-          type="range"
-          min={SLIDER.min}
-          max={SLIDER.max}
-          step={SLIDER.step}
-          value={pos}
-          onChange={(e) => {
-            const v = Number(e.target.value);
-            setPos(v);
-            setGb(gbAt(v));
-          }}
-          aria-valuetext={sizeLabel(gb)}
-          className="min-w-0 flex-1"
-        />
-        <span className="num w-24 text-right text-lg font-bold">{sizeLabel(gb)}</span>
-      </div>
+      <Slider
+        label={{
+          en: "Sent from Tokyo to your DC per month",
+          ja: "東京リージョンから自社 DC へ送る量 (月)",
+        }}
+        min={SLIDER.min}
+        max={SLIDER.max}
+        step={SLIDER.step}
+        value={pos}
+        onChange={(v) => {
+          setPos(v);
+          setGb(gbAt(v));
+        }}
+        // Show the volume itself, not the log-scale position.
+        format={() => sizeLabel(gb)}
+      />
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {PRESETS.map((p) => (
           <button

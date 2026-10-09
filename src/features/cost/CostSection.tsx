@@ -44,26 +44,25 @@ export function CostSection() {
         </p>
       </div>
 
-      <div className="mb-4">
-        <Predict
-          question={{
-            en: "You send 10 TB a month from Tokyo to your office. Which is cheaper on the AWS bill: plain internet, or a Site-to-Site VPN on a virtual private gateway?",
-            ja: "東京リージョンから社内へ月 10 TB 送ります。AWS の請求が安いのは、素のインターネットと、仮想プライベートゲートウェイの Site-to-Site VPN のどちら?",
-          }}
-          options={[
-            { id: "internet", label: { en: "Internet", ja: "インターネット" } },
-            { id: "vpn", label: { en: "VPN", ja: "VPN" } },
-            { id: "same", label: { en: "Exactly the same", ja: "まったく同じ" } },
-          ]}
-          answer="internet"
-          why={t({
-            en: "VPN traffic is billed at the internet data transfer rate ($1,167.36 for 10 TB), and the VPN adds $0.048 an hour for the connection: $1,202.40. You buy a VPN for encryption and private addressing, not to save money.",
-            ja: "VPN の通信はインターネットと同じデータ転送単価 (10 TB で $1,167.36) で、さらに接続料が 1 時間 $0.048 かかり $1,202.40。VPN は暗号化とプライベートアドレスのために買うもので、節約のためではありません。",
-          })}
-        />
-      </div>
-
-      <CostLab />
+      <Predict
+        question={{
+          en: "You send 10 TB a month from Tokyo to your office. Which is cheaper on the AWS bill: plain internet, or a Site-to-Site VPN on a virtual private gateway?",
+          ja: "東京リージョンから社内へ月 10 TB 送ります。AWS の請求が安いのは、素のインターネットと、仮想プライベートゲートウェイの Site-to-Site VPN のどちら?",
+        }}
+        options={[
+          { id: "internet", label: { en: "Internet", ja: "インターネット" } },
+          { id: "vpn", label: { en: "VPN", ja: "VPN" } },
+          { id: "same", label: { en: "Exactly the same", ja: "まったく同じ" } },
+        ]}
+        answer="internet"
+        why={t({
+          en: "VPN traffic is billed at the internet data transfer rate ($1,167.36 for 10 TB), and the VPN adds $0.048 an hour for the connection: $1,202.40. You buy a VPN for encryption and private addressing, not to save money.",
+          ja: "VPN の通信はインターネットと同じデータ転送単価 (10 TB で $1,167.36) で、さらに接続料が 1 時間 $0.048 かかり $1,202.40。VPN は暗号化とプライベートアドレスのために買うもので、節約のためではありません。",
+        })}
+      >
+        {/* The bars answer the question, so they stay locked until you guess. */}
+        <CostLab />
+      </Predict>
 
       <p className="mt-3 text-sm text-[var(--muted)]">
         {t({

@@ -1,6 +1,7 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
+import { Slider } from "@/components/ui/Slider";
 import { useNarrow } from "@/hooks/useNarrow";
 import { ROUTE } from "@/data/routes";
 import { Segmented, Shield } from "@/components/ui";
@@ -244,7 +245,6 @@ const QUICK = [1400, 1500, 8500, 9001];
 export function MtuLab() {
   const { t } = useLang();
   const narrow = useNarrow();
-  const sizeId = useId();
   const [id, setId] = useState<MtuPathId>("vpnGcm");
   const [size, setSize] = useState(1500);
   const p = MTU_PATH[id];
@@ -288,7 +288,7 @@ export function MtuLab() {
         />
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[1fr_18rem]">
+      <div className="grid items-start gap-5 lg:grid-cols-[1fr_18rem]">
         <div className="panel p-4">
           <p className="mb-3 font-bold">
             {t({ en: "Header inspector", ja: "ヘッダーの中身" })}
@@ -342,25 +342,17 @@ export function MtuLab() {
       </div>
 
       <div className="panel p-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <label htmlFor={sizeId} className="font-bold">
-            {t({
-              en: "Packet size (Don't Fragment set)",
-              ja: "パケットサイズ (DF ビットあり)",
-            })}
-          </label>
-          <input
-            id={sizeId}
-            type="range"
-            min={576}
-            max={9216}
-            step={1}
-            value={size}
-            onChange={(e) => setSize(Number(e.target.value))}
-            className="min-w-0 flex-1"
-          />
-          <span className="w-20 text-right num font-bold">{fmt(size)} B</span>
-        </div>
+        <Slider
+          label={{
+            en: "Packet size (Don't Fragment set)",
+            ja: "パケットサイズ (DF ビットあり)",
+          }}
+          min={576}
+          max={9216}
+          value={size}
+          onChange={setSize}
+          format={(v) => `${fmt(v)} B`}
+        />
         <div className="mt-2 flex flex-wrap gap-2">
           {QUICK.map((q) => (
             <button
