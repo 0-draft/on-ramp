@@ -4,6 +4,8 @@ import { Hero } from "@/features/hero/Hero";
 import { InternetSection } from "@/features/internet/InternetSection";
 import { VpnSection } from "@/features/vpn/VpnSection";
 import { RoutingSection } from "@/features/routing/RoutingSection";
+import { PrivateSection } from "@/features/private/PrivateSection";
+import { DnsSection } from "@/features/dns/DnsSection";
 import { MtuSection } from "@/features/mtu/MtuSection";
 import { CostSection } from "@/features/cost/CostSection";
 import { PlanSection } from "@/features/plan/PlanSection";
@@ -24,6 +26,8 @@ export default function App() {
         <InternetSection />
         <VpnSection />
         <RoutingSection />
+        <PrivateSection />
+        <DnsSection />
         <MtuSection />
         <CostSection />
         <PlanSection />
