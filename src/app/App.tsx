@@ -10,6 +10,7 @@ import { TimelineSection } from "@/features/timeline/TimelineSection";
 import { GlossarySection } from "@/features/glossary/GlossarySection";
 import { InternetSection } from "@/features/internet/InternetSection";
 import { VpnSection } from "@/features/vpn/VpnSection";
+import { DxSection } from "@/features/dx/DxSection";
 import { HubsSection } from "@/features/hubs/HubsSection";
 import { SdwanSection } from "@/features/sdwan/SdwanSection";
 import { RoutingSection } from "@/features/routing/RoutingSection";
@@ -36,6 +37,7 @@ export default function App() {
         <BasicsSection />
         <InternetSection />
         <VpnSection />
+        <DxSection />
         <HubsSection />
         <SdwanSection />
         <RoutingSection />
