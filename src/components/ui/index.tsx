@@ -29,7 +29,6 @@ export function Section({
   const { t } = useLang();
   const i = NAV.findIndex((n) => n.id === id);
   const exit = i + 1;
-  const next = NAV[i + 1];
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="pt-12 pb-4 sm:pt-16">
       <div className="sign inline-flex max-w-full items-stretch overflow-hidden">
@@ -47,22 +46,6 @@ export function Section({
       </div>
       <p className="mt-5 max-w-3xl text-lg text-[var(--muted)]">{t(lead)}</p>
       <div className="mt-8">{children}</div>
-      {next && (
-        // An advance sign for the next exit, so the page reads as one drive.
-        <a
-          href={`#${next.id}`}
-          className="mt-10 ml-auto flex w-fit items-center gap-3 rounded-lg border-2 border-[var(--sign)] px-3 py-2 text-sm font-bold text-[var(--ink)] hover:bg-[var(--paper)]"
-        >
-          <span className="text-[var(--muted)]">
-            {t({ en: "Next exit", ja: "次の出口" })}
-          </span>
-          <span className="whitespace-nowrap rounded bg-[var(--sign)] px-2 py-0.5 text-[var(--sign-ink)]">
-            {exit + 1}
-          </span>
-          {t(next.label)}
-          <span aria-hidden="true">↓</span>
-        </a>
-      )}
     </section>
   );
 }

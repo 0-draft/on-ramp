@@ -32,10 +32,12 @@ export function Predict({
   const { t } = useLang();
   const result = useRef<HTMLDivElement>(null);
   const [pick, setPick] = useState<{ key?: string; id: string } | null>(null);
-  const [skipped, setSkipped] = useState(false);
+  // Once the lab is open it stays open: changing the scenario re-arms the
+  // question, but never hides the lab the reader is exploring.
+  const [opened, setOpened] = useState(false);
   const picked = pick && pick.key === resetKey ? pick.id : null;
   const right = picked === answer;
-  const locked = children !== undefined && picked === null && !skipped;
+  const locked = children !== undefined && !opened;
   return (
     <div className="flex flex-col gap-4">
       <div className="panel p-4">
@@ -59,6 +61,7 @@ export function Predict({
                 onClick={() => {
                   if (picked !== null) return;
                   setPick({ key: resetKey, id: o.id });
+                  setOpened(true);
                   onPick?.(o.id, o.id === answer);
                   // Move focus to the explanation so keyboard and screen-reader
                   // users land on the answer.
@@ -94,56 +97,51 @@ export function Predict({
                   : t({ en: "Not quite.", ja: "残念。" })}
               </p>
               <div className="mt-1">{why}</div>
-              <button
-                type="button"
-                onClick={() => {
-                  setPick(null);
-                  requestAnimationFrame(() =>
-                    result.current?.parentElement?.querySelector("button")?.focus(),
-                  );
-                }}
-                className="mt-2 text-sm font-semibold underline"
-              >
-                {t({ en: "Try again", ja: "もう一度" })}
-              </button>
+              {!right && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPick(null);
+                    requestAnimationFrame(() =>
+                      result.current?.parentElement?.querySelector("button")?.focus(),
+                    );
+                  }}
+                  className="mt-2 text-sm font-semibold underline"
+                >
+                  {t({ en: "Try again", ja: "もう一度" })}
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
-      {children !== undefined && (
-        <div className="relative">
-          <div
-            // inert keeps the hidden lab out of the tab order and away from
-            // screen readers until it is unlocked.
-            inert={locked}
-            aria-hidden={locked || undefined}
-            className={
-              locked ? "pointer-events-none opacity-25 blur-[2px] select-none" : ""
-            }
-          >
-            {children}
-          </div>
-          {locked && (
-            <div className="absolute inset-x-0 top-6 flex justify-center">
-              <div className="panel flex flex-wrap items-center gap-3 px-4 py-3 shadow-lg">
-                <span className="font-bold">
-                  {t({
-                    en: "Answer the question first",
-                    ja: "先に上の質問に答えてください",
-                  })}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setSkipped(true)}
-                  className="min-h-10 rounded-lg border border-[var(--line)] px-3 text-sm font-bold"
-                >
-                  {t({ en: "Skip and show the lab", ja: "スキップしてラボを見る" })}
-                </button>
-              </div>
+      {children !== undefined &&
+        (locked ? (
+          // The lab is not rendered at all until it is opened, so nothing in it
+          // can give the answer away.
+          <div className="panel relative flex min-h-40 flex-col items-center justify-center gap-3 overflow-hidden border-dashed px-4 py-8 text-center">
+            <div aria-hidden="true" className="absolute inset-0 opacity-50">
+              <div className="mx-6 mt-6 h-3 w-1/3 rounded bg-[var(--line)]" />
+              <div className="mx-6 mt-3 h-3 w-2/3 rounded bg-[var(--line)]" />
+              <div className="mx-6 mt-3 h-3 w-1/2 rounded bg-[var(--line)]" />
             </div>
-          )}
-        </div>
-      )}
+            <p className="relative font-bold">
+              {t({
+                en: "Answer the question above to open the lab.",
+                ja: "上の質問に答えるとラボが開きます。",
+              })}
+            </p>
+            <button
+              type="button"
+              onClick={() => setOpened(true)}
+              className="relative min-h-10 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-4 text-sm font-bold"
+            >
+              {t({ en: "Skip and open the lab", ja: "スキップしてラボを開く" })}
+            </button>
+          </div>
+        ) : (
+          children
+        ))}
     </div>
   );
 }

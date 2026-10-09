@@ -67,6 +67,15 @@ export function Header() {
   const { active, progress } = usePosition();
   const [open, setOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  // Fade only the edge that has more exits beyond it.
+  const [fade, setFade] = useState({ left: false, right: true });
+  const updateFade = () => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const left = nav.scrollLeft > 2;
+    const right = nav.scrollLeft < nav.scrollWidth - nav.clientWidth - 2;
+    setFade((f) => (f.left === left && f.right === right ? f : { left, right }));
+  };
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
 
@@ -92,6 +101,8 @@ export function Header() {
       left: link ? link.offsetLeft - nav.clientWidth / 2 + link.offsetWidth / 2 : 0,
       behavior: "smooth",
     });
+    const id = window.setTimeout(updateFade, 400);
+    return () => window.clearTimeout(id);
   }, [active]);
 
   // Close the phone menu on Escape or a click outside it.
@@ -133,19 +144,44 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 bg-[var(--sign)] text-[var(--sign-ink)] shadow-md">
       <div className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-1.5 sm:gap-3 sm:px-6">
-        <a href="#top" className="shrink-0 py-1 font-black tracking-tight">
-          On-ramp
+        <a
+          href="#top"
+          className="flex min-h-10 shrink-0 items-center gap-1.5 font-black tracking-tight"
+          aria-label="On-ramp"
+        >
+          <svg viewBox="0 0 64 64" className="h-6 w-6" aria-hidden="true">
+            <path
+              d="M14 56 C14 36 24 28 40 28 H52"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="8"
+              strokeLinecap="round"
+            />
+            <path
+              d="M42 16 L54 28 L42 40"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span className="hidden sm:inline">On-ramp</span>
         </a>
 
         {/* Wide screens: every exit, current one centred, edges faded. */}
         <nav
           ref={navRef}
           aria-label={t({ en: "Exits", ja: "出口" })}
-          className="hidden min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [mask-image:linear-gradient(to_right,transparent,#000_1.5rem,#000_calc(100%-1.5rem),transparent)] sm:block"
+          onScroll={updateFade}
+          className="hidden min-w-0 flex-1 snap-x overflow-x-auto scroll-px-2 [scrollbar-width:none] sm:block"
+          style={{
+            maskImage: `linear-gradient(to right, ${fade.left ? "transparent" : "#000"}, #000 2rem, #000 calc(100% - 2rem), ${fade.right ? "transparent" : "#000"})`,
+          }}
         >
-          <ol className="flex gap-1 px-4 whitespace-nowrap">
+          <ol className="flex gap-1 whitespace-nowrap">
             {NAV.map((n, i) => (
-              <li key={n.id}>
+              <li key={n.id} className="snap-start">
                 <a
                   href={`#${n.id}`}
                   aria-current={active === n.id ? "location" : undefined}
@@ -172,7 +208,8 @@ export function Header() {
             {current ? (
               <>
                 <span className="shrink-0 rounded bg-[var(--sign-ink)] px-1.5 text-xs text-[var(--sign)]">
-                  {t({ en: "EXIT", ja: "出口" })} {idx + 1}
+                  <span className="sr-only">{t({ en: "Exit", ja: "出口" })} </span>
+                  {idx + 1}
                 </span>
                 <span className="truncate">{t(current.label)}</span>
               </>
@@ -217,7 +254,9 @@ export function Header() {
           aria-label={t(themeLabel)}
           title={t(themeLabel)}
         >
-          <span aria-hidden="true">{THEME_ICON[theme]}</span>
+          <span aria-hidden="true" className="text-xl leading-none">
+            {THEME_ICON[theme]}
+          </span>
         </button>
         <div
           role="group"

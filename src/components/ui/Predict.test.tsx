@@ -23,20 +23,22 @@ function setup(onPick = vi.fn()) {
 }
 
 describe("Predict", () => {
-  it("keeps the lab inert until the reader answers", () => {
+  it("does not render the lab until the reader answers", () => {
     const onPick = setup();
-    const lab = screen.getByText("lab control").parentElement!;
-    expect(lab).toHaveAttribute("inert");
+    expect(screen.queryByText("lab control")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "A" }));
     expect(onPick).toHaveBeenCalledWith("a", false);
     expect(screen.getByText("Not quite.")).toBeInTheDocument();
-    expect(lab).not.toHaveAttribute("inert");
+    expect(screen.getByText("lab control")).toBeInTheDocument();
+    // A wrong answer can be retried; the lab stays open.
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(screen.getByText("lab control")).toBeInTheDocument();
   });
 
   it("lets the reader skip straight to the lab", () => {
     setup();
-    fireEvent.click(screen.getByRole("button", { name: "Skip and show the lab" }));
-    expect(screen.getByText("lab control").parentElement).not.toHaveAttribute("inert");
+    fireEvent.click(screen.getByRole("button", { name: "Skip and open the lab" }));
+    expect(screen.getByText("lab control")).toBeInTheDocument();
     expect(screen.queryByText("Not quite.")).toBeNull();
   });
 
@@ -46,5 +48,6 @@ describe("Predict", () => {
     fireEvent.click(screen.getByRole("button", { name: "A" }));
     expect(onPick).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Right.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
   });
 });

@@ -20,54 +20,56 @@ export function Hero() {
 
   return (
     <header className="pt-8 pb-6 sm:pt-12">
-      {/* The title is an overhead highway sign pointing at AWS. */}
-      <div className="sign relative max-w-3xl px-5 py-5 sm:px-8 sm:py-6">
-        <div className="flex items-center gap-4 sm:gap-5">
-          <svg
-            viewBox="0 0 64 64"
-            className="h-12 w-12 shrink-0 sm:h-16 sm:w-16"
-            aria-hidden="true"
-          >
-            <path
-              d="M14 56 C14 36 24 28 40 28 H52"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="7"
-              strokeLinecap="round"
-            />
-            <path
-              d="M42 16 L54 28 L42 40"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="7"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <div className="min-w-0">
-            <h1 className="text-5xl leading-none font-black tracking-tight sm:text-6xl">
-              On-ramp
-            </h1>
-            <p className="mt-2 text-lg font-semibold sm:text-xl">
-              {t({
-                en: "Every way from your network into AWS",
-                ja: "社内ネットワークから AWS に入る、すべての道",
-              })}
-            </p>
+      <div className="lg:grid lg:grid-cols-[minmax(0,34rem)_1fr] lg:items-center lg:gap-8">
+        {/* The title is an overhead highway sign pointing at AWS. */}
+        <div className="sign relative px-5 py-5 sm:px-8 sm:py-6">
+          <div className="flex items-center gap-4 sm:gap-5">
+            <svg
+              viewBox="0 0 64 64"
+              className="h-12 w-12 shrink-0 sm:h-16 sm:w-16"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 56 C14 36 24 28 40 28 H52"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="7"
+                strokeLinecap="round"
+              />
+              <path
+                d="M42 16 L54 28 L42 40"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="min-w-0">
+              <h1 className="text-5xl leading-none font-black tracking-tight sm:text-6xl">
+                On-ramp
+              </h1>
+              <p className="mt-2 text-lg font-semibold sm:text-xl">
+                {t({
+                  en: "Every way from your network into AWS",
+                  ja: "社内ネットワークから AWS に入る、すべての道",
+                })}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      <p className="mt-5 max-w-3xl text-lg">
-        {t({
-          en: "Connecting an office to AWS is a stack of decisions: which road carries the bits, which gateway they land on, how AWS picks between two roads, and whether your DNS sends anyone down it at all. Here is every road on one map. Pick one and drive it.",
-          ja: "社内と AWS をつなぐのは判断の積み重ねです。どの道でビットを運ぶか、どのゲートウェイに着地させるか、道が 2 本あるとき AWS はどちらを選ぶか、そもそも DNS がその道に案内するか。全部の道を 1 枚の地図にしました。1 本選んで走ってみてください。",
-        })}
-      </p>
+        <p className="mt-5 max-w-3xl text-lg lg:mt-0 lg:text-base">
+          {t({
+            en: "Connecting an office to AWS is a stack of decisions: which road carries the bits, which gateway they land on, how AWS picks between two roads, and whether your DNS sends anyone down it at all. Here is every road on one map. Pick one and drive it.",
+            ja: "社内と AWS をつなぐのは判断の積み重ねです。どの道でビットを運ぶか、どのゲートウェイに着地させるか、道が 2 本あるとき AWS はどちらを選ぶか、そもそも DNS がその道に案内するか。全部の道を 1 枚の地図にしました。1 本選んで走ってみてください。",
+          })}
+        </p>
+      </div>
 
       <div className="panel mt-5 p-3 sm:p-4">
         {/* The legend is the route picker. */}
-        <div className="-mx-1 overflow-x-auto px-1 pb-1">
+        <div className="-mx-1 overflow-x-auto px-1 pb-1 max-sm:[&>[role=radiogroup]]:flex-nowrap">
           <Segmented
             label={{ en: "Routes", ja: "経路" }}
             options={ROUTES.map((r) => ({ id: r.id, label: r.name }))}
@@ -90,6 +92,11 @@ export function Hero() {
           />
         </div>
 
+        {/* The step caption sits right above the map, so what you click and
+            what it means stay on one screen. */}
+        <div className="mt-3 border-b border-[var(--line)] pb-3">
+          <RouteJourney route={route} hop={hop} onHop={setHop} strip={false} />
+        </div>
         <div className="mt-3">
           {compact ? (
             <StripMap route={route} hop={hop} onHop={setHop} />
@@ -105,9 +112,6 @@ export function Hero() {
             })}
           </p>
         )}
-        <div className="mt-3 border-t border-[var(--line)] pt-3">
-          <RouteJourney route={route} hop={hop} onHop={setHop} strip={!compact} />
-        </div>
       </div>
 
       <div className="mt-4">

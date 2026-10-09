@@ -233,10 +233,13 @@ export function RoadMap({
   const markers = stops.map((s, i) => {
     const dup = stops.slice(0, i).filter((o) => o.at === s.at).length;
     const [x, y] = pts[s.at];
-    // Keep each marker off the box its point touches: the first stop sits on
-    // a box to its left, the last on a box to its right.
-    const dx = s.at === 0 ? 20 : s.at === pts.length - 1 ? -22 : 0;
-    return { x: x + dx + dup * 26, y: y - 22 };
+    // Sit just outside the box the point touches, on the road side: points
+    // on a box's left edge get the marker to their left, right edges to
+    // their right, open road straight above.
+    const LEFT_EDGES = [370, 690, 836, 846];
+    const RIGHT_EDGES = [210, 530, 810];
+    const dx = LEFT_EDGES.includes(x) ? -18 : RIGHT_EDGES.includes(x) ? 18 : 0;
+    return { x: x + dx + dup * 26, y: y - 20 };
   });
   const lit = new Set(selected ? TOUCH[selected] : []);
   const order = ROUTES.map((r) => r.id).sort((a, b) =>
