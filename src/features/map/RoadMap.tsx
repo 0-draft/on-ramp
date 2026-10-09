@@ -233,7 +233,10 @@ export function RoadMap({
   const markers = stops.map((s, i) => {
     const dup = stops.slice(0, i).filter((o) => o.at === s.at).length;
     const [x, y] = pts[s.at];
-    return { x: x + dup * 26, y: y - 22 };
+    // Keep each marker off the box its point touches: the first stop sits on
+    // a box to its left, the last on a box to its right.
+    const dx = s.at === 0 ? 20 : s.at === pts.length - 1 ? -22 : 0;
+    return { x: x + dx + dup * 26, y: y - 22 };
   });
   const lit = new Set(selected ? TOUCH[selected] : []);
   const order = ROUTES.map((r) => r.id).sort((a, b) =>

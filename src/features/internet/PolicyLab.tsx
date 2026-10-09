@@ -92,7 +92,13 @@ export function PolicyLab() {
             value={cond}
             onChange={setCond}
           />
-          <div className="mt-2 overflow-x-auto rounded-lg bg-[var(--paper-2)] p-3">
+          <div
+            className="mt-2 overflow-x-auto rounded-lg bg-[var(--paper-2)] p-3"
+            // Keyboard users can scroll a wide policy too.
+            tabIndex={0}
+            role="region"
+            aria-label="Bucket policy JSON"
+          >
             <pre className="font-mono text-xs leading-relaxed whitespace-pre">
               {POLICY[cond]}
             </pre>
