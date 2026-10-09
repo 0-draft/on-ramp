@@ -179,7 +179,7 @@ DX 10G flat-rate Tier 1 (single port, DTO included)                     = 8,000.
 | DX hosted 50 Mbps | 441.01 | 419.84 | 21.17 |
 | DX 10 Gbps flat-rate Tier 1 | 8,000.80 | 0 | 8,000.80 |
 
-Break-even for flat-rate vs pay-as-you-go at the same port size, Tokyo to a Japan location: 10G (10.96 − 2.142) × 730 / 0.041 ≈ 157,000 GB ≈ 153 TB/month; 100G (102.74 − 22.50) × 730 / 0.041 ≈ 1,429,000 GB ≈ 1,395 TB/month. Below those volumes, pay-as-you-go is cheaper.
+Break-even for flat-rate vs pay-as-you-go at the same port size, Tokyo to a Japan location: 10G (10.96 − 2.142) × 730 / 0.041 ≈ 157,000 GB ≈ 153 TB/month; 100G (102.74 − 22.50) × 730 / 0.041 ≈ 1,429,000 GB ≈ 1,395 TB/month. Below those volumes, pay-as-you-go is cheaper. These compare one flat-rate port with one pay-as-you-go port, with 1 TB = 1,024 GB; a redundant port-pair (USD 5.48 per port for 10G Tier 1) breaks even lower against two pay-as-you-go ports.
 
 The per-GB saving of DX over internet in Tokyo is 0.114 − 0.041 = $0.073/GB in the first internet tier, so a 1 Gbps dedicated port ($208.05/month) pays for itself after about 2.8 TB/month of egress, before partner circuit costs (which usually dominate in Japan and are not in AWS pricing).
 

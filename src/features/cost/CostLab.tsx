@@ -1,31 +1,18 @@
-import { useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 import { useLang } from "@/i18n/useLang";
 import { ROUTE } from "@/data/routes";
 import { Shield, Toggle } from "@/components/ui";
-import { HOURS, OPTIONS, bills } from "./cost";
+import { OPTIONS, SLIDER, avgMbps, bills, gbAt, tooSmall } from "./cost";
 
 const usd = (n: number) =>
   `$${n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-// The slider is logarithmic: 10 GB to 500 TB in one sweep.
-const MIN = Math.log10(10);
-const MAX = Math.log10(512_000);
-const toGb = (v: number) => {
-  const g = 10 ** v;
-  const mag = 10 ** Math.max(0, Math.floor(Math.log10(g)) - 1);
-  return Math.round(g / mag) * mag;
-};
 const PRESETS = [100, 1_024, 10_240, 102_400];
 
 function sizeLabel(gb: number) {
   return gb >= 1024
     ? `${(gb / 1024).toLocaleString("en-US", { maximumFractionDigits: 1 })} TB`
     : `${gb.toLocaleString("en-US")} GB`;
-}
-
-/** Average bit rate of a monthly volume, in Mbps (GB = 10^9 bytes). */
-function avgMbps(gb: number) {
-  return (gb * 8e9) / (HOURS * 3600) / 1e6;
 }
 
 const PART = {
@@ -54,52 +41,64 @@ const PART = {
 
 export function CostLab() {
   const { t } = useLang();
+  const id = useId();
+  // The slider keeps its own position: deriving it from the rounded volume
+  // made arrow-key steps round straight back to where they started.
+  const [pos, setPos] = useState(Math.log10(10_240));
   const [gb, setGb] = useState(10_240);
   const [viaTgw, setViaTgw] = useState(false);
   const [freeTier, setFreeTier] = useState(false);
   const rows = useMemo(() => bills({ gb, viaTgw, freeTier }), [gb, viaTgw, freeTier]);
   const max = Math.max(...rows.map((r) => r.total), 1);
-  const cheapest = Math.min(...rows.map((r) => r.total));
+  // Only options that can carry the volume compete for "cheapest".
+  const cheapest = Math.min(
+    ...rows.filter((r) => !tooSmall(r.id, gb)).map((r) => r.total),
+  );
 
   return (
     <div className="panel p-4 sm:p-5">
       <div className="flex flex-wrap items-center gap-3">
-        <label htmlFor="cost-gb" className="font-bold">
+        <label htmlFor={id} className="font-bold">
           {t({
             en: "Sent from Tokyo to your DC per month",
             ja: "東京リージョンから自社 DC へ送る量 (月)",
           })}
         </label>
         <input
-          id="cost-gb"
+          id={id}
           type="range"
-          min={MIN}
-          max={MAX}
-          step={0.01}
-          value={Math.log10(gb)}
-          onChange={(e) => setGb(toGb(Number(e.target.value)))}
+          min={SLIDER.min}
+          max={SLIDER.max}
+          step={SLIDER.step}
+          value={pos}
+          onChange={(e) => {
+            const v = Number(e.target.value);
+            setPos(v);
+            setGb(gbAt(v));
+          }}
           aria-valuetext={sizeLabel(gb)}
-          className="min-w-0 flex-1 accent-[var(--sign)]"
+          className="min-w-0 flex-1"
         />
-        <span className="w-24 text-right font-mono text-lg font-bold">
-          {sizeLabel(gb)}
-        </span>
+        <span className="num w-24 text-right text-lg font-bold">{sizeLabel(gb)}</span>
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {PRESETS.map((p) => (
           <button
             key={p}
             type="button"
-            onClick={() => setGb(p)}
+            onClick={() => {
+              setGb(p);
+              setPos(Math.log10(p));
+            }}
             aria-pressed={gb === p}
-            className="rounded-md border border-[var(--line)] px-2 py-0.5 font-mono text-sm aria-pressed:border-[var(--ink)] aria-pressed:font-bold"
+            className="num min-h-9 rounded-md border border-[var(--line)] px-3 py-1 text-sm aria-pressed:border-[var(--ink)] aria-pressed:font-bold"
           >
             {sizeLabel(p)}
           </button>
         ))}
         <span className="text-sm text-[var(--muted)]">
           {t({ en: "average", ja: "平均" })}{" "}
-          <span className="font-mono font-bold text-[var(--ink)]">
+          <span className="num font-bold text-[var(--ink)]">
             {avgMbps(gb).toLocaleString("en-US", {
               maximumFractionDigits: avgMbps(gb) < 10 ? 1 : 0,
             })}{" "}
@@ -128,18 +127,39 @@ export function CostLab() {
         {rows.map((r) => {
           const opt = OPTIONS.find((o) => o.id === r.id)!;
           const route = ROUTE[opt.route];
-          const best = r.total === cheapest;
+          const small = tooSmall(r.id, gb);
+          const best = !small && r.total === cheapest;
           return (
             <li
               key={r.id}
-              className="grid grid-cols-[minmax(0,11rem)_1fr] items-center gap-x-3 gap-y-1 sm:grid-cols-[14rem_1fr_7rem]"
+              // Phones: name and price on one line, the bar full width below.
+              className={`grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[15rem_1fr_6.5rem] ${small ? "opacity-55" : ""}`}
             >
-              <span className="flex items-center gap-2 text-sm font-bold">
+              <span className="flex min-w-0 flex-wrap items-center gap-2 text-sm font-bold">
                 <Shield label={route.shield} color={route.color} size="sm" />
                 <span className="min-w-0">{t(opt.name)}</span>
+                {best && (
+                  <span className="rounded bg-[var(--ok)] px-1.5 py-0.5 text-xs text-[var(--on-color)]">
+                    {t({ en: "cheapest", ja: "最安" })}
+                  </span>
+                )}
+                {small && (
+                  <span className="rounded border border-[var(--bad)] px-1.5 py-0.5 text-xs text-[var(--bad)]">
+                    {t({
+                      en: "✕ too small for this volume",
+                      ja: "✕ この量には帯域不足",
+                    })}
+                  </span>
+                )}
+              </span>
+              <span className="num text-right text-sm font-bold sm:order-last">
+                {usd(r.total)}
+                <span className="sr-only">
+                  {` (${t(PART.hourly.label)} ${usd(r.hourly)}, ${t(PART.transfer.label)} ${usd(r.transfer)}, ${t(PART.processing.label)} ${usd(r.processing)})`}
+                </span>
               </span>
               <div
-                className="flex h-7 overflow-hidden rounded-md bg-[var(--paper-2)]"
+                className="col-span-2 flex h-7 overflow-hidden rounded-md bg-[var(--paper-2)] sm:col-span-1"
                 aria-hidden="true"
               >
                 {(["hourly", "transfer", "processing"] as const).map((k) =>
@@ -156,17 +176,6 @@ export function CostLab() {
                   ) : null,
                 )}
               </div>
-              <span className="col-span-2 text-right font-mono text-sm font-bold sm:col-span-1">
-                {best && (
-                  <span className="mr-2 rounded bg-[var(--ok)] px-1.5 py-0.5 font-sans text-xs text-[var(--on-color)]">
-                    {t({ en: "cheapest", ja: "最安" })}
-                  </span>
-                )}
-                {usd(r.total)}
-                <span className="sr-only">
-                  {` (${t(PART.hourly.label)} ${usd(r.hourly)}, ${t(PART.transfer.label)} ${usd(r.transfer)}, ${t(PART.processing.label)} ${usd(r.processing)})`}
-                </span>
-              </span>
             </li>
           );
         })}
@@ -177,7 +186,7 @@ export function CostLab() {
           <span key={k} className="inline-flex items-center gap-1.5">
             <span
               className="inline-block h-3 w-6 rounded-sm"
-              style={{ background: "var(--r-dx)", ...PART[k].style }}
+              style={{ background: "var(--data)", ...PART[k].style }}
             />
             {t(PART[k].label)}
           </span>

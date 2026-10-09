@@ -2,7 +2,12 @@ import { useLang } from "@/i18n/useLang";
 import { Callout, MetaphorLimit, Section, Sources } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
 import { CostLab } from "./CostLab";
-import { PRICES_AS_OF } from "./cost";
+import { HOURS, P, PRICES_AS_OF, dxBreakEvenGb, flatBreakEvenGb } from "./cost";
+
+const tb = (gb: number, digits = 0) =>
+  (gb / 1024).toLocaleString("en-US", { maximumFractionDigits: digits });
+// Two attachments plus $0.02/GB on a 10 TB month.
+const TGW_ON_10TB = Math.round(2 * P.tgwAttachment * HOURS + 10_240 * P.tgwPerGb);
 
 export function CostSection() {
   const { t } = useLang();
@@ -12,34 +17,34 @@ export function CostSection() {
       title={{ en: "Tolls: what each road costs per month", ja: "通行料: 道ごとの月額" }}
       lead={{
         en: "AWS charges for data leaving a Region, and the rate depends on the road: internet and VPN pay the internet rate, Direct Connect pays a much lower per-GB rate but rents a port by the hour, and a Transit Gateway adds its own toll on every GB.",
-        ja: "AWS はリージョンから出ていくデータに課金し、単価は道によって違います。インターネットと VPN はインターネット単価、Direct Connect は GB 単価がずっと安い代わりにポートを時間で借り、Transit Gateway は 1 GB ごとに自分の通行料を上乗せします。",
+        ja: "AWS はリージョンから出ていくデータに課金し、単価は道によって違います。インターネットと VPN はインターネット単価、Direct Connect は GB 単価がずっと安い代わりにポートを時間で借り、Transit Gateway は 1 GB ごとに独自の通行料を上乗せします。",
       }}
     >
       <div className="prose-ish mb-6 max-w-3xl">
         <p>
           {t({
-            en: "Slide the monthly volume and watch the bars. At small volumes, the hourly charges dominate and the internet wins. Around 2.8 TB a month, a 1 Gbps dedicated port has paid for itself through its cheaper per-GB rate ($0.041 vs $0.114). A VPN never saves money on transfer: its data is billed at the internet rate, plus connection hours.",
-            ja: "月間の量を動かしてバーを見てください。量が少ないうちは時間課金が効いてインターネットが最安。月 2.8 TB あたりで、1 Gbps 専有ポートは安い GB 単価 ($0.041 対 $0.114) で元が取れます。VPN は転送料では得をしません。データはインターネット単価で課金され、そこに接続時間が加わります。",
+            en: `Slide the monthly volume and watch the bars. At small volumes, the hourly charges dominate and the internet wins. Around ${tb(dxBreakEvenGb(P.dxDedicated1g), 1)} TB a month, a 1 Gbps dedicated port has paid for itself through its cheaper per-GB rate ($${P.dxDtoJapan} vs $${P.internetTiers[0].perGb}). A VPN never saves money on transfer: its data is billed at the internet rate, plus connection hours. Options that cannot carry the volume even at a flat average rate are greyed out.`,
+            ja: `月間の量を動かしてバーを見てください。量が少ないうちは時間課金が効いてインターネットが最安。月 ${tb(dxBreakEvenGb(P.dxDedicated1g), 1)} TB あたりで、1 Gbps 専用ポートは安い GB 単価 ($${P.dxDtoJapan} 対 $${P.internetTiers[0].perGb}) で元が取れます。VPN は転送料では得をしません。データはインターネット単価で課金され、そこに接続時間が加わります。平均レートでも運びきれない選択肢はグレーにしています。`,
           })}
         </p>
         <p>
           {t({
-            en: "Turn on the Transit Gateway: two attachments and $0.02 per GB add about $307 to a 10 TB month. Flat-rate 10G only pays off past about 153 TB a month.",
-            ja: "Transit Gateway をオンにすると、アタッチメント 2 つと 1 GB あたり $0.02 で、月 10 TB なら約 $307 増えます。10G の定額料金が得になるのは月約 153 TB を超えてから。",
-          })}
+            en: `Turn on the Transit Gateway: two attachments and $${P.tgwPerGb} per GB add about $${TGW_ON_10TB} to a 10 TB month. One flat-rate 10G port only beats one pay-as-you-go 10G port past about ${tb(flatBreakEvenGb())} TB a month; a redundant port-pair compares differently.`,
+            ja: `Transit Gateway をオンにすると、アタッチメント 2 つと 1 GB あたり $${P.tgwPerGb} で、月 10 TB なら約 $${TGW_ON_10TB} 増えます。10G 定額ポート 1 本が従量課金の 10G ポート 1 本より安くなるのは月約 ${tb(flatBreakEvenGb())} TB から。冗長化したポートペアでは比較が変わります。`,
+          })}{" "}
+          <a
+            className="font-semibold underline"
+            href="https://0-draft.github.io/cross-connect/#pricing"
+          >
+            {t({
+              en: "Direct Connect pricing in depth (Cross Connect)",
+              ja: "Direct Connect の料金を詳しく (Cross Connect)",
+            })}
+          </a>
         </p>
       </div>
 
-      <CostLab />
-
-      <p className="mt-3 text-sm text-[var(--muted)]">
-        {t({
-          en: `Tokyo (ap-northeast-1) list prices in USD as of ${PRICES_AS_OF}, 730 hours a month, one connection, no redundancy, tax excluded. Direct Connect rates are to Japan DX locations.`,
-          ja: `東京リージョン (ap-northeast-1) の定価、USD、${PRICES_AS_OF} 時点。1 か月 730 時間、接続 1 本、冗長化なし、税別。Direct Connect は日本国内の DX ロケーション向けの単価。`,
-        })}
-      </p>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mb-4">
         <Predict
           question={{
             en: "You send 10 TB a month from Tokyo to your office. Which is cheaper on the AWS bill: plain internet, or a Site-to-Site VPN on a virtual private gateway?",
@@ -56,6 +61,18 @@ export function CostSection() {
             ja: "VPN の通信はインターネットと同じデータ転送単価 (10 TB で $1,167.36) で、さらに接続料が 1 時間 $0.048 かかり $1,202.40。VPN は暗号化とプライベートアドレスのために買うもので、節約のためではありません。",
           })}
         />
+      </div>
+
+      <CostLab />
+
+      <p className="mt-3 text-sm text-[var(--muted)]">
+        {t({
+          en: `Tokyo (ap-northeast-1) list prices in USD as of ${PRICES_AS_OF}, 730 hours a month, 1 TB = 1,024 GB, one connection, no redundancy, tax excluded. Direct Connect rates are to Japan DX locations.`,
+          ja: `東京リージョン (ap-northeast-1) の定価、USD、${PRICES_AS_OF} 時点。1 か月 730 時間、1 TB = 1,024 GB、接続 1 本、冗長化なし、税別。Direct Connect は日本国内の DX ロケーション向けの単価。`,
+        })}
+      </p>
+
+      <div className="mt-6">
         <Callout
           tone="warn"
           title={{ en: "Not on this bill", ja: "この請求に含まれないもの" }}
