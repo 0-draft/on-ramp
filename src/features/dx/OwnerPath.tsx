@@ -19,7 +19,7 @@ const STRETCHES: Stretch[] = [
     id: "you",
     owner: { en: "You", ja: "自社" },
     what: { en: "Your router and its BGP config", ja: "自社ルーターと BGP 設定" },
-    color: "var(--layer-3)",
+    color: "var(--layer-1)",
     pattern: "none",
     breaks: {
       en: "The link has light but BGP is down, often right after a change on your side: wrong VLAN, ASN, peer IP or MD5 key. You fix it.",
@@ -33,9 +33,9 @@ const STRETCHES: Stretch[] = [
       en: "The circuit from your building to the DX location",
       ja: "自社拠点から DX ロケーションまでの回線",
     },
-    color: "var(--layer-1)",
+    color: "var(--layer-2)",
     pattern:
-      "repeating-linear-gradient(45deg, transparent 0 5px, rgba(0,0,0,.22) 5px 7px)",
+      "repeating-linear-gradient(45deg, transparent 0 5px, rgba(0,0,0,.28) 5px 8px)",
     breaks: {
       en: "The circuit drops and the port goes down. AWS cannot see past its own port, so the carrier is who you call.",
       ja: "回線断でポートが down に。AWS は自分のポートの先は見えないので、連絡先は通信事業者です。",
@@ -50,7 +50,7 @@ const STRETCHES: Stretch[] = [
     },
     color: "var(--layer-2)",
     pattern:
-      "repeating-linear-gradient(90deg, transparent 0 6px, rgba(0,0,0,.22) 6px 8px)",
+      "repeating-linear-gradient(90deg, transparent 0 4px, rgba(255,255,255,.55) 4px 7px)",
     breaks: {
       en: "No light at AWS's port, typically at first turn-up when the patch does not match the LOA-CFA. The colocation operator re-patches it.",
       ja: "AWS のポートに光が来ない。初回開通時にパッチが LOA-CFA と合っていないことが多く、コロケーション事業者が繋ぎ直します。",
@@ -119,45 +119,78 @@ export function OwnerPath() {
         />
       </div>
 
-      <ol className="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-1">
+      {/*
+        One road, four owners. The road band runs edge to edge (horizontal on
+        wide screens, down the left on phones); under it a second band shows
+        which stretches the chosen encryption covers, with a lock at each end
+        of the covered run.
+      */}
+      <ol className="mt-4 flex flex-col sm:flex-row">
         {STRETCHES.map((s, i) => {
           const cover = s.id === "you" ? null : enc[s.id];
           const on = s.id === sel;
+          const prev = i > 0 ? STRETCHES[i - 1] : null;
+          const next = STRETCHES[i + 1];
+          const coverOf = (x: Stretch | null | undefined) =>
+            !x || x.id === "you" ? null : enc[x.id];
+          const runStart = cover === "yes" && coverOf(prev) !== "yes";
+          const runEnd = cover === "yes" && coverOf(next) !== "yes";
           return (
-            <li key={s.id} className="min-w-0 sm:flex-1">
+            <li key={s.id} className="flex min-w-0 sm:flex-1 sm:flex-col">
+              <span aria-hidden="true" className="flex shrink-0 sm:flex-col">
+                {/* road band */}
+                <span
+                  className="block w-4 sm:h-4 sm:w-full"
+                  style={{ background: s.color, backgroundImage: s.pattern }}
+                />
+                {/* encryption band */}
+                <span
+                  className="relative flex w-5 items-center justify-center text-[0.65rem] sm:h-5 sm:w-full"
+                  style={{
+                    background:
+                      cover === "yes"
+                        ? "var(--ok)"
+                        : cover === "maybe"
+                          ? "repeating-linear-gradient(90deg, var(--warn) 0 6px, transparent 6px 10px)"
+                          : "transparent",
+                  }}
+                >
+                  {runStart && (
+                    <span className="absolute top-0 sm:top-auto sm:left-0.5">🔒</span>
+                  )}
+                  {runEnd && (
+                    <span className="absolute bottom-0 sm:right-0.5 sm:bottom-auto">
+                      🔒
+                    </span>
+                  )}
+                </span>
+              </span>
               <button
                 type="button"
                 aria-pressed={on}
                 onClick={() => setSel(s.id)}
-                className="flex h-full w-full flex-col overflow-hidden rounded-lg border-2 text-left"
+                className="m-1 flex min-w-0 flex-1 flex-col gap-1 rounded-lg border-2 p-3 text-left"
                 style={{ borderColor: on ? "var(--ink)" : "var(--line)" }}
               >
+                <span className="text-xs font-bold text-[var(--muted)]">
+                  {i + 1}. {t(s.owner)}
+                </span>
+                <span className="text-sm font-semibold">{t(s.what)}</span>
                 <span
-                  aria-hidden="true"
-                  className="block h-3"
-                  style={{ background: s.color, backgroundImage: s.pattern }}
-                />
-                <span className="flex flex-1 flex-col gap-1 p-3">
-                  <span className="text-xs font-bold text-[var(--muted)]">
-                    {i + 1}. {t(s.owner)}
-                  </span>
-                  <span className="text-sm font-semibold">{t(s.what)}</span>
-                  <span
-                    className="mt-auto inline-flex w-fit rounded-md border-2 px-2 py-0.5 text-xs font-bold"
-                    style={
-                      cover
-                        ? {
-                            color: COVER[cover].color,
-                            borderColor: COVER[cover].color,
-                            borderStyle: COVER[cover].border,
-                          }
-                        : { color: "var(--muted)", borderColor: "var(--line)" }
-                    }
-                  >
-                    {cover
-                      ? t(COVER[cover].label)
-                      : t({ en: "Encryption starts here", ja: "暗号化はここから" })}
-                  </span>
+                  className="mt-auto inline-flex w-fit rounded-md border-2 px-2 py-0.5 text-xs font-bold"
+                  style={
+                    cover
+                      ? {
+                          color: COVER[cover].color,
+                          borderColor: COVER[cover].color,
+                          borderStyle: COVER[cover].border,
+                        }
+                      : { color: "var(--muted)", borderColor: "var(--line)" }
+                  }
+                >
+                  {cover
+                    ? t(COVER[cover].label)
+                    : t({ en: "Encryption starts here", ja: "暗号化はここから" })}
                 </span>
               </button>
             </li>
