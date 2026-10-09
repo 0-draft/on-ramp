@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/features/hero/Hero";
 import { RoutingSection } from "@/features/routing/RoutingSection";
 
@@ -17,6 +18,7 @@ export default function App() {
         <Hero />
         <RoutingSection />
       </main>
+      <Footer />
     </>
   );
 }

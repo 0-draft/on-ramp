@@ -55,9 +55,9 @@ const BOX = {
   pub: {
     x: 690,
     y: 48,
-    w: 140,
+    w: 170,
     h: 60,
-    label: { en: "Public endpoints", ja: "パブリック エンドポイント" },
+    label: { en: "Public endpoints", ja: "パブリックエンドポイント" },
     sub: { en: "S3, APIs, ALB", ja: "S3・API・ALB" },
   },
   hub: {
