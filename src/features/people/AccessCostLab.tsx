@@ -1,5 +1,6 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import { useLang } from "@/i18n/useLang";
+import { Slider } from "@/components/ui/Slider";
 import { monthlyCost } from "./chooser";
 import { C } from "./data";
 
@@ -10,8 +11,6 @@ import { C } from "./data";
  */
 export function AccessCostLab() {
   const { t } = useLang();
-  const usersId = useId();
-  const appsId = useId();
   const [users, setUsers] = useState(100);
   const [apps, setApps] = useState(3);
   const hours = 160;
@@ -48,39 +47,23 @@ export function AccessCostLab() {
         })}
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <div>
-          <label htmlFor={usersId} className="flex justify-between text-sm font-semibold">
-            {t({ en: "People", ja: "利用者" })}
-            <span className="num">{usersText}</span>
-          </label>
-          <input
-            id={usersId}
-            type="range"
-            min={10}
-            max={1000}
-            step={10}
-            value={users}
-            aria-valuetext={usersText}
-            onChange={(e) => setUsers(Number(e.target.value))}
-            className="block w-full"
-          />
-        </div>
-        <div>
-          <label htmlFor={appsId} className="flex justify-between text-sm font-semibold">
-            {t({ en: "Internal web apps", ja: "社内 Web アプリ" })}
-            <span className="num">{appsText}</span>
-          </label>
-          <input
-            id={appsId}
-            type="range"
-            min={1}
-            max={40}
-            value={apps}
-            aria-valuetext={appsText}
-            onChange={(e) => setApps(Number(e.target.value))}
-            className="block w-full"
-          />
-        </div>
+        <Slider
+          label={{ en: "People", ja: "利用者" }}
+          min={10}
+          max={1000}
+          step={10}
+          value={users}
+          onChange={setUsers}
+          format={() => usersText}
+        />
+        <Slider
+          label={{ en: "Internal web apps", ja: "社内 Web アプリ" }}
+          min={1}
+          max={40}
+          value={apps}
+          onChange={setApps}
+          format={() => appsText}
+        />
       </div>
       <div className="mt-4 space-y-2">
         {bar(c.clientVpn, "var(--layer-2)", "Client VPN", true)}

@@ -3,17 +3,12 @@ import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { useNarrow } from "@/hooks/useNarrow";
 import { Segmented } from "@/components/ui";
+import { DiagramBox } from "@/components/ui/DiagramBox";
 import { C } from "./color";
 import { LZ, type LzPath } from "./lz";
 
-export function LocalZoneLab({
-  locked,
-  onUnlock,
-}: {
-  /** Before the question above is answered, the lab hides its verdict. */
-  locked: boolean;
-  onUnlock: () => void;
-}) {
+/** Locked behind the question above by the shared Predict wrapper. */
+export function LocalZoneLab() {
   const { t } = useLang();
   const narrow = useNarrow();
   const [p, setP] = useState<LzPath>("dxvgw");
@@ -33,27 +28,11 @@ export function LocalZoneLab({
   // The road not taken, drawn faint, so the detour (or the skip) is visible.
   const other = r.hairpin ? direct : viaRegion;
   const box = (b: number[], title: L) => (
-    <g>
-      <rect
-        x={b[0]}
-        y={b[1]}
-        width={b[2]}
-        height={b[3]}
-        rx={10}
-        fill="var(--paper)"
-        stroke="var(--line)"
-        strokeWidth={1.5}
-      />
-      <text
-        x={b[0] + b[2] / 2}
-        y={b[1] + b[3] / 2 + 5}
-        textAnchor="middle"
-        fontSize={15}
-        fill="var(--ink)"
-      >
-        {t(title)}
-      </text>
-    </g>
+    <DiagramBox
+      r={{ x: b[0], y: b[1], w: b[2], h: b[3] }}
+      title={t(title)}
+      fontSize={15}
+    />
   );
   return (
     <div className="panel p-4 sm:p-5">
@@ -67,16 +46,12 @@ export function LocalZoneLab({
         onChange={setP}
         color={C}
       />
-      <div className="relative">
+      <div>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className={`diagram mt-4 block h-auto w-full ${locked ? "opacity-25" : ""}`}
+          className="diagram mt-4 block h-auto w-full"
           role="img"
-          aria-label={
-            locked
-              ? t({ en: "Hidden until you answer", ja: "回答するまで非表示" })
-              : t(r.why)
-          }
+          aria-label={t(r.why)}
         >
           <path
             d={other}
@@ -106,38 +81,20 @@ export function LocalZoneLab({
           {box(lz, { en: "Local Zone", ja: "Local Zone" })}
           {box(reg, { en: "Parent Region", ja: "親リージョン" })}
         </svg>
-        {locked && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <button
-              type="button"
-              onClick={onUnlock}
-              className="min-h-10 rounded-lg border-2 border-[var(--ink)] bg-[var(--paper)] px-4 py-2 text-sm font-bold"
-            >
-              {t({
-                en: "Answer above first, or skip",
-                ja: "先に上で回答、またはスキップ",
-              })}
-            </button>
-          </div>
-        )}
       </div>
       <div aria-live="polite">
-        {!locked && (
-          <>
-            <p
-              className="mt-2 font-bold"
-              style={{ color: r.hairpin ? "var(--bad)" : "var(--ok)" }}
-            >
-              {r.hairpin
-                ? t({
-                    en: "✕ Hairpins through the parent Region",
-                    ja: "✕ 親リージョンを迂回",
-                  })
-                : t({ en: "✓ Straight to the Local Zone", ja: "✓ Local Zone へ直行" })}
-            </p>
-            <p className="mt-1 text-sm">{t(r.why)}</p>
-          </>
-        )}
+        <p
+          className="mt-2 font-bold"
+          style={{ color: r.hairpin ? "var(--bad)" : "var(--ok)" }}
+        >
+          {r.hairpin
+            ? t({
+                en: "✕ Hairpins through the parent Region",
+                ja: "✕ 親リージョンを迂回",
+              })
+            : t({ en: "✓ Straight to the Local Zone", ja: "✓ Local Zone へ直行" })}
+        </p>
+        <p className="mt-1 text-sm">{t(r.why)}</p>
       </div>
       <p className="mt-2 text-sm text-[var(--muted)]">
         {t({

@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useLang } from "@/i18n/useLang";
 import { Callout, Section, Sources } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
+import { AS_OF } from "@/data/asOf";
 import { LocalZoneLab } from "./LocalZoneLab";
 import { LZ } from "./lz";
 import { OutpostsDiagram } from "./OutpostsDiagram";
@@ -58,7 +58,6 @@ const DATA: DataSvc[] = [
 
 export function EdgeSection() {
   const { t } = useLang();
-  const [lzOpen, setLzOpen] = useState(false);
   return (
     <Section
       id="edge"
@@ -79,8 +78,8 @@ export function EdgeSection() {
       </h3>
       <p className="mt-2 mb-4 max-w-3xl">
         {t({
-          en: "An Outpost is an extension of a VPC in its home Region. It talks to your LAN through a local gateway and to the Region through a service link, an AWS-managed encrypted VPN that needs a clean 1,500-byte MTU and AWS recommends at least 500 Mbps of it, redundant.",
-          ja: "Outpost はホームリージョンの VPC の延長です。社内 LAN とはローカルゲートウェイで、リージョンとはサービスリンク (AWS 管理の暗号化 VPN) でつながります。サービスリンクには MTU 1,500 がそのまま通る経路と、冗長化された 500 Mbps 以上 (推奨) が必要です。",
+          en: "An Outpost is an extension of a VPC in its home Region. It talks to your LAN through a local gateway and to the Region through a service link, an AWS-managed encrypted VPN that needs a clean 1,500-byte MTU and AWS requires redundant connectivity of at least 500 Mbps per compute rack with at most 175 ms round-trip latency.",
+          ja: "Outpost はホームリージョンの VPC の延長です。社内 LAN とはローカルゲートウェイで、リージョンとはサービスリンク (AWS 管理の暗号化 VPN) でつながります。サービスリンクには MTU 1,500 がそのまま通る経路と、冗長化されたコンピュートラックごとに 500 Mbps 以上・往復遅延 175 ms 以下の接続が必要です (AWS の要件)。",
         })}
       </p>
       <OutpostsDiagram />
@@ -97,14 +96,8 @@ export function EdgeSection() {
           ja: "Local Zone は親リージョンの一部を近くの都市に置いたもの。実際に低遅延になるかは、経路がどのハブに着地するかで決まります。",
         })}
       </p>
-      {/* Answering (or skipping) unlocks the lab below, so it can't spoil the
-          question. */}
-      <div
-        onClick={(e) => {
-          const btn = (e.target as HTMLElement).closest("button");
-          if (btn?.hasAttribute("aria-pressed")) setLzOpen(true);
-        }}
-      >
+      {/* The lab sits locked under the question so it can't spoil it. */}
+      <div className="mt-4">
         <Predict
           question={{
             en: "Office → Direct Connect → Transit Gateway → a Local Zone subnet. Does it go straight there?",
@@ -119,10 +112,9 @@ export function EdgeSection() {
           ]}
           answer="no"
           why={<p className="text-sm">{t(LZ.dxtgw.why)}</p>}
-        />
-      </div>
-      <div className="mt-4">
-        <LocalZoneLab locked={!lzOpen} onUnlock={() => setLzOpen(true)} />
+        >
+          <LocalZoneLab />
+        </Predict>
       </div>
 
       <h3 className="mt-10 text-xl font-extrabold">
@@ -153,8 +145,8 @@ export function EdgeSection() {
             <li>
               <b>
                 {t({
-                  en: "US only; not available in Japan as of 2026-10-10",
-                  ja: "米国のみ。2026-10-10 時点で日本では利用不可",
+                  en: `US only; not available in Japan as of ${AS_OF}`,
+                  ja: `米国のみ。${AS_OF} 時点で日本では利用不可`,
                 })}
               </b>
             </li>

@@ -1,6 +1,7 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
+import { Slider } from "@/components/ui/Slider";
 import { humanDuration, transferSeconds } from "./transfer";
 
 const SPEEDS: { gbps: number; label: L }[] = [
@@ -27,8 +28,6 @@ const SPEEDS: { gbps: number; label: L }[] = [
 
 export function TransferCalc() {
   const { t } = useLang();
-  const tbId = useId();
-  const utilId = useId();
   const [tb, setTb] = useState(100);
   const [util, setUtil] = useState(80);
   const unit: Record<string, L> = {
@@ -50,39 +49,23 @@ export function TransferCalc() {
         })}
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <div>
-          <label htmlFor={tbId} className="flex justify-between text-sm font-semibold">
-            {t({ en: "Data", ja: "データ量" })}
-            <span className="num">{tb} TB</span>
-          </label>
-          <input
-            id={tbId}
-            type="range"
-            min={1}
-            max={1000}
-            value={tb}
-            aria-valuetext={`${tb} TB`}
-            onChange={(e) => setTb(Number(e.target.value))}
-            className="block w-full"
-          />
-        </div>
-        <div>
-          <label htmlFor={utilId} className="flex justify-between text-sm font-semibold">
-            {t({ en: "Link utilization", ja: "回線の利用率" })}
-            <span className="num">{util}%</span>
-          </label>
-          <input
-            id={utilId}
-            type="range"
-            min={10}
-            max={100}
-            step={5}
-            value={util}
-            aria-valuetext={`${util}%`}
-            onChange={(e) => setUtil(Number(e.target.value))}
-            className="block w-full"
-          />
-        </div>
+        <Slider
+          label={{ en: "Data", ja: "データ量" }}
+          min={1}
+          max={1000}
+          value={tb}
+          onChange={setTb}
+          format={(v) => `${v} TB`}
+        />
+        <Slider
+          label={{ en: "Link utilization", ja: "回線の利用率" }}
+          min={10}
+          max={100}
+          step={5}
+          value={util}
+          onChange={setUtil}
+          format={(v) => `${v}%`}
+        />
       </div>
       <ul className="mt-4 space-y-2">
         {rows.map((r) => (

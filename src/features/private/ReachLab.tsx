@@ -4,6 +4,7 @@ import { useLang } from "@/i18n/useLang";
 import { useNarrow } from "@/hooks/useNarrow";
 import { DataTable, Segmented } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
+import { DiagramBox } from "@/components/ui/DiagramBox";
 import { ROUTE } from "@/data/routes";
 import { reach, type Client, type Result, type Target } from "./reach";
 
@@ -86,72 +87,15 @@ const MARK: Record<Result, { sym: string; color: string }> = {
   na: { sym: "–", color: "var(--muted)" },
 };
 
-interface Rect {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
-function Box({
-  r,
-  title,
-  sub,
-  stroke,
-  fill = "var(--paper)",
-  dash,
-}: {
-  r: Rect;
-  title: string;
-  sub?: string;
-  stroke: string;
-  fill?: string;
-  dash?: string;
-}) {
-  const cx = r.x + r.w / 2;
-  const cy = r.y + r.h / 2;
-  return (
-    <g>
-      <rect
-        x={r.x}
-        y={r.y}
-        width={r.w}
-        height={r.h}
-        rx={8}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={2}
-        strokeDasharray={dash}
-      />
-      <text
-        x={cx}
-        y={sub ? cy - 4 : cy + 5}
-        textAnchor="middle"
-        fontSize={15}
-        fill="var(--ink)"
-      >
-        {title}
-      </text>
-      {sub && (
-        <text x={cx} y={cy + 16} textAnchor="middle" fontSize={13} fill="var(--muted)">
-          {sub}
-        </text>
-      )}
-    </g>
-  );
-}
-
 export function ReachLab() {
   const { t } = useLang();
   const narrow = useNarrow();
   const [client, setClient] = useState<Client>("onprem");
   const [target, setTarget] = useState<Target>("gateway");
-  const [revealedFor, setRevealedFor] = useState<string | null>(null);
   const key = `${client}-${target}`;
   const v = reach(client, target);
   const info = TARGETS.find((x) => x.id === target)!;
   const color = ROUTE.private.color;
-  const shown = revealedFor === key;
 
   // Layout. The client sits inside the VPC when it is "same VPC".
   const inside = client === "sameVpc";
@@ -191,15 +135,10 @@ export function ReachLab() {
   const d = narrow ? { x: s.x + s.w / 2, y: s.y } : { x: s.x, y: s.y + s.h / 2 };
 
   const stop = narrow ? { x: a.x, y: vpcEdge } : { x: vpcEdge, y: a.y };
-  const blocked = shown && v.result === "no";
-  const lineColor = !shown
-    ? "var(--asphalt-2)"
-    : v.result === "no"
-      ? "var(--bad)"
-      : v.result === "na"
-        ? "var(--muted)"
-        : color;
-  const dash = !shown || v.result === "na" ? "6 6" : undefined;
+  const blocked = v.result === "no";
+  const lineColor =
+    v.result === "no" ? "var(--bad)" : v.result === "na" ? "var(--muted)" : color;
+  const dash = v.result === "na" ? "6 6" : undefined;
 
   const linkLabel: L | null =
     client === "onprem"
@@ -239,140 +178,132 @@ export function ReachLab() {
         </div>
       </div>
 
-      {/* Predict sits between the controls and the diagram: guess first, then
-          the diagram shows what happens. Option buttons reveal; "Try again"
-          hides. */}
-      <div
-        onClick={(e) => {
-          const btn = (e.target as HTMLElement).closest("button");
-          if (!btn || btn.getAttribute("aria-disabled") === "true") return;
-          setRevealedFor(btn.hasAttribute("aria-pressed") ? key : null);
+      {/* The diagram answers the question, so it sits locked under it until
+          you guess (or skip). Changing the scenario re-arms the question. */}
+      <Predict
+        resetKey={key}
+        question={{
+          en: "Can this request reach the service through this endpoint?",
+          ja: "このリクエストはこのエンドポイント経由でサービスに届く?",
         }}
+        options={OPTIONS}
+        answer={v.result}
+        why={<p>{t(v.why)}</p>}
       >
-        <Predict
-          resetKey={key}
-          question={{
-            en: "Can this request reach the service through this endpoint?",
-            ja: "このリクエストはこのエンドポイント経由でサービスに届く?",
-          }}
-          options={OPTIONS}
-          answer={v.result}
-          why={<p>{t(v.why)}</p>}
-        />
-      </div>
+        <div className="panel p-4 sm:p-5">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="diagram block h-auto w-full"
+            role="img"
+            aria-label={`${t(CLIENTS.find((x) => x.id === client)!.label)} → ${t(info.label)} → ${t(info.service)}`}
+          >
+            <rect
+              x={L_.vpc.x}
+              y={L_.vpc.y}
+              width={L_.vpc.w}
+              height={L_.vpc.h}
+              rx={12}
+              fill="var(--paper-2)"
+              stroke="var(--asphalt-2)"
+              strokeWidth={1.5}
+              strokeDasharray={target === "publicVif" ? "4 6" : undefined}
+            />
+            <text x={L_.vpc.x + 12} y={L_.vpc.y + 22} fontSize={13} fill="var(--muted)">
+              {target === "publicVif"
+                ? t({ en: "AWS edge", ja: "AWS エッジ" })
+                : t({ en: "VPC 10.0.0.0/16", ja: "VPC 10.0.0.0/16" })}
+            </text>
 
-      <div className="panel p-4 sm:p-5">
-        {!shown && (
-          <p className="mb-2 text-sm font-semibold text-[var(--muted)]">
-            {t({
-              en: "Answer above to see the path light up.",
-              ja: "上で答えると経路が色付きで表示されます。",
-            })}
-          </p>
-        )}
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          className="diagram block h-auto w-full"
-          role="img"
-          aria-label={`${t(CLIENTS.find((x) => x.id === client)!.label)} → ${t(info.label)} → ${t(info.service)}`}
-        >
-          <rect
-            x={L_.vpc.x}
-            y={L_.vpc.y}
-            width={L_.vpc.w}
-            height={L_.vpc.h}
-            rx={12}
-            fill="var(--paper-2)"
-            stroke="var(--asphalt-2)"
-            strokeWidth={1.5}
-            strokeDasharray={target === "publicVif" ? "4 6" : undefined}
-          />
-          <text x={L_.vpc.x + 12} y={L_.vpc.y + 22} fontSize={13} fill="var(--muted)">
-            {target === "publicVif"
-              ? t({ en: "AWS edge", ja: "AWS エッジ" })
-              : t({ en: "VPC 10.0.0.0/16", ja: "VPC 10.0.0.0/16" })}
-          </text>
-
-          {/* The road from the client to the endpoint, then on to the service. */}
-          <path
-            d={`M${a.x} ${a.y} L${blocked ? stop.x : b.x} ${blocked ? stop.y : b.y}`}
-            stroke={lineColor}
-            strokeWidth={5}
-            strokeDasharray={dash}
-            strokeLinecap="round"
-          />
-          {!blocked && (
+            {/* The road from the client to the endpoint, then on to the service. */}
             <path
-              d={`M${b2.x} ${b2.y} L${d.x} ${d.y}`}
+              d={`M${a.x} ${a.y} L${blocked ? stop.x : b.x} ${blocked ? stop.y : b.y}`}
               stroke={lineColor}
               strokeWidth={5}
               strokeDasharray={dash}
               strokeLinecap="round"
             />
-          )}
-          {linkLabel && (
-            <text
-              x={narrow ? a.x + 14 : (a.x + stop.x) / 2}
-              y={narrow ? (a.y + stop.y) / 2 + 5 : a.y - 12}
-              textAnchor={narrow ? "start" : "middle"}
-              fontSize={13}
-              fill="var(--muted)"
-            >
-              {t(linkLabel)}
-            </text>
-          )}
-          {blocked && (
-            <g transform={`translate(${stop.x} ${stop.y})`}>
-              <circle r={14} fill="var(--bad)" />
-              <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
-                ✕
-              </text>
-            </g>
-          )}
-
-          <Box
-            r={c}
-            title={t(
-              client === "onprem"
-                ? { en: "On-prem host", ja: "オンプレのホスト" }
-                : client === "sameVpc"
-                  ? { en: "EC2 in this VPC", ja: "この VPC の EC2" }
-                  : { en: "EC2 in a spoke VPC", ja: "スポーク VPC の EC2" },
+            {!blocked && (
+              <path
+                d={`M${b2.x} ${b2.y} L${d.x} ${d.y}`}
+                stroke={lineColor}
+                strokeWidth={5}
+                strokeDasharray={dash}
+                strokeLinecap="round"
+              />
             )}
-            sub={
-              client === "onprem"
-                ? "10.10.1.20"
-                : client === "sameVpc"
-                  ? "10.0.3.7"
-                  : "10.1.3.7"
-            }
-            stroke="var(--line)"
-          />
-          <Box
-            r={tg}
-            title={t(info.title)}
-            sub={t(info.sub)}
-            stroke={color}
-            dash={target === "gateway" ? "5 4" : undefined}
-          />
-          <Box r={s} title={t(info.service)} stroke="var(--line)" fill="var(--paper-2)" />
+            {linkLabel && (
+              <text
+                x={narrow ? a.x + 14 : (a.x + stop.x) / 2}
+                y={narrow ? (a.y + stop.y) / 2 + 5 : a.y - 12}
+                textAnchor={narrow ? "start" : "middle"}
+                fontSize={13}
+                fill="var(--muted)"
+              >
+                {t(linkLabel)}
+              </text>
+            )}
+            {blocked && (
+              <g transform={`translate(${stop.x} ${stop.y})`}>
+                <circle r={14} fill="var(--bad)" />
+                <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
+                  ✕
+                </text>
+              </g>
+            )}
 
-          {shown && (
+            <DiagramBox
+              r={c}
+              title={t(
+                client === "onprem"
+                  ? { en: "On-prem host", ja: "オンプレのホスト" }
+                  : client === "sameVpc"
+                    ? { en: "EC2 in this VPC", ja: "この VPC の EC2" }
+                    : { en: "EC2 in a spoke VPC", ja: "スポーク VPC の EC2" },
+              )}
+              sub={
+                client === "onprem"
+                  ? "10.10.1.20"
+                  : client === "sameVpc"
+                    ? "10.0.3.7"
+                    : "10.1.3.7"
+              }
+              stroke="var(--line)"
+              strokeWidth={2}
+              fontSize={15}
+            />
+            <DiagramBox
+              r={tg}
+              title={t(info.title)}
+              sub={t(info.sub)}
+              stroke={color}
+              dash={target === "gateway" ? "5 4" : undefined}
+              strokeWidth={2}
+              fontSize={15}
+            />
+            <DiagramBox
+              r={s}
+              title={t(info.service)}
+              stroke="var(--line)"
+              fill="var(--paper-2)"
+              strokeWidth={2}
+              fontSize={15}
+            />
+
             <g transform={`translate(${tg.x + tg.w - 4} ${tg.y + 4})`}>
               <circle r={14} fill={MARK[v.result].color} />
               <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
                 {MARK[v.result].sym}
               </text>
             </g>
-          )}
-        </svg>
-        <p className="mt-2 text-xs text-[var(--muted)]">
-          {t({
-            en: "A dashed box is a gateway endpoint: it has no IP address of its own, only an entry in the route table.",
-            ja: "破線の箱はゲートウェイ型エンドポイント。自前の IP アドレスはなく、ルートテーブルの 1 行にすぎません。",
-          })}
-        </p>
-      </div>
+          </svg>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            {t({
+              en: "A dashed box is a gateway endpoint: it has no IP address of its own, only an entry in the route table.",
+              ja: "破線の箱はゲートウェイ型エンドポイント。自前の IP アドレスはなく、ルートテーブルの 1 行にすぎません。",
+            })}
+          </p>
+        </div>
+      </Predict>
 
       <details className="panel p-4">
         <summary className="cursor-pointer font-bold">

@@ -113,8 +113,8 @@ export function DnsSection() {
       <div className="max-w-3xl space-y-3">
         <p>
           {t({
-            en: "Inbound endpoints answer questions from your network about AWS names. Outbound endpoints, with forwarding rules, ask your DNS servers about corporate names on behalf of VPCs. The VPC's own resolver at base + 2 serves only clients inside the VPC: it is not reachable over VPN or Direct Connect. Step through a lookup below.",
-            ja: "インバウンドエンドポイントは、社内からの AWS 側の名前の問い合わせに答えます。アウトバウンドエンドポイントは転送ルールに従い、VPC に代わって社内の名前を社内 DNS に尋ねます。VPC 自身の「ベース + 2」のリゾルバーは VPC 内のクライアント専用で、VPN や Direct Connect 越しには届きません。下で 1 ステップずつたどってみてください。",
+            en: "Inbound endpoints answer questions from your network about AWS names. Outbound endpoints, with forwarding rules, ask your DNS servers about corporate names on behalf of VPCs. Answer the question below, then step through a lookup.",
+            ja: "インバウンドエンドポイントは、社内からの AWS 側の名前の問い合わせに答えます。アウトバウンドエンドポイントは転送ルールに従い、VPC に代わって社内の名前を社内 DNS に尋ねます。下の質問に答えてから、名前解決を 1 ステップずつたどってみてください。",
           })}
         </p>
         <p className="text-sm text-[var(--muted)]">
@@ -147,11 +147,9 @@ export function DnsSection() {
               })}
             </p>
           }
-        />
-      </div>
-
-      <div className="mt-6">
-        <DnsLab />
+        >
+          <DnsLab />
+        </Predict>
       </div>
 
       <h3 className="mt-12 text-xl font-extrabold">
