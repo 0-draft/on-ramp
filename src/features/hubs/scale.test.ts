@@ -55,7 +55,8 @@ describe("plan: Transit Gateway", () => {
       interRegion: 3,
       vpcToVpc: true,
     });
-    expect(p.monthly).toBeCloseTo(33 * 0.07 * 730);
+    // 33 attachments plus 3 peerings, each $0.07 an hour.
+    expect(p.monthly).toBeCloseTo((33 + 3) * 0.07 * 730);
   });
   it("seven Regions need a second DX gateway", () => {
     const p = plan("tgw", { vpcs: 7, regions: 7, sites: 1 });
@@ -64,6 +65,21 @@ describe("plan: Transit Gateway", () => {
   });
   it("one Region has no peering warning", () => {
     expect(plan("tgw", { vpcs: 5, regions: 1, sites: 1 }).limits).toEqual([]);
+  });
+});
+
+describe("plan: inputs", () => {
+  it("never plans more Regions than there are VPCs", () => {
+    const p = plan("tgw", { vpcs: 1, regions: 8, sites: 1 });
+    expect(p).toMatchObject({ hubs: 2, attachments: 2, interRegion: 0 });
+    expect(plan("cloudwan", { vpcs: 1, regions: 8, sites: 1 }).hubs).toBe(2);
+  });
+
+  it("says peering, not peering(s)", () => {
+    const one = plan("tgw", { vpcs: 2, regions: 2, sites: 1 }).limits.map(
+      (l) => l.text.en,
+    );
+    expect(one.some((x) => x.startsWith("1 Transit Gateway peering between"))).toBe(true);
   });
 });
 

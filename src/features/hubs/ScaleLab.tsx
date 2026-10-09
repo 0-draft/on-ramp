@@ -60,7 +60,7 @@ function Slider({
         className="flex items-baseline justify-between text-sm font-semibold"
       >
         {t(label)}
-        <span className="text-2xl font-black">{value}</span>
+        <span className="num text-2xl font-black">{value}</span>
       </label>
       <input
         id={id}
@@ -69,7 +69,7 @@ function Slider({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="mt-1 w-full accent-[var(--sign)]"
+        className="mt-1 w-full"
       />
     </div>
   );
@@ -80,7 +80,9 @@ const usd = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 export function ScaleLab() {
   const { t } = useLang();
   const [vpcs, setVpcs] = useState(12);
-  const [regions, setRegions] = useState(2);
+  const [regionsRaw, setRegions] = useState(2);
+  // Never more Regions than VPCs: an empty Region needs no hub.
+  const regions = Math.min(regionsRaw, vpcs);
   const [sites, setSites] = useState(2);
 
   const plans = DESIGNS.map((d) => ({ d, p: plan(d.id, { vpcs, regions, sites }) }));
@@ -102,7 +104,7 @@ export function ScaleLab() {
           label={{ en: "Regions", ja: "リージョン数" }}
           value={regions}
           min={1}
-          max={8}
+          max={Math.max(1, Math.min(8, vpcs))}
           onChange={setRegions}
         />
         <Slider
@@ -123,7 +125,6 @@ export function ScaleLab() {
               key={d.id}
               className="rounded-xl border-2 p-3"
               style={{ borderColor: blocked ? "var(--bad)" : "var(--line)" }}
-              aria-live="polite"
             >
               <h4 className="font-extrabold">{t(d.name)}</h4>
               <p className="text-xs text-[var(--muted)]">{t(d.how)}</p>
@@ -134,43 +135,43 @@ export function ScaleLab() {
                     className="h-3 rounded-full"
                     style={{
                       width: `${(n / most) * 100}%`,
-                      background: blocked ? "var(--bad)" : "var(--sign)",
+                      background: blocked ? "var(--bad)" : "var(--data)",
                     }}
                   />
                 </div>
               </div>
               <p className="mt-1 text-sm">
-                <span className="text-2xl font-black">{n}</span>{" "}
-                {t({ en: "things to build and run", ja: "個のモノを作って運用" })}
+                <span className="num text-2xl font-black">{n}</span>{" "}
+                {t({ en: "things to build and run", ja: "個のリソースを構築・運用" })}
               </p>
 
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                 <dt className="text-[var(--muted)]">
                   {t({ en: "Gateways / hubs", ja: "ゲートウェイ / ハブ" })}
                 </dt>
-                <dd className="text-right font-bold">{p.hubs}</dd>
+                <dd className="num text-right font-bold">{p.hubs}</dd>
                 <dt className="text-[var(--muted)]">
                   {t({ en: "Attachments", ja: "アタッチメント" })}
                 </dt>
-                <dd className="text-right font-bold">{p.attachments}</dd>
+                <dd className="num text-right font-bold">{p.attachments}</dd>
                 <dt className="text-[var(--muted)]">
-                  {t({ en: "VIFs (BGP sessions)", ja: "VIF (BGP セッション)" })}
+                  {t({ en: "VIFs (BGP)", ja: "VIF (BGP)" })}
                 </dt>
-                <dd className="text-right font-bold">{p.vifs}</dd>
+                <dd className="num text-right font-bold">{p.vifs}</dd>
                 <dt className="text-[var(--muted)]">
-                  {t({ en: "Region links you route", ja: "自分で組むリージョン間接続" })}
+                  {t({ en: "Region links", ja: "リージョン間接続" })}
                 </dt>
-                <dd className="text-right font-bold">{p.interRegion}</dd>
+                <dd className="num text-right font-bold">{p.interRegion}</dd>
                 <dt className="text-[var(--muted)]">
                   {t({ en: "VPC ↔ VPC", ja: "VPC 間通信" })}
                 </dt>
-                <dd className="text-right font-bold">
+                <dd className="num text-right font-bold">
                   {p.vpcToVpc ? t({ en: "Yes", ja: "可" }) : t({ en: "No", ja: "不可" })}
                 </dd>
                 <dt className="text-[var(--muted)]">
-                  {t({ en: "Hub charge, Tokyo", ja: "ハブ料金 (東京)" })}
+                  {t({ en: "Hub charge", ja: "ハブ料金" })}
                 </dt>
-                <dd className="text-right font-bold">
+                <dd className="num text-right font-bold">
                   {usd(p.monthly)}
                   {t({ en: "/mo", ja: "/月" })}
                 </dd>
@@ -181,7 +182,7 @@ export function ScaleLab() {
                   {p.limits.map((l, i) => (
                     <li key={i} className="flex gap-1.5">
                       <span
-                        className="mt-0.5 shrink-0 rounded px-1 font-black text-[var(--on-color)]"
+                        className="mt-0.5 shrink-0 self-start rounded px-1 font-black text-[var(--on-color)]"
                         style={{ background: l.hard ? "var(--bad)" : "var(--warn)" }}
                       >
                         {l.hard
@@ -199,9 +200,23 @@ export function ScaleLab() {
       </div>
       <p className="mt-3 text-xs text-[var(--muted)]">
         {t({
-          en: "Assumes one dedicated DX connection per site and VPCs spread evenly across Regions. Hub charge counts only VPC and DX attachment-hours (TGW $0.07/h) or core network edges ($0.50/h) plus attachments ($0.09/h), at Tokyo list prices, 730 hours. Data processing ($0.02/GB on both), DX ports and data transfer come on top.",
-          ja: "前提: 各拠点に専用 DX 接続 1 本、VPC はリージョンに均等配置。ハブ料金は東京の定価で、VPC と DX のアタッチメント時間 (TGW $0.07/時) またはコアネットワークエッジ ($0.50/時) + アタッチメント ($0.09/時) のみ、730 時間で計算。データ処理料 (どちらも $0.02/GB)、DX ポート、データ転送は別途。",
-        })}
+          en: "Assumes one dedicated DX connection per site, VPCs spread evenly across Regions, and no more Regions than VPCs. Region links are Transit Gateway peerings you route with static routes. Hub charge is per month at Tokyo list prices, 730 hours: VPC, DX and peering attachment-hours (TGW $0.07/h, each peering counted once) or core network edges ($0.50/h) plus attachments ($0.09/h). Data processing ($0.02/GB on both), DX ports and data transfer come on top.",
+          ja: "前提: 各拠点に専用 DX 接続 1 本、VPC はリージョンに均等配置、リージョン数は VPC 数以下。リージョン間接続は静的ルートで運用する Transit Gateway ピアリング。ハブ料金は東京の定価・730 時間の月額で、VPC・DX・ピアリングのアタッチメント時間 (TGW $0.07/時、ピアリングは 1 本 1 回分) またはコアネットワークエッジ ($0.50/時) + アタッチメント ($0.09/時)。データ処理料 (どちらも $0.02/GB)、DX ポート、データ転送は別途。",
+        })}{" "}
+        <a
+          className="font-bold underline"
+          href="https://0-draft.github.io/cross-connect/#pricing"
+        >
+          {t({
+            en: "DX port and transfer prices: Cross Connect",
+            ja: "DX のポート・転送料金: Cross Connect",
+          })}
+        </a>
+      </p>
+      <p className="sr-only" aria-live="polite">
+        {plans
+          .map(({ d, p }) => `${t(d.name)}: ${objects(p)}, ${usd(p.monthly)}`)
+          .join("; ")}
       </p>
     </div>
   );

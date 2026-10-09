@@ -1,11 +1,13 @@
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
-import { Callout, MetaphorLimit, Section, Sources } from "@/components/ui";
+import { DataTable, MetaphorLimit, Section, Sources, Traps } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
 import { ScaleLab } from "./ScaleLab";
 import { ApplianceLab } from "./ApplianceLab";
+import { HubSketch, type HubKind } from "./HubSketch";
 
 interface Hub {
+  kind: HubKind;
   name: string;
   analogy: L;
   facts: { k: L; v: L }[];
@@ -13,6 +15,7 @@ interface Hub {
 
 const HUBS: Hub[] = [
   {
+    kind: "vgw",
     name: "Virtual private gateway (VGW)",
     analogy: { en: "One house's front door", ja: "一軒家の玄関" },
     facts: [
@@ -38,6 +41,7 @@ const HUBS: Hub[] = [
     ],
   },
   {
+    kind: "dxgw",
     name: "Direct Connect gateway (DXGW)",
     analogy: {
       en: "The office that hands out route maps but never moves a passenger",
@@ -66,6 +70,7 @@ const HUBS: Hub[] = [
     ],
   },
   {
+    kind: "tgw",
     name: "Transit Gateway (TGW)",
     analogy: {
       en: "A regional train station with timetables",
@@ -79,8 +84,8 @@ const HUBS: Hub[] = [
       {
         k: { en: "Takes", ja: "受けるもの" },
         v: {
-          en: "VPCs, VPN, DXGW, Connect, Client VPN, peering",
-          ja: "VPC・VPN・DXGW・Connect・Client VPN・ピアリング",
+          en: "VPCs, VPN, DX gateway, Connect, Client VPN, peering",
+          ja: "VPC・VPN・DX ゲートウェイ・Connect・Client VPN・ピアリング",
         },
       },
       {
@@ -88,7 +93,7 @@ const HUBS: Hub[] = [
         v: { en: "Yes, by route tables", ja: "する (ルートテーブルで制御)" },
       },
       {
-        k: { en: "Charge, Tokyo", ja: "料金 (東京)" },
+        k: { en: "Charge", ja: "料金" },
         v: {
           en: "$0.07 per attachment-hour + $0.02/GB",
           ja: "アタッチメント 1 時間 $0.07 + $0.02/GB",
@@ -97,6 +102,7 @@ const HUBS: Hub[] = [
     ],
   },
   {
+    kind: "cloudwan",
     name: "AWS Cloud WAN",
     analogy: {
       en: "A national rail network run from one policy",
@@ -113,8 +119,8 @@ const HUBS: Hub[] = [
       {
         k: { en: "Takes", ja: "受けるもの" },
         v: {
-          en: "VPCs, VPN, DXGW, Connect, TGW peering",
-          ja: "VPC・VPN・DXGW・Connect・TGW ピアリング",
+          en: "VPCs, VPN, DX gateway, Connect, TGW peering",
+          ja: "VPC・VPN・DX ゲートウェイ・Connect・TGW ピアリング",
         },
       },
       {
@@ -122,7 +128,7 @@ const HUBS: Hub[] = [
         v: { en: "Yes, by segments and policy", ja: "する (セグメントとポリシーで制御)" },
       },
       {
-        k: { en: "Charge, Tokyo", ja: "料金 (東京)" },
+        k: { en: "Charge", ja: "料金" },
         v: {
           en: "$0.50 per edge-hour + $0.09 per attachment-hour + $0.02/GB",
           ja: "エッジ 1 時間 $0.50 + アタッチメント 1 時間 $0.09 + $0.02/GB",
@@ -143,28 +149,29 @@ export function HubsSection() {
         ja: "VPN も DX も、AWS 側のどこかで終端します。その「どこか」は 4 種類あり、名前がややこしく似ています。どれを選ぶかで、1 本の接続で届く VPC やリージョンの数、VPC 同士が通信できるか、時間あたりの料金が決まります。",
       }}
     >
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {HUBS.map((h) => (
-          <article key={h.name} className="panel p-4">
-            <h3 className="text-lg font-extrabold">{h.name}</h3>
+          <article key={h.name} className="panel p-3">
+            <h3 className="font-extrabold">{h.name}</h3>
             <p className="text-sm text-[var(--muted)]">{t(h.analogy)}</p>
-            <dl className="mt-3 grid grid-cols-[minmax(0,9rem)_1fr] gap-x-3 gap-y-1.5 text-sm">
-              {h.facts.map((f, i) => (
-                <div key={i} className="contents">
-                  <dt className="text-[var(--muted)]">{t(f.k)}</dt>
-                  <dd className="font-semibold">{t(f.v)}</dd>
-                </div>
-              ))}
-            </dl>
+            <div className="mt-2">
+              <HubSketch kind={h.kind} />
+            </div>
           </article>
         ))}
+      </div>
+      <div className="mt-4">
+        <DataTable
+          columns={[{ en: "Hub", ja: "ハブ" }, ...HUBS[0].facts.map((f) => f.k)]}
+          rows={HUBS.map((h) => [h.name, ...h.facts.map((f) => t(f.v))])}
+        />
       </div>
 
       <div className="mt-5">
         <Predict
           question={{
             en: "VPC A and VPC B are both associated with the same Direct Connect gateway. Can A send packets to B through it?",
-            ja: "VPC A と VPC B が同じ Direct Connect gateway に関連付けられています。A から B へ、DXGW 経由でパケットを送れる?",
+            ja: "VPC A と VPC B が同じ Direct Connect ゲートウェイ (DXGW) に関連付けられています。A から B へ、DXGW 経由でパケットを送れる?",
           }}
           options={[
             { id: "yes", label: { en: "Yes, it is a hub", ja: "送れる (ハブだから)" } },
@@ -173,7 +180,7 @@ export function HubsSection() {
           answer="no"
           why={t({
             en: "A DX gateway is a set of BGP route reflectors outside the data path. It tells each side which prefixes exist, but no packet ever passes through it, so VPC-to-VPC through a DXGW is not supported. If VPCs must talk, use a Transit Gateway or Cloud WAN (or peering).",
-            ja: "DX ゲートウェイはデータパスの外にある BGP ルートリフレクタの集まりです。どのプレフィックスがあるかを双方に伝えるだけで、パケットは一切通りません。DXGW 経由の VPC 間通信はサポート外。VPC 同士を通信させるなら Transit Gateway か Cloud WAN (またはピアリング) を使います。",
+            ja: "DX ゲートウェイはデータパスの外にある BGP ルートリフレクターの集まりです。どのプレフィックスがあるかを双方に伝えるだけで、パケットは一切通りません。DXGW 経由の VPC 間通信はサポート外。VPC 同士を通信させるなら Transit Gateway か Cloud WAN (またはピアリング) を使います。",
           })}
         />
       </div>
@@ -213,58 +220,42 @@ export function HubsSection() {
         })}
       </p>
 
-      <h3 className="mt-10 text-xl font-extrabold">
-        {t({ en: "Traps", ja: "落とし穴" })}
-      </h3>
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <Callout
-          tone="warn"
-          title={{
-            en: "A VPC does not learn routes from a TGW",
-            ja: "VPC は TGW から経路を学ばない",
-          }}
-        >
+      <div className="mt-10">
+        <Traps
+          items={[
+            {
+              en: "A VPC does not learn routes from a Transit Gateway. Route propagation into a VPC route table exists only for a VGW; with a TGW you add static routes (or a prefix list) to every subnet route table yourself.",
+              ja: "VPC は Transit Gateway から経路を学びません。VPC ルートテーブルへの経路伝播は VGW にしかなく、TGW なら各サブネットのルートテーブルに静的ルート (かプレフィックスリスト) を自分で追加します。",
+            },
+            {
+              en: "Allowed prefixes are advertised literally. On a DX gateway's Transit Gateway association, on-prem receives exactly the allowed prefixes you list (up to 200), not the VPC CIDRs. On a VGW association the same field is only a filter.",
+              ja: "許可されたプレフィックスはそのまま広告されます。DX ゲートウェイの TGW 関連付けでは、オンプレが受け取るのは設定した許可されたプレフィックスそのもの (最大 200) で、VPC の CIDR ではありません。VGW 関連付けでは同じ項目がフィルターとして働くだけです。",
+            },
+            {
+              en: "Identical CIDRs silently vanish. Attach a second VPC with the same CIDR to one Transit Gateway and its CIDR is simply not propagated: a TGW cannot route between identical CIDRs.",
+              ja: "同じ CIDR は黙って消えます。同じ CIDR の VPC を 2 つ目として同じ Transit Gateway につなぐと、その CIDR は伝播されません。TGW は同一 CIDR 間をルーティングできません。",
+            },
+            {
+              en: "Cloud WAN edges bill whether used or not: each core network edge costs $0.50 per hour in every Region you list, before any attachment or traffic.",
+              ja: "Cloud WAN のエッジは使わなくても課金されます。コアネットワークエッジは指定したリージョンごとに 1 時間 $0.50。アタッチメントや通信量とは別です。",
+            },
+          ]}
+        />
+        <p className="mt-2 text-sm text-[var(--muted)]">
           {t({
-            en: "Route propagation into a VPC route table exists only for a VGW. With a Transit Gateway you add static routes (or a prefix list) to every subnet route table yourself.",
-            ja: "VPC ルートテーブルへの経路伝播は VGW にしかありません。Transit Gateway なら各サブネットのルートテーブルに静的ルート (かプレフィックスリスト) を自分で追加します。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{
-            en: "Allowed prefixes are advertised literally",
-            ja: "許可プレフィックスはそのまま広告される",
-          }}
-        >
-          {t({
-            en: "On a DX gateway's Transit Gateway association, on-prem receives exactly the allowed prefixes you list (up to 200), not the VPC CIDRs. On a VGW association the same field is only a filter.",
-            ja: "DX ゲートウェイの TGW 関連付けでは、オンプレが受け取るのは設定した許可プレフィックスそのもの (最大 200) で、VPC の CIDR ではありません。VGW 関連付けでは同じ項目がフィルタとして働くだけです。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{
-            en: "Identical CIDRs silently vanish",
-            ja: "同じ CIDR は黙って消える",
-          }}
-        >
-          {t({
-            en: "Attach a second VPC with the same CIDR to one Transit Gateway and its CIDR is simply not propagated. A TGW cannot route between identical CIDRs.",
-            ja: "同じ CIDR の VPC を 2 つ目として同じ Transit Gateway につなぐと、その CIDR は伝播されません。TGW は同一 CIDR 間をルーティングできません。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{
-            en: "Cloud WAN edges bill whether used or not",
-            ja: "Cloud WAN のエッジは使わなくても課金",
-          }}
-        >
-          {t({
-            en: "Each core network edge costs $0.50 per hour in every Region you list, before any attachment or traffic.",
-            ja: "コアネットワークエッジは、指定したリージョンごとに 1 時間 $0.50。アタッチメントや通信量とは別です。",
-          })}
-        </Callout>
+            en: "Allowed prefixes, association modes and SiteLink, with a lab:",
+            ja: "許可されたプレフィックス・関連付けのモード・SiteLink はラボ付きで:",
+          })}{" "}
+          <a
+            className="font-bold underline"
+            href="https://0-draft.github.io/cross-connect/#gateway"
+          >
+            {t({
+              en: "Cross Connect: Direct Connect gateway",
+              ja: "Cross Connect: Direct Connect ゲートウェイ",
+            })}
+          </a>
+        </p>
       </div>
 
       <p className="mt-6 max-w-3xl">
@@ -277,7 +268,7 @@ export function HubsSection() {
       <MetaphorLimit>
         {t({
           en: "A Direct Connect gateway looks like an interchange on every diagram, but no car ever drives through it. It only hands out maps. Draw it as a junction and you will expect VPC-to-VPC traffic it will never carry.",
-          ja: "Direct Connect gateway はどの構成図でもインターチェンジのように描かれますが、車は 1 台も通りません。配っているのは地図だけです。分岐点として描くと、決して運ばれない VPC 間通信を期待してしまいます。",
+          ja: "Direct Connect ゲートウェイはどの構成図でもインターチェンジのように描かれますが、車は 1 台も通りません。配っているのは地図だけです。分岐点として描くと、決して運ばれない VPC 間通信を期待してしまいます。",
         })}
       </MetaphorLimit>
 

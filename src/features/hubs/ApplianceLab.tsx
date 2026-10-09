@@ -114,7 +114,9 @@ export function ApplianceLab() {
 
   const HALF: Record<Spot, number> = { onprem: 75, tgw: 85, fwA: 60, fwB: 60, spoke: 85 };
   // Roads leave the TGW from the edge facing the other box and bend once.
-  const link = (b: Spot, on: boolean, color: string) => {
+  // The whole flow rides DX, so both directions use the DX route colour; the
+  // reply is dashed, so direction never rests on colour.
+  const link = (b: Spot, on: boolean, dashed: boolean) => {
     const [tx, ty] = P.tgw;
     const [bx, by] = P[b];
     let d: string;
@@ -135,8 +137,9 @@ export function ApplianceLab() {
       <path
         d={d}
         fill="none"
-        stroke={on ? color : "var(--line)"}
+        stroke={on ? "var(--r-dx)" : "var(--line)"}
         strokeWidth={on ? 5 : 3}
+        strokeDasharray={on && dashed ? "9 6" : undefined}
         strokeLinecap="round"
       />
     );
@@ -155,8 +158,8 @@ export function ApplianceLab() {
           width={w}
           height={48}
           rx={8}
-          fill={spot === "tgw" ? "var(--sign)" : "var(--paper)"}
-          stroke={dead ? "var(--bad)" : spot === "tgw" ? "var(--sign)" : "var(--ink)"}
+          fill={spot === "tgw" ? "var(--hub)" : "var(--paper)"}
+          stroke={dead ? "var(--bad)" : spot === "tgw" ? "var(--hub)" : "var(--ink)"}
           strokeWidth={dead ? 3 : 1.5}
         />
         <text
@@ -164,7 +167,7 @@ export function ApplianceLab() {
           y={sub ? y - 3 : y + 5}
           textAnchor="middle"
           fontSize={14}
-          fill={spot === "tgw" ? "var(--on-color)" : dead ? "var(--bad)" : "var(--ink)"}
+          fill={spot === "tgw" ? "var(--on-hub)" : dead ? "var(--bad)" : "var(--ink)"}
         >
           {t(label)}
         </text>
@@ -174,7 +177,7 @@ export function ApplianceLab() {
             y={y + 14}
             textAnchor="middle"
             fontSize={13}
-            fill={spot === "tgw" ? "var(--on-color)" : "var(--muted)"}
+            fill={spot === "tgw" ? "var(--on-hub)" : "var(--muted)"}
           >
             {t(sub)}
           </text>
@@ -200,7 +203,7 @@ export function ApplianceLab() {
         steps={list.map((x) => x.text)}
         index={i}
         onChange={setI}
-        color={back ? "var(--r-vpn)" : "var(--r-dx)"}
+        color="var(--ink)"
       >
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -245,14 +248,10 @@ export function ApplianceLab() {
               </text>
             </>
           )}
-          {link("spoke", visited.has("tgw"), "var(--r-dx)")}
-          {link(
-            "fwA",
-            visited.has("fwA"),
-            back && s.at === "fwA" ? "var(--r-vpn)" : "var(--r-dx)",
-          )}
-          {link("fwB", visited.has("fwB"), "var(--r-vpn)")}
-          {link("onprem", visited.has("onprem"), "var(--r-dx)")}
+          {link("spoke", visited.has("tgw"), false)}
+          {link("fwA", visited.has("fwA"), back && s.at === "fwA")}
+          {link("fwB", visited.has("fwB"), true)}
+          {link("onprem", visited.has("onprem"), false)}
           {node("onprem", { en: "On-prem", ja: "オンプレ" }, 150, {
             en: "via DX",
             ja: "DX 経由",

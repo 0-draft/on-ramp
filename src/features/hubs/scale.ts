@@ -6,8 +6,9 @@ import type { L } from "@/i18n/lang";
  * docs/05-hubs.md, verified 2026-10-10).
  *
  * Assumptions, stated on screen too: every site has one dedicated DX
- * connection; VPCs are spread evenly across Regions; only VPC and DX
- * attachment-hours are priced (Tokyo list prices, 730 h/month).
+ * connection; VPCs are spread evenly across Regions, and there are never more
+ * Regions than VPCs; only VPC, DX and peering attachment-hours or core network
+ * edges are priced (Tokyo list prices, 730 h/month).
  */
 
 export type Design = "vgw" | "dxgw" | "tgw" | "cloudwan";
@@ -62,7 +63,10 @@ export const Q = {
 
 const ceil = Math.ceil;
 
-export function plan(design: Design, { vpcs, regions, sites }: Input): Plan {
+export function plan(design: Design, input: Input): Plan {
+  const { vpcs, sites } = input;
+  // A Region with no VPC needs no hub: clamp so the counts stay meaningful.
+  const regions = Math.max(1, Math.min(input.regions, vpcs));
   const perRegion = ceil(vpcs / regions);
   const limits: Limit[] = [];
 
@@ -186,7 +190,7 @@ export function plan(design: Design, { vpcs, regions, sites }: Input): Plan {
       limits.push({
         hard: false,
         text: {
-          en: `${peerings} Transit Gateway peering(s) between Regions, static routes only: no automatic failover between Regions.`,
+          en: `${peerings} Transit Gateway ${peerings === 1 ? "peering" : "peerings"} between Regions, static routes only: no automatic failover between Regions.`,
           ja: `リージョン間に Transit Gateway ピアリングが ${peerings} 本。静的ルートのみで、リージョン間の自動フェイルオーバーはなし。`,
         },
       });
@@ -197,7 +201,9 @@ export function plan(design: Design, { vpcs, regions, sites }: Input): Plan {
       interRegion: peerings,
       vpcToVpc: true,
       reachesAll: true,
-      monthly: attachments * PRICE.tgwAttachment * H,
+      // A peering is billed as an attachment-hour too (at least once; whether
+      // both owners pay per peering is not documented, so count it once).
+      monthly: (attachments + peerings) * PRICE.tgwAttachment * H,
       limits,
     };
   }
