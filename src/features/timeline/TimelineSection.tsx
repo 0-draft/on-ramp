@@ -166,16 +166,24 @@ export function TimelineSection() {
                   <li key={i}>
                     {/* One compact line per launch; the why opens on demand. */}
                     <details className="group">
-                      <summary className="flex cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2 hover:bg-[var(--paper-2)]">
-                        <span className="num w-[5.5rem] shrink-0 font-mono text-xs font-semibold text-[var(--muted)]">
+                      {/* Wide: date, shield, title on one line. Phone: the date
+                          sits small above, the title beside a fixed-width shield. */}
+                      <summary className="grid cursor-pointer list-none grid-cols-[3rem_1fr_auto] items-center gap-x-3 gap-y-0.5 px-3 py-2 hover:bg-[var(--paper-2)] sm:grid-cols-[5.5rem_3rem_1fr_auto_auto]">
+                        <span className="num col-span-3 text-xs font-semibold text-[var(--muted)] sm:col-span-1">
                           {l.date}
                         </span>
-                        <Shield label={fam.shield} color={fam.color} size="sm" />
-                        <span className="min-w-0 flex-1 font-bold">{t(l.title)}</span>
-                        {recent(l.date) && (
-                          <span className="rounded bg-[var(--lane)] px-1.5 text-xs font-bold text-black">
+                        <span className="flex w-12 justify-center">
+                          <Shield label={fam.shield} color={fam.color} size="sm" />
+                        </span>
+                        <span className="min-w-0 font-bold">{t(l.title)}</span>
+                        {/* In the recent-only view every row is new, so the badge
+                            would be noise; it marks new launches in "all". */}
+                        {!recentOnly && recent(l.date) ? (
+                          <span className="hidden rounded bg-[var(--lane)] px-1.5 text-xs font-bold text-black sm:inline">
                             {t({ en: "new", ja: "新" })}
                           </span>
+                        ) : (
+                          <span className="hidden sm:inline" />
                         )}
                         <span
                           aria-hidden="true"
@@ -184,7 +192,7 @@ export function TimelineSection() {
                           ›
                         </span>
                       </summary>
-                      <div className="px-3 pb-3 text-sm sm:pl-[7.25rem]">
+                      <div className="px-3 pb-3 text-sm sm:pl-[10.5rem]">
                         <p className="text-[var(--muted)]">{t(l.why)}</p>
                         <a
                           href={l.url}
