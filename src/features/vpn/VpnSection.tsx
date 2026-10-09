@@ -222,7 +222,7 @@ export function VpnSection() {
         ))}
       </div>
 
-      <div className="mt-8">
+      <div className="mt-10">
         <Traps items={TRAPS} />
       </div>
 

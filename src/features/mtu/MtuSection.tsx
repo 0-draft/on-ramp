@@ -41,8 +41,8 @@ export function MtuSection() {
         ]}
         answer="drop"
         why={t({
-          en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives only if MSS is clamped on your router; UDP with DF set just vanishes. Pick the VPN path below and drag to 1500 to see it.",
-          ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP はルーターで MSS をクランプしていれば助かりますが、DF 付きの UDP はただ消えます。下で VPN の経路を選び 1500 にして確かめてください。",
+          en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives only if MSS is clamped on your router; UDP with DF set just vanishes. The lab below is set to exactly that: VPN path, 1500-byte packet.",
+          ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP はルーターで MSS をクランプしていれば助かりますが、DF 付きの UDP はただ消えます。下のラボはちょうどその状態 (VPN 経路・1500 バイト) です。",
         })}
       >
         <MtuLab />

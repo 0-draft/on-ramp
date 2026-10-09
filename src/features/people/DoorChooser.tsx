@@ -131,7 +131,7 @@ function Compare({ highlight }: { highlight: Product[] | null }) {
     highlight === null ? "plain" : highlight.includes(id) ? "on" : "off";
   const rowStyle = (id: Product) =>
     state(id) === "on"
-      ? { background: "var(--paper-2)", outline: `2px solid ${C}`, outlineOffset: -2 }
+      ? { background: "var(--paper-2)" }
       : state(id) === "off"
         ? { opacity: 0.45 }
         : undefined;
@@ -161,7 +161,14 @@ function Compare({ highlight }: { highlight: Product[] | null }) {
                 className="border-b border-[var(--line)] align-top transition-opacity"
                 style={rowStyle(r.id)}
               >
-                <th scope="row" className="px-2 py-2 font-bold whitespace-nowrap">
+                <th
+                  scope="row"
+                  className="px-2 py-2 font-bold whitespace-nowrap"
+                  // A left accent marks a match; adjacent matches don't double up.
+                  style={{
+                    boxShadow: state(r.id) === "on" ? `inset 4px 0 0 ${C}` : undefined,
+                  }}
+                >
                   {mark(r.id)}
                   {r.name}
                 </th>

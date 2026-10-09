@@ -11,7 +11,7 @@ import { LZ, type LzPath } from "./lz";
 export function LocalZoneLab() {
   const { t } = useLang();
   const narrow = useNarrow();
-  const [p, setP] = useState<LzPath>("dxvgw");
+  const [p, setP] = useState<LzPath>("dxtgw");
   const r = LZ[p];
   const W = narrow ? 360 : 900;
   const H = narrow ? 300 : 220;

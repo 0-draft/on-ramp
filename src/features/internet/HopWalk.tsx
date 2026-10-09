@@ -81,6 +81,16 @@ export function HopWalk() {
     <div className="panel p-4 sm:p-5">
       {/* Ink, not the slate internet colour, so Next never reads as disabled. */}
       <Stepper steps={STEPS} index={i} onChange={setI} color="var(--ink)">
+        {narrow && (
+          // On phones the source address sits above the walk, where the
+          // packet starts, instead of trailing under the last stop.
+          <p className="mb-1 text-sm">
+            <span className="text-[var(--muted)]">
+              {t({ en: "Source IP AWS sees:", ja: "AWS から見える送信元 IP:" })}
+            </span>{" "}
+            <span className="num font-bold">{srcIp}</span>
+          </p>
+        )}
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="diagram block h-auto w-full"
@@ -192,7 +202,6 @@ export function HopWalk() {
             );
           })()}
         </svg>
-        {narrow && <p className="mt-1 num text-sm">src {srcIp}</p>}
       </Stepper>
     </div>
   );

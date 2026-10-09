@@ -248,7 +248,7 @@ export function DnsSection() {
         </Callout>
       </div>
 
-      <div className="mt-12 max-w-3xl">
+      <div className="mt-10">
         <Traps items={TRAPS} />
       </div>
 

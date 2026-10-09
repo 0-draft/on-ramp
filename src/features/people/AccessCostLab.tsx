@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLang } from "@/i18n/useLang";
 import { Slider } from "@/components/ui/Slider";
 import { monthlyCost } from "./chooser";
-import { C } from "./data";
 
 /**
  * Client VPN (billed per person-hour) against Verified Access (billed per
@@ -67,7 +66,7 @@ export function AccessCostLab() {
       </div>
       <div className="mt-4 space-y-2">
         {bar(c.clientVpn, "var(--layer-2)", "Client VPN", true)}
-        {bar(c.ava, C, "Verified Access")}
+        {bar(c.ava, "var(--layer-3)", "Verified Access")}
       </div>
       <p className="mt-3 text-sm text-[var(--muted)]">
         {t({
