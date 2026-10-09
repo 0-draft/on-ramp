@@ -140,8 +140,11 @@ test("the routing lab reveals why after a guess", async ({ page }) => {
   const lab = page.locator("section#routing");
   await lab.getByRole("button", { name: "Static VPN as backup" }).click();
   await lab.getByRole("button", { name: "Direct Connect", exact: true }).click();
-  await expect(lab.getByText("Not quite. Here's why:")).toBeVisible();
+  await expect(lab.getByText("Not quite.")).toBeVisible();
   await expect(lab.getByText("Result: VPN 1")).toBeVisible();
+  // Changing the scenario re-arms the question and locks the ladder again.
+  await lab.getByRole("radio", { name: "Virtual private gateway" }).click();
+  await expect(lab.getByRole("button", { name: "Skip and show the lab" })).toBeVisible();
 });
 
 test("diagram text stays legible on phones", async ({ page }, info) => {

@@ -3,6 +3,7 @@ import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { useNarrow } from "@/hooks/useNarrow";
 import { Callout, Segmented, Toggle } from "@/components/ui";
+import { Predict } from "@/components/ui/Predict";
 import { road } from "@/features/map/geometry";
 import { decide, type Advert, type Hub, type Rule } from "./engine";
 
@@ -177,8 +178,9 @@ export function RoutingLab() {
   const [dst, setDst] = useState(p0.dst);
   const [ecmp, setEcmp] = useState(p0.ecmp);
   const [lanes, setLanes] = useState<Lane[]>(() => p0.lanes(base()));
-  const [guess, setGuess] = useState<string | null>(null);
-  const [predict, setPredict] = useState(true);
+  // The scenario key whose answer has been revealed (by a guess). Any change
+  // to the scenario re-arms the question.
+  const [answered, setAnswered] = useState<string | null>(null);
 
   const applyPreset = (p: Preset) => {
     setPreset(p.id);
@@ -186,7 +188,6 @@ export function RoutingLab() {
     setDst(p.dst);
     setEcmp(p.ecmp);
     setLanes(p.lanes(base()));
-    setGuess(null);
   };
   // Any manual change leaves the preset, so its note can no longer contradict
   // the result. Switching hubs keeps the "prepend" note: that preset is about
@@ -194,7 +195,6 @@ export function RoutingLab() {
   const edit = (id: string, patch: Partial<Lane>) => {
     setLanes((l) => set(l, id, patch));
     setPreset("");
-    setGuess(null);
   };
 
   const shown = useMemo(() => lanes.filter((l) => l.present), [lanes]);
@@ -202,15 +202,22 @@ export function RoutingLab() {
     () => decide(hub, dst, shown, { vpnEcmp: ecmp }),
     [hub, dst, shown, ecmp],
   );
-  const revealed = !predict || guess !== null;
+  const key = `${preset}|${hub}|${dst}|${ecmp}|${JSON.stringify(shown)}`;
+  const revealed = answered === key;
+  const answer = d.winners.length === 0 ? "none" : d.ecmp ? "ecmp" : d.winners[0];
   const lostAt = (id: string) => d.steps.find((s) => s.dropped.includes(id))?.rule;
   const note = PRESETS.find((p) => p.id === preset)?.note;
 
   // Diagram geometry: roads run from the hub (right) back to your network (left),
   // because this is AWS choosing how to send traffic to you.
   const W = narrow ? 360 : 900;
-  const H = narrow ? 420 : 300;
-  const ys = { dx: 60, vpn1: 150, vpn2: 240 } as Record<string, number>;
+  // Wide layout: spread only the roads that are advertised, so a two-road
+  // scenario has no empty third lane under it.
+  const LANE_YS: Record<number, number[]> = { 1: [150], 2: [95, 205], 3: [60, 150, 240] };
+  const ys = Object.fromEntries(
+    shown.map((l, k) => [l.id, LANE_YS[Math.max(1, shown.length)][k]]),
+  ) as Record<string, number>;
+  const H = narrow ? 420 : shown.length === 3 ? 300 : 250;
   const xs = { dx: 70, vpn1: 180, vpn2: 290 } as Record<string, number>;
   const laneD = (id: string) =>
     narrow
@@ -222,7 +229,18 @@ export function RoutingLab() {
           [190, 150],
         ]);
 
-  const choices = [...shown.map((l) => l.id), "none"];
+  const choices = [
+    ...shown.map((l) => ({ id: l.id, label: NAME[l.id] })),
+    ...(shown.length > 1
+      ? [
+          {
+            id: "ecmp",
+            label: { en: "Spread across them (ECMP)", ja: "全部に分散 (ECMP)" },
+          },
+        ]
+      : []),
+    { id: "none", label: { en: "No route", ja: "経路なし" } },
+  ];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
@@ -249,7 +267,6 @@ export function RoutingLab() {
             onChange={(h) => {
               setHub(h);
               if (preset !== "prepend") setPreset("");
-              setGuess(null);
             }}
           />
           <label className="flex items-center gap-2 text-sm font-semibold">
@@ -259,7 +276,6 @@ export function RoutingLab() {
               onChange={(e) => {
                 setDst(e.target.value);
                 setPreset("");
-                setGuess(null);
               }}
               className="num min-h-9 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1"
             >
@@ -419,59 +435,6 @@ export function RoutingLab() {
             );
           })}
         </svg>
-
-        {/* Predict, then reveal: guessing first is what makes the rule stick. */}
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <Toggle
-            label={{ en: "Let me guess first", ja: "先に予想する" }}
-            checked={predict}
-            onChange={(v) => {
-              setPredict(v);
-              setGuess(null);
-            }}
-          />
-          {predict && guess === null && (
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold">
-                {t({ en: "Which road does AWS use?", ja: "AWS はどの道を使う?" })}
-              </span>
-              {choices.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setGuess(c)}
-                  className="rounded-lg border-2 px-3 py-1 text-sm font-bold"
-                  style={{ borderColor: COLOR[c] ?? "var(--line)" }}
-                >
-                  {c === "none" ? t({ en: "No route", ja: "経路なし" }) : t(NAME[c])}
-                </button>
-              ))}
-            </div>
-          )}
-          {predict && guess !== null && (
-            <p
-              className="text-sm font-bold"
-              style={{
-                color: (
-                  guess === "none" ? d.winners.length === 0 : d.winners.includes(guess)
-                )
-                  ? "var(--ok)"
-                  : "var(--bad)",
-              }}
-              aria-live="polite"
-            >
-              {(guess === "none" ? d.winners.length === 0 : d.winners.includes(guess))
-                ? t({ en: "Right. Here's why:", ja: "正解。理由はこちら:" })
-                : t({ en: "Not quite. Here's why:", ja: "残念。理由はこちら:" })}
-            </p>
-          )}
-        </div>
-
-        {note && revealed && (
-          <div className="mt-4">
-            <Callout tone="warn">{t(note)}</Callout>
-          </div>
-        )}
       </div>
 
       <div className="flex flex-col gap-4">
@@ -562,93 +525,116 @@ export function RoutingLab() {
           <Toggle
             label={{ en: "TGW VPN ECMP option on", ja: "TGW の VPN ECMP を有効化" }}
             checked={ecmp}
-            onChange={(v) => {
-              setEcmp(v);
-              setGuess(null);
-            }}
+            onChange={setEcmp}
           />
         )}
       </div>
 
-      {revealed && (
-        <div className="panel p-4 sm:p-5 lg:col-span-2">
-          <p id="ladder-title" className="mb-3 font-bold">
-            {t({
-              en: "How the hub decided, rule by rule",
-              ja: "ハブの判定を 1 ステップずつ",
-            })}
-          </p>
-          <ol aria-labelledby="ladder-title">
-            {d.steps
-              // Show the whole checklist; rules that changed nothing are greyed out
-              // so you can see they were checked and passed.
-              .filter((s) => s.rule !== "unsupported" || s.dropped.length > 0)
-              .filter((s) => s.kept.length + s.dropped.length > 0)
-              .map((s, i) => (
-                <li
-                  key={i}
-                  className={`flex flex-wrap items-center gap-2 border-t border-[var(--line)] py-2 first:border-t-0 ${
-                    s.dropped.length === 0 && s.rule !== "ecmp" ? "opacity-45" : ""
-                  }`}
-                >
-                  <span className="w-6 text-center font-black text-[var(--muted)]">
-                    {i + 1}
-                  </span>
-                  <span className="min-w-0 flex-1 font-semibold">
-                    {t(RULE[s.rule])}
-                    {s.rule === "type" && (
-                      <span className="block text-xs font-normal text-[var(--muted)]">
-                        {t(TYPE_ORDER[hub])}
-                      </span>
-                    )}
-                  </span>
-                  {s.dropped.map((id) => (
-                    <span
-                      key={id}
-                      className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
-                      style={{ background: "var(--paper-2)", color: COLOR[id] }}
-                    >
-                      {t(NAME[id])}
-                    </span>
-                  ))}
-                  {s.kept.map((id) => (
-                    <span
-                      key={id}
-                      className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
-                      style={{ background: COLOR[id] }}
-                    >
-                      {t(NAME[id])}
-                    </span>
-                  ))}
-                </li>
-              ))}
-            <li className="border-t border-[var(--line)] pt-3 font-bold">
-              {d.winners.length === 0
-                ? t({
-                    en: "No usable route: the packet is dropped.",
-                    ja: "使える経路なし: パケットは破棄されます。",
-                  })
-                : `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`}
-            </li>
-            {lanes.some((l) => l.present && lostAt(l.id) === "unsupported") && (
-              <li className="pt-2 text-sm text-[var(--muted)]">
+      {/* Predict, then reveal: the decision ladder stays locked until you
+          commit to an answer (or skip), and the diagram marks the winner only
+          after a guess. */}
+      <div className="lg:col-span-2">
+        <Predict
+          question={{
+            en: "Which road does AWS use to reach you?",
+            ja: "AWS は社内へどの道を使う?",
+          }}
+          options={choices}
+          answer={answer}
+          resetKey={key}
+          onPick={() => setAnswered(key)}
+          why={
+            note ? (
+              <Callout tone="warn">{t(note)}</Callout>
+            ) : (
+              <p>
                 {t({
-                  en: "Cloud WAN VPN attachments must use BGP, so a static VPN cannot attach.",
-                  ja: "Cloud WAN の VPN アタッチメントは BGP 必須なので、静的 VPN はつなげません。",
+                  en: "The ladder below walks the hub's checklist rule by rule.",
+                  ja: "下の判定はしごで、ハブのチェックリストを 1 ルールずつ確認できます。",
                 })}
-              </li>
-            )}
-          </ol>
-          {hub === "tgw" && (
-            <p className="mt-2 text-xs text-[var(--muted)]">
+              </p>
+            )
+          }
+        >
+          <div className="panel p-4 sm:p-5">
+            <p id="ladder-title" className="mb-3 font-bold">
               {t({
-                en: "This lab has DX and VPN only; the full Transit Gateway order is listed under route type priority.",
-                ja: "このラボは DX と VPN だけの簡略版です。Transit Gateway の完全な順序は「経路の種類による優先順位」に記載しています。",
+                en: "How the hub decided, rule by rule",
+                ja: "ハブの判定を 1 ステップずつ",
               })}
             </p>
-          )}
-        </div>
-      )}
+            <ol aria-labelledby="ladder-title">
+              {d.steps
+                // Show the whole checklist; rules that changed nothing are greyed out
+                // so you can see they were checked and passed.
+                .filter((s) => s.rule !== "unsupported" || s.dropped.length > 0)
+                .filter((s) => s.kept.length + s.dropped.length > 0)
+                .map((s, i) => (
+                  <li
+                    key={i}
+                    className={`flex flex-wrap items-center gap-2 border-t border-[var(--line)] py-2 first:border-t-0 ${
+                      s.dropped.length === 0 && s.rule !== "ecmp" ? "opacity-45" : ""
+                    }`}
+                  >
+                    <span className="w-6 text-center font-black text-[var(--muted)]">
+                      {i + 1}
+                    </span>
+                    <span className="min-w-0 flex-1 font-semibold">
+                      {t(RULE[s.rule])}
+                      {s.rule === "type" && (
+                        <span className="block text-xs font-normal text-[var(--muted)]">
+                          {t(TYPE_ORDER[hub])}
+                        </span>
+                      )}
+                    </span>
+                    {s.dropped.map((id) => (
+                      <span
+                        key={id}
+                        className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
+                        style={{ background: "var(--paper-2)", color: COLOR[id] }}
+                      >
+                        {t(NAME[id])}
+                      </span>
+                    ))}
+                    {s.kept.map((id) => (
+                      <span
+                        key={id}
+                        className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
+                        style={{ background: COLOR[id] }}
+                      >
+                        {t(NAME[id])}
+                      </span>
+                    ))}
+                  </li>
+                ))}
+              <li className="border-t border-[var(--line)] pt-3 font-bold">
+                {d.winners.length === 0
+                  ? t({
+                      en: "No usable route: the packet is dropped.",
+                      ja: "使える経路なし: パケットは破棄されます。",
+                    })
+                  : `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`}
+              </li>
+              {lanes.some((l) => l.present && lostAt(l.id) === "unsupported") && (
+                <li className="pt-2 text-sm text-[var(--muted)]">
+                  {t({
+                    en: "Cloud WAN VPN attachments must use BGP, so a static VPN cannot attach.",
+                    ja: "Cloud WAN の VPN アタッチメントは BGP 必須なので、静的 VPN はつなげません。",
+                  })}
+                </li>
+              )}
+            </ol>
+            {hub === "tgw" && (
+              <p className="mt-2 text-xs text-[var(--muted)]">
+                {t({
+                  en: "This lab has DX and VPN only; the full Transit Gateway order is listed under route type priority.",
+                  ja: "このラボは DX と VPN だけの簡略版です。Transit Gateway の完全な順序は「経路の種類による優先順位」に記載しています。",
+                })}
+              </p>
+            )}
+          </div>
+        </Predict>
+      </div>
     </div>
   );
 }
