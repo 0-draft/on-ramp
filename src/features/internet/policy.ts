@@ -9,6 +9,8 @@
  * Addresses are documentation ranges (RFC 5737).
  */
 
+import { contains, ipToInt, parseCidr } from "@/lib/cidr";
+
 export type Arrival = "internet" | "endpoint" | "publicVif" | "nat";
 export type Condition = "sourceIp" | "sourceVpce" | "both";
 
@@ -38,8 +40,11 @@ export function contextFor(arrival: Arrival): RequestContext {
   }
 }
 
+const OFFICE = parseCidr(OFFICE_CIDR)!;
+
 function inOfficeCidr(ip: string): boolean {
-  return ip.startsWith("203.0.113.");
+  const n = ipToInt(ip);
+  return n !== null && contains(OFFICE, n);
 }
 
 export interface Verdict {

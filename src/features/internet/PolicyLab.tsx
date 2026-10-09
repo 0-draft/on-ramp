@@ -77,7 +77,6 @@ export function PolicyLab() {
             options={ARRIVALS}
             value={arrival}
             onChange={setArrival}
-            color="var(--r-internet)"
           />
         </div>
         <div>
@@ -92,7 +91,6 @@ export function PolicyLab() {
             options={CONDITIONS}
             value={cond}
             onChange={setCond}
-            color="var(--r-internet)"
           />
           <div className="mt-2 overflow-x-auto rounded-lg bg-[var(--paper-2)] p-3">
             <pre className="font-mono text-xs leading-relaxed whitespace-pre">

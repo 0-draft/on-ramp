@@ -8,7 +8,7 @@ import { throughput, type TunnelSize, type VpnHub } from "./throughput";
 const PROBLEM: Record<string, L> = {
   largeOnVgw: {
     en: "Large (5 Gbps) tunnels exist only on Transit Gateway and Cloud WAN. A virtual private gateway offers standard tunnels only.",
-    ja: "Large (5 Gbps) トンネルは Transit Gateway と Cloud WAN だけ。仮想プライベートゲートウェイは標準トンネルのみです。",
+    ja: "広帯域幅 (5 Gbps) トンネルは Transit Gateway と Cloud WAN だけ。仮想プライベートゲートウェイは標準トンネルのみです。",
   },
   staticOnCloudWan: {
     en: "Cloud WAN VPN attachments are BGP only. A static VPN cannot attach.",
@@ -59,21 +59,19 @@ function Counter({
       <span>{t(label)}</span>
       <button
         type="button"
-        className="h-8 w-8 rounded-md border border-[var(--line)] font-black disabled:opacity-40"
-        onClick={() => onChange(value - 1)}
-        disabled={value <= min}
+        className="h-10 w-10 rounded-md border border-[var(--line)] font-black aria-disabled:opacity-40"
+        onClick={() => value > min && onChange(value - 1)}
+        aria-disabled={value <= min}
         aria-label={`${t(label)} −1`}
       >
         −
       </button>
-      <output className="w-8 text-center font-mono text-base" aria-live="polite">
-        {value}
-      </output>
+      <output className="num w-8 text-center text-base">{value}</output>
       <button
         type="button"
-        className="h-8 w-8 rounded-md border border-[var(--line)] font-black disabled:opacity-40"
-        onClick={() => onChange(value + 1)}
-        disabled={value >= max}
+        className="h-10 w-10 rounded-md border border-[var(--line)] font-black aria-disabled:opacity-40"
+        onClick={() => value < max && onChange(value + 1)}
+        aria-disabled={value >= max}
         aria-label={`${t(label)} +1`}
       >
         +
@@ -113,7 +111,7 @@ export function ThroughputLab() {
           label={{ en: "Tunnel size", ja: "トンネルのサイズ" }}
           options={[
             { id: "standard", label: { en: "Standard 1.25 Gbps", ja: "標準 1.25 Gbps" } },
-            { id: "large", label: { en: "Large 5 Gbps", ja: "Large 5 Gbps" } },
+            { id: "large", label: { en: "Large 5 Gbps", ja: "広帯域幅 5 Gbps" } },
           ]}
           value={size}
           onChange={setSize}
@@ -155,7 +153,7 @@ export function ThroughputLab() {
         )}
       </div>
 
-      <div aria-live="polite">
+      <div>
         {!r.ok ? (
           <Callout tone="bad" title={{ en: "Not possible", ja: "この組み合わせは不可" }}>
             {t(PROBLEM[r.problem!])}
@@ -184,7 +182,7 @@ export function ThroughputLab() {
                         }}
                       />
                     </div>
-                    <span className="w-24 shrink-0 text-right font-mono">
+                    <span className="num w-24 shrink-0 text-right">
                       {used
                         ? `${fmt(r.perTunnelGbps)} Gbps`
                         : t({ en: "idle", ja: "待機" })}
@@ -198,18 +196,27 @@ export function ThroughputLab() {
                 <dt className="text-xs font-semibold text-[var(--muted)]">
                   {t({ en: "Best-case total", ja: "最大合計 (理想的な分散)" })}
                 </dt>
-                <dd className="text-3xl font-black" style={{ color }}>
-                  {fmt(r.aggregateGbps)} <span className="text-base">Gbps</span>
+                <dd>
+                  <span
+                    className="num text-3xl font-black"
+                    style={{ color }}
+                    aria-live="polite"
+                  >
+                    {fmt(r.aggregateGbps)} <span className="text-base">Gbps</span>
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className="mt-1 block h-2 rounded bg-[var(--paper-2)]"
+                  >
+                    <span
+                      className="block h-full rounded"
+                      style={{
+                        width: `${(r.aggregateGbps / MAX) * 100}%`,
+                        background: color,
+                      }}
+                    />
+                  </span>
                 </dd>
-                <div className="mt-1 h-2 rounded bg-[var(--paper-2)]">
-                  <div
-                    className="h-full rounded"
-                    style={{
-                      width: `${(r.aggregateGbps / MAX) * 100}%`,
-                      background: color,
-                    }}
-                  />
-                </div>
               </div>
               <div>
                 <dt className="text-xs font-semibold text-[var(--muted)]">
@@ -218,7 +225,7 @@ export function ThroughputLab() {
                     ja: "大きな転送 1 本 (1 フロー)",
                   })}
                 </dt>
-                <dd className="text-3xl font-black">
+                <dd className="num text-3xl font-black" aria-live="polite">
                   {fmt(r.singleFlowGbps)} <span className="text-base">Gbps</span>
                 </dd>
                 <dd className="mt-1 text-xs text-[var(--muted)]">
@@ -234,6 +241,11 @@ export function ThroughputLab() {
                   en: "ECMP hashes each flow onto one tunnel, so the total assumes flows spread evenly. A single flow never goes faster than one tunnel.",
                   ja: "ECMP は各フローを 1 本のトンネルにハッシュするので、合計はフローが均等に散った場合の値。1 フローは 1 トンネルより速くなりません。",
                 })}
+                {hub === "cloudwan" &&
+                  ` ${t({
+                    en: "Cloud WAN spreads BGP VPN flows by default; the core network policy can turn this off (vpn-ecmp-support).",
+                    ja: "Cloud WAN は既定で BGP VPN のフローを分散します。コアネットワークポリシー (vpn-ecmp-support) で無効化も可能。",
+                  })}`}
               </p>
             )}
           </>

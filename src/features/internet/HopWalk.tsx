@@ -78,7 +78,8 @@ export function HopWalk() {
 
   return (
     <div className="panel p-4 sm:p-5">
-      <Stepper steps={STEPS} index={i} onChange={setI} color={color}>
+      {/* Ink, not the slate internet colour, so Next never reads as disabled. */}
+      <Stepper steps={STEPS} index={i} onChange={setI} color="var(--ink)">
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="diagram block h-auto w-full"
@@ -153,7 +154,7 @@ export function HopWalk() {
                   height={b.h}
                   rx={8}
                   fill={cur ? "var(--paper)" : "var(--paper-2)"}
-                  stroke={cur ? color : awsSide ? "var(--sign)" : "var(--line)"}
+                  stroke={cur ? color : awsSide ? "var(--hub)" : "var(--line)"}
                   strokeWidth={cur ? 3 : 1.5}
                   strokeDasharray={awsSide && !cur ? "5 4" : undefined}
                 />
@@ -200,7 +201,7 @@ export function HopWalk() {
                     textAnchor="middle"
                     fontSize={13}
                     fill="var(--ink)"
-                    className="mono"
+                    className="num"
                   >
                     src {srcIp}
                   </text>
@@ -209,7 +210,7 @@ export function HopWalk() {
             );
           })()}
         </svg>
-        {narrow && <p className="mt-1 font-mono text-sm">src {srcIp}</p>}
+        {narrow && <p className="mt-1 num text-sm">src {srcIp}</p>}
       </Stepper>
     </div>
   );

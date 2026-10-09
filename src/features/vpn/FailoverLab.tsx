@@ -27,7 +27,7 @@ const TWO: L[] = [
   },
   {
     en: "Tunnel 1 comes back with the same outside IP. With the default startup action (Add), your device must start IKE again; with IKEv1 and no traffic, a tunnel can stay down until it does.",
-    ja: "トンネル 1 が同じ外部 IP で復帰。既定の起動アクション (Add) では社内機器から IKE を張り直す必要があり、IKEv1 で通信がないと張り直すまで down のままのことも。",
+    ja: "トンネル 1 が同じ外部 IP で復帰。既定の起動アクション (Add) では社内機器から IKE を張り直す必要があり、IKEv1 で通信がないと張り直すまで ダウンしたままのことも。",
   },
 ];
 
@@ -205,9 +205,9 @@ export function FailoverLab() {
             b={hub}
             title="VGW / Transit Gateway"
             sub={t({ en: "AWS side", ja: "AWS 側" })}
-            fill="var(--sign)"
-            ink="var(--on-color)"
-            stroke="var(--sign)"
+            fill="var(--hub)"
+            ink="var(--on-hub)"
+            stroke="var(--hub)"
           />
           {([1, 2] as const).map((n) => {
             const st = n === 1 ? f.t1 : f.t2;
@@ -216,7 +216,7 @@ export function FailoverLab() {
               <Box
                 key={n}
                 b={ep(n)}
-                title={`${t({ en: "Tunnel", ja: "トンネル" })} ${n} · AZ ${n === 1 ? "a" : "b"}`}
+                title={`${t({ en: "Tunnel", ja: "トンネル" })} ${n} (AZ ${n === 1 ? "a" : "b"})`}
                 sub={t(STATE[st].label)}
                 stroke={carrying ? "var(--ink)" : STATE[st].stroke}
               />
@@ -249,8 +249,16 @@ export function FailoverLab() {
           style={{ color: f.awsEgress ? "var(--ok)" : "var(--bad)" }}
         >
           {f.awsEgress
-            ? t({ en: "Connected", ja: "接続中" })
-            : t({ en: "Outage: no working tunnel", ja: "停止: 使えるトンネルがない" })}
+            ? t({ en: "✓ Connected", ja: "✓ 接続中" })
+            : f.detecting
+              ? t({
+                  en: "✕ Outage while detection runs: traffic still goes into tunnel 1",
+                  ja: "✕ 検出中は停止: 通信はまだトンネル 1 に送られて消える",
+                })
+              : t({
+                  en: "✕ Outage: no working tunnel",
+                  ja: "✕ 停止: 使えるトンネルがない",
+                })}
         </p>
       </Stepper>
     </div>

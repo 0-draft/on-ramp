@@ -1,6 +1,13 @@
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
-import { Callout, MetaphorLimit, Section, Sources, Spec } from "@/components/ui";
+import {
+  Callout,
+  DataTable,
+  MetaphorLimit,
+  Section,
+  Sources,
+  Spec,
+} from "@/components/ui";
 import { HopWalk } from "./HopWalk";
 import { PolicyLab } from "./PolicyLab";
 
@@ -90,7 +97,7 @@ const OK_WHEN: L[] = [
   },
   {
     en: "Your security policy allows the internet, with TLS or a VPN on top.",
-    ja: "セキュリティポリシーがインターネットを許し、TLS か VPN をかぶせる。",
+    ja: "セキュリティポリシーがインターネット利用を認めている (TLS か VPN を重ねる前提)。",
   },
 ];
 
@@ -147,6 +154,7 @@ export function InternetSection() {
           })}
         </Callout>
         <Callout
+          tone="info"
           title={{
             en: "Allowlisting AWS on your firewall",
             ja: "社内 FW で AWS を許可するには",
@@ -154,7 +162,7 @@ export function InternetSection() {
         >
           {t({
             en: "Build it from ip-ranges.json (filter by service and Region) or, better, from FQDNs, because AWS service IPs change. Subscribe to the AmazonIpSpaceChanged SNS topic so the list does not drift.",
-            ja: "ip-ranges.json (service と region で絞る) から、できれば FQDN で作ります。AWS のサービス IP は変わるので、AmazonIpSpaceChanged の SNS トピックを購読してリストが古くならないように。",
+            ja: "ip-ranges.json (サービスとリージョンで絞り込む) から作るか、できれば FQDN ベースにします。AWS のサービス IP は変わるので、AmazonIpSpaceChanged の SNS トピックを購読してリストが古くならないように。",
           })}
         </Callout>
       </div>
@@ -165,30 +173,20 @@ export function InternetSection() {
           ja: "社内から使うアプリの入口",
         })}
       </h3>
-      <div className="overflow-x-auto">
-        <table className="panel w-full min-w-[36rem] border-collapse text-sm">
-          <thead>
-            <tr className="text-left text-[var(--muted)]">
-              <th className="p-3">{t({ en: "Front door", ja: "入口" })}</th>
-              <th className="p-3">
-                {t({ en: "What it gives you", ja: "何が得られるか" })}
-              </th>
-              <th className="p-3">{t({ en: "Note", ja: "メモ" })}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {DOORS.map((d) => (
-              <tr key={d.name} className="border-t border-[var(--line)] align-top">
-                <th scope="row" className="p-3 text-left font-bold whitespace-nowrap">
-                  {d.name}
-                </th>
-                <td className="p-3">{t(d.what)}</td>
-                <td className="p-3 text-[var(--muted)]">{t(d.note)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={[
+          { en: "Front door", ja: "入口" },
+          { en: "What it gives you", ja: "何が得られるか" },
+          { en: "Note", ja: "メモ" },
+        ]}
+        rows={DOORS.map((d) => [
+          d.name,
+          t(d.what),
+          <span key="n" className="text-[var(--muted)]">
+            {t(d.note)}
+          </span>,
+        ])}
+      />
 
       <h3 className="mt-12 mb-3 text-xl font-extrabold">
         {t({
