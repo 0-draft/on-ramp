@@ -3,6 +3,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/features/hero/Hero";
 import { InternetSection } from "@/features/internet/InternetSection";
 import { VpnSection } from "@/features/vpn/VpnSection";
+import { HubsSection } from "@/features/hubs/HubsSection";
+import { SdwanSection } from "@/features/sdwan/SdwanSection";
 import { RoutingSection } from "@/features/routing/RoutingSection";
 import { PrivateSection } from "@/features/private/PrivateSection";
 import { DnsSection } from "@/features/dns/DnsSection";
@@ -25,6 +27,8 @@ export default function App() {
         <Hero />
         <InternetSection />
         <VpnSection />
+        <HubsSection />
+        <SdwanSection />
         <RoutingSection />
         <PrivateSection />
         <DnsSection />
