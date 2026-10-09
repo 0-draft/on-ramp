@@ -2,7 +2,7 @@ import type { L } from "@/i18n/lang";
 
 /**
  * Direct Connect facts the DX section draws from, as plain data and pure
- * functions (docs/04-direct-connect.md, verified 2026-10-10). Depth (prefix
+ * functions (docs/04-direct-connect.md, verified as of AS_OF in @/data/asOf). Depth (prefix
  * limits, SiteLink, the full MTU table) lives in Cross Connect, not here.
  */
 

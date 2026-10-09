@@ -262,8 +262,8 @@ export function DxSection() {
                 ja: "NTT ドコモビジネス Flexible InterConnect (FIC)",
               }),
               t({
-                en: "L2: hosted connection you accept. L3: FIC-Router creates the VIF",
-                ja: "L2: 受け入れるホスト接続。L3: FIC-Router が VIF を作成",
+                en: "L2: hosted connection you accept. L3: FIC-Router creates the VIF, you accept it",
+                ja: "L2: 受け入れるホスト接続。L3: FIC-Router が VIF を作成し、自社で承認",
               }),
               t({
                 en: "50 Mbps to 10 Gbps; TGW since 2021-01",
@@ -273,10 +273,13 @@ export function DxSection() {
             [
               "KDDI Wide Area Virtual Switch 2",
               t({
-                en: "Hosted connection or hosted VIF; TGW needs a hosted connection",
-                ja: "ホスト接続かホスト VIF、TGW にはホスト接続が必要",
+                en: "Multi-cloud gateway: hosted connection or hosted VIF (TGW needs a hosted connection). AWS direct connection menu: best-effort or reserved bandwidth",
+                ja: "マルチクラウドゲートウェイ: ホスト接続かホスト VIF (TGW にはホスト接続が必要)。AWS ダイレクト接続: ベストエフォートか帯域確保",
               }),
-              t({ en: "Shortest 5 business days", ja: "最短 5 営業日" }),
+              t({
+                en: "AWS direct connection: shortest 5 business days, Tokyo or Osaka location",
+                ja: "AWS ダイレクト接続は最短 5 営業日、接続ロケーションは東京/大阪",
+              }),
             ],
             [
               t({
@@ -295,8 +298,8 @@ export function DxSection() {
             [
               "IIJ Smart HUB",
               t({
-                en: "Hosted connection on IIJ's ports",
-                ja: "IIJ のポート上のホスト接続",
+                en: "Hosted connection on IIJ's ports, or bring your own DX",
+                ja: "IIJ のポート上のホスト接続、または自社保有の DX を持ち込み",
               }),
               t({
                 en: "12 access points in Japan; TGW supported",
