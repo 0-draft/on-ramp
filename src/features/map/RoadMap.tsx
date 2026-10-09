@@ -215,13 +215,26 @@ const TOUCH: Record<RouteId, (keyof typeof BOX)[]> = {
 
 export function RoadMap({
   selected,
+  hop,
   onSelect,
+  onHop,
 }: {
   selected: RouteId | null;
+  hop: number;
   onSelect: (id: RouteId) => void;
+  onHop: (i: number) => void;
 }) {
   const { t } = useLang();
   const reduced = useReducedMotion();
+  const stops = selected ? ROUTE[selected].stops : [];
+  const pts = selected ? PATHS[selected] : [];
+  const here = stops[hop] ? pts[stops[hop].at] : null;
+  // Where each numbered hop marker sits; stops that share a point fan out.
+  const markers = stops.map((s, i) => {
+    const dup = stops.slice(0, i).filter((o) => o.at === s.at).length;
+    const [x, y] = pts[s.at];
+    return { x: x + dup * 26, y: y - 22 };
+  });
   const lit = new Set(selected ? TOUCH[selected] : []);
   const order = ROUTES.map((r) => r.id).sort((a, b) =>
     a === selected ? 1 : b === selected ? -1 : 0,
@@ -266,7 +279,7 @@ export function RoadMap({
       <text x={682} y={40} fontSize={13} fill="var(--sign)">
         {t({ en: "AWS Region", ja: "AWS リージョン" })}
       </text>
-      <text x={846} y={182} fontSize={12} fill="var(--muted)">
+      <text x={846} y={496} fontSize={13} fill="var(--muted)">
         VPC
       </text>
       <text x={450} y={44} textAnchor="middle" fontSize={13} fill="var(--muted)">
@@ -309,10 +322,15 @@ export function RoadMap({
               strokeLinecap="round"
               strokeDasharray={r.kind === "overlay" ? "10 5" : undefined}
             />
-            {on && !reduced && (
-              <circle r={7} fill="var(--lane)" stroke="var(--asphalt)" strokeWidth={2}>
-                <animateMotion dur="3.2s" repeatCount="indefinite" path={D[id]} />
-              </circle>
+            {on && (
+              // The stretch already travelled, drawn solid and wider.
+              <path
+                d={road(PATHS[id].slice(0, (stops[hop]?.at ?? 0) + 1))}
+                fill="none"
+                stroke={r.color}
+                strokeWidth={9}
+                strokeLinecap="round"
+              />
             )}
             {/* A wide invisible stroke makes thin roads easy to hit. */}
             <path
@@ -332,7 +350,44 @@ export function RoadMap({
       {(Object.keys(BOX) as (keyof typeof BOX)[]).map((k) => (
         <Place key={k} b={BOX[k]} active={lit.has(k)} />
       ))}
-      <text x={600} y={480} textAnchor="middle" fontSize={11} fill="var(--muted)">
+
+      {/* Numbered hops: click one to jump the packet there. */}
+      {selected &&
+        markers.map((m, i) => (
+          <g
+            key={i}
+            className="cursor-pointer"
+            onClick={() => onHop(i)}
+            transform={`translate(${m.x} ${m.y})`}
+          >
+            <circle
+              r={11}
+              fill={i === hop ? ROUTE[selected].color : "var(--paper)"}
+              stroke={ROUTE[selected].color}
+              strokeWidth={2.5}
+            />
+            <text
+              y={4.5}
+              textAnchor="middle"
+              fontSize={13}
+              fontWeight={800}
+              fill={i === hop ? "#fff" : ROUTE[selected].color}
+            >
+              {i + 1}
+            </text>
+          </g>
+        ))}
+      {here && (
+        <g
+          style={{
+            transform: `translate(${here[0]}px, ${here[1]}px)`,
+            transition: reduced ? undefined : "transform 450ms cubic-bezier(.4,0,.2,1)",
+          }}
+        >
+          <circle r={9} fill="var(--lane)" stroke="var(--asphalt)" strokeWidth={2.5} />
+        </g>
+      )}
+      <text x={600} y={478} textAnchor="middle" fontSize={13} fill="var(--muted)">
         {t({ en: "service link", ja: "サービスリンク" })}
       </text>
     </svg>

@@ -1,43 +1,85 @@
 import { useLang } from "@/i18n/useLang";
 import { KIND, type Route } from "@/data/routes";
 import { Shield, Spec } from "@/components/ui";
+import { Stepper } from "@/components/ui/Stepper";
 
-/** The stops of one route drawn as a line with stations, like a transit
- * strip map. Horizontal on wide screens, vertical on phones. */
-export function StopStrip({ route }: { route: Route }) {
+/**
+ * The stops of one route as a line with stations, like the strip map above a
+ * train door. Horizontal on wide screens, vertical on phones, where it is the
+ * whole map. Tapping a station jumps the packet there.
+ */
+export function StopStrip({
+  route,
+  hop,
+  onHop,
+}: {
+  route: Route;
+  hop: number;
+  onHop: (i: number) => void;
+}) {
   const { t } = useLang();
   return (
     <ol className="relative flex flex-col gap-3 sm:flex-row sm:gap-0">
-      {route.stops.map((s, i) => (
-        <li
-          key={i}
-          className="relative flex items-start gap-3 sm:flex-1 sm:flex-col sm:gap-2"
-        >
-          {i < route.stops.length - 1 && (
-            <span
-              aria-hidden="true"
-              className="absolute top-3 left-[9px] h-[calc(100%+0.75rem)] w-1.5 sm:top-[9px] sm:left-3 sm:h-1.5 sm:w-full"
-              style={{ background: route.color }}
-            />
-          )}
-          <span
-            aria-hidden="true"
-            className="relative z-10 mt-0.5 h-6 w-6 shrink-0 rounded-full border-[5px] bg-[var(--paper)]"
-            style={{ borderColor: route.color }}
-          />
-          <span className="text-sm font-semibold sm:pr-3">{t(s)}</span>
-        </li>
-      ))}
+      {route.stops.map((s, i) => {
+        const passed = i <= hop;
+        return (
+          <li
+            key={i}
+            className="relative flex items-start gap-3 sm:flex-1 sm:flex-col sm:gap-2"
+          >
+            {i < route.stops.length - 1 && (
+              <span
+                aria-hidden="true"
+                className="absolute top-3 left-[9px] h-[calc(100%+0.75rem)] w-1.5 sm:top-[9px] sm:left-3 sm:h-1.5 sm:w-full"
+                style={{
+                  background: i < hop ? route.color : "var(--line)",
+                }}
+              />
+            )}
+            <button
+              type="button"
+              onClick={() => onHop(i)}
+              aria-current={i === hop ? "step" : undefined}
+              className="relative z-10 flex items-start gap-3 text-left sm:flex-col sm:gap-2"
+            >
+              <span
+                aria-hidden="true"
+                className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-[3px] text-[0.7rem] font-black"
+                style={{
+                  borderColor: passed ? route.color : "var(--line)",
+                  background: i === hop ? route.color : "var(--paper)",
+                  color: i === hop ? "#fff" : passed ? route.color : "var(--muted)",
+                }}
+              >
+                {i + 1}
+              </span>
+              <span
+                className={`text-sm sm:pr-3 ${i === hop ? "font-extrabold" : "font-semibold"}`}
+                style={{ color: passed ? "var(--ink)" : "var(--muted)" }}
+              >
+                {t(s.name)}
+              </span>
+            </button>
+          </li>
+        );
+      })}
     </ol>
   );
 }
 
-export function RouteCard({ route }: { route: Route }) {
+export function RouteCard({
+  route,
+  hop,
+  onHop,
+}: {
+  route: Route;
+  hop: number;
+  onHop: (i: number) => void;
+}) {
   const { t } = useLang();
   return (
     <article
       className="panel overflow-hidden"
-      aria-live="polite"
       style={{ borderTop: `6px solid ${route.color}` }}
     >
       <div className="p-5 sm:p-6">
@@ -57,7 +99,14 @@ export function RouteCard({ route }: { route: Route }) {
         </div>
         <p className="mt-4 max-w-3xl">{t(route.tagline)}</p>
         <div className="mt-6">
-          <StopStrip route={route} />
+          <Stepper
+            steps={route.stops.map((s) => s.say)}
+            index={hop}
+            onChange={onHop}
+            color={route.color}
+          >
+            <StopStrip route={route} hop={hop} onHop={onHop} />
+          </Stepper>
         </div>
         <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-[var(--line)] pt-4 sm:grid-cols-4">
           {route.specs.map((s, i) => (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLang } from "@/i18n/useLang";
-import { useNarrow } from "@/hooks/useNarrow";
+import { useCompact } from "@/hooks/useNarrow";
 import { ROUTE, ROUTES, type RouteId } from "@/data/routes";
 import { Shield } from "@/components/ui";
 import { RoadMap } from "@/features/map/RoadMap";
@@ -8,8 +8,13 @@ import { RouteCard } from "@/features/map/RouteCard";
 
 export function Hero() {
   const { t } = useLang();
-  const narrow = useNarrow();
-  const [sel, setSel] = useState<RouteId>("vpn");
+  const narrow = useCompact();
+  const [sel, setSelState] = useState<RouteId>("vpn");
+  const [hop, setHop] = useState(0);
+  const setSel = (id: RouteId) => {
+    setSelState(id);
+    setHop(0);
+  };
 
   return (
     <header className="pt-10 pb-6 sm:pt-16">
@@ -92,18 +97,18 @@ export function Hero() {
 
       {!narrow && (
         <div className="panel mt-5 overflow-hidden p-2 sm:p-3">
-          <RoadMap selected={sel} onSelect={setSel} />
+          <RoadMap selected={sel} hop={hop} onSelect={setSel} onHop={setHop} />
           <p className="px-2 pb-1 text-xs text-[var(--muted)]">
             {t({
-              en: "Solid lines are roads you lay or rent. Dashed lines are tunnels on top of another road. Click a road to follow it.",
-              ja: "実線は自分で敷く (借りる) 道、破線は別の道の上を通るトンネル。道をクリックすると追いかけられます。",
+              en: "Solid lines are roads you lay or rent. Dashed lines are tunnels on top of another road. Click a road to pick it, then step the packet along with Next or the numbered stops.",
+              ja: "実線は自分で敷く (借りる) 道、破線は別の道の上を通るトンネル。道をクリックで選び、「次へ」か番号でパケットを 1 駅ずつ進められます。",
             })}
           </p>
         </div>
       )}
 
       <div className="mt-5">
-        <RouteCard route={ROUTE[sel]} />
+        <RouteCard route={ROUTE[sel]} hop={hop} onHop={setHop} />
       </div>
     </header>
   );
