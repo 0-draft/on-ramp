@@ -115,6 +115,8 @@ Documented order at each CNE (cloudwan-route-evaluation page):
    3. Site-to-Site VPN-propagated in the same Region
    4. Everything else (TGW peering, remote CNEs over the AWS backbone); among identical routes one attachment is chosen deterministically at random, per segment or network function group
 
+ECMP on Cloud WAN: equal BGP VPN routes are spread across tunnels when the core network policy's `vpn-ecmp-support` is true (the default), and Connect peers and Connect attachments are spread too. Static VPNs cannot attach, and AWS documents no ECMP across DX gateway attachments.
+
 The key difference from TGW: Cloud WAN compares AS_PATH and MED before attachment type, so a VPN route with a shorter AS_PATH beats a DX route. TGW compares attachment type first, so DX beats VPN regardless of AS_PATH. Cloud WAN Routing Policy (2025-11) can set local preference, AS_PATH and MED to override this, but it does not apply to network function groups, and DX attachments ignore BGP communities.
 
 ## Direct Connect: AWS choosing among VIFs
@@ -267,6 +269,7 @@ CLOUD_WAN_CNE(dst):
   prefer: STATIC > VPC_SAME_REGION
   dynamic: shortest AS_PATH > lowest MED
   equal: DXGW > CONNECT_SAME_REGION > VPN_SAME_REGION > OTHER (deterministic random)
+  tie: ECMP if (VPN BGP and vpn-ecmp-support, default true) or CONNECT
 
 DX_EDGE(dst) for private/transit VIFs:
   keep longest prefix

@@ -135,4 +135,34 @@ describe("decide: worked examples from docs/06", () => {
     ];
     expect(decide("tgw", "10.0.0.1", ads, { vpnEcmp: true }).ecmp).toBe(false);
   });
+
+  it("a static VPN keeps no AS_PATH: a stale prepend never knocks it out", () => {
+    const ads = [
+      vpn({ id: "a", vpnRouting: "static", asPath: 3 }),
+      vpn({ id: "b", vpnRouting: "static", asPath: 1 }),
+    ];
+    for (const hub of ["vgw", "tgw"] as const) {
+      const d = decide(hub, "10.0.0.1", ads);
+      expect(d.steps.find((s) => s.rule === "aspath")?.dropped ?? []).toEqual([]);
+    }
+  });
+
+  it("a VGW never compares AS_PATH between DX routes", () => {
+    const d = decide("vgw", "10.0.0.1", [dx({ id: "a", asPath: 3 }), dx({ id: "b" })]);
+    expect(d.steps.some((s) => s.rule === "aspath")).toBe(false);
+    expect(d.steps.at(-1)?.rule).toBe("pick");
+  });
+
+  it("Cloud WAN shows route type only once, after AS_PATH and MED", () => {
+    const d = decide("cloudwan", "10.0.0.1", [dx(), vpn()]);
+    expect(d.steps.filter((s) => s.rule === "type")).toHaveLength(1);
+    const order = d.steps.map((s) => s.rule);
+    expect(order.indexOf("aspath")).toBeLessThan(order.indexOf("type"));
+  });
+
+  it("Cloud WAN decides on MED before attachment type", () => {
+    expect(
+      decide("cloudwan", "10.0.0.1", [dx({ med: 200 }), vpn({ med: 50 })]).winners,
+    ).toEqual(["vpn"]);
+  });
 });

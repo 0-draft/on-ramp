@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
 import { useNarrow } from "@/hooks/useNarrow";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { Callout, Segmented, Toggle } from "@/components/ui";
 import { road } from "@/features/map/geometry";
 import { decide, type Advert, type Hub, type Rule } from "./engine";
@@ -14,7 +13,8 @@ interface Lane extends Advert {
 const COLOR: Record<string, string> = {
   dx: "var(--r-dx)",
   vpn1: "var(--r-vpn)",
-  vpn2: "var(--r-sdwan)",
+  // Both VPNs are the same kind of road: same colour, different dash.
+  vpn2: "var(--r-vpn)",
 };
 const NAME: Record<string, L> = {
   dx: { en: "Direct Connect", ja: "Direct Connect" },
@@ -44,10 +44,13 @@ const RULE: Record<Rule, L> = {
 };
 
 const TYPE_ORDER: Record<Hub, L> = {
-  vgw: { en: "DX BGP > VPN static > VPN BGP", ja: "DX BGP > VPN 静的 > VPN BGP" },
+  vgw: {
+    en: "DX (BGP) > VPN (static) > VPN (BGP)",
+    ja: "DX (BGP) > VPN (静的) > VPN (BGP)",
+  },
   tgw: {
-    en: "Static (incl. VPN static) > DX gateway > Connect > VPN BGP",
-    ja: "静的 (VPN 静的含む) > DX ゲートウェイ > Connect > VPN BGP",
+    en: "Static (incl. static VPN) > prefix list > VPC > DX gateway > Connect > Private IP VPN > VPN (BGP)",
+    ja: "静的ルート (静的 VPN 含む) > プレフィックスリスト > VPC > DX ゲートウェイ > Connect > プライベート IP VPN > VPN (BGP)",
   },
   cloudwan: {
     en: "Static first; then AS_PATH and MED; only then DX > Connect > VPN",
@@ -109,7 +112,7 @@ const PRESETS: Preset[] = [
     lanes: (l) => set(l, "vpn1", { prefix: "10.0.1.0/24" }),
     note: {
       en: "Longest prefix is checked before anything else. Your 'backup' VPN advertises a more specific /24, so it carries that /24 even though DX is healthy, and your firewall may see asymmetric flows.",
-      ja: "最長一致は何より先に評価されます。バックアップのつもりの VPN がより細かい /24 を広告しているので、DX が健全でもその /24 は VPN 経由に。ファイアウォールで非対称になりがち。",
+      ja: "最長一致は何より先に評価されます。バックアップのつもりの VPN がより細かい /24 を広告しているので、DX が健全でもその /24 は VPN 経由になります。ファイアウォールでは非対称ルーティングになりがちです。",
     },
   },
   {
@@ -121,7 +124,7 @@ const PRESETS: Preset[] = [
     lanes: (l) => set(l, "dx", { asPath: 3 }),
     note: {
       en: "Same routes, different hub, different answer. Try switching the hub: VGW and Transit Gateway compare route type first, so DX wins regardless of AS_PATH. Cloud WAN compares AS_PATH first, so the VPN wins.",
-      ja: "経路は同じ、ハブが違えば答えも違う。ハブを切り替えてみて: VGW と Transit Gateway は種類を先に比べるので AS_PATH に関係なく DX が勝つ。Cloud WAN は AS_PATH を先に比べるので VPN が勝つ。",
+      ja: "経路は同じでも、ハブが違えば答えも違います。ハブを切り替えてみてください。VGW と Transit Gateway は種類を先に比べるので、AS_PATH に関係なく DX が勝ちます。Cloud WAN は AS_PATH を先に比べるので VPN が勝ちます。",
     },
   },
   {
@@ -144,8 +147,8 @@ const PRESETS: Preset[] = [
     ecmp: false,
     lanes: (l) => set(l, "dx", { up: false }),
     note: {
-      en: "Health is checked first: a withdrawn route is simply gone. The VPN takes over. Without BFD, DX BGP waits out a 90-second hold timer before that happens.",
-      ja: "健全性が最初にチェックされ、取り下げられた経路は消えます。VPN が引き継ぎ。BFD がないと DX の BGP はホールドタイマー 90 秒を待ってから切り替わります。",
+      en: "Health is checked first: a withdrawn route is simply gone, and the VPN takes over. Without BFD (Bidirectional Forwarding Detection, sub-second failure detection), DX BGP waits out a 90-second hold timer before that happens.",
+      ja: "健全性が最初にチェックされ、取り下げられた経路は消えます。VPN が引き継ぎます。BFD (サブ秒で障害を検知する仕組み) がないと、DX の BGP はホールドタイマー 90 秒を待ってから切り替わります。",
     },
   },
   {
@@ -157,7 +160,7 @@ const PRESETS: Preset[] = [
     lanes: (l) => set(set(l, "dx", { present: false }), "vpn2", { present: true }),
     note: {
       en: "Two BGP VPNs with identical routes on a Transit Gateway with VPN ECMP on: flows are spread across every tunnel. Each flow still sticks to one tunnel, so one big transfer never goes faster than one tunnel. Switch to Cloud WAN: ECMP is on by default there. Switch to VGW: no ECMP at all.",
-      ja: "Transit Gateway で VPN ECMP を有効にし、同じ経路の BGP VPN が 2 本: フローが全トンネルに分散。ただし 1 フローは 1 トンネルに固定なので、単一の大きな転送は 1 トンネル分より速くならない。Cloud WAN に切り替えると既定で ECMP が有効。VGW に切り替えると ECMP は一切なし。",
+      ja: "Transit Gateway で VPN ECMP を有効にし、同じ経路の BGP VPN が 2 本: フローが全トンネルに分散します。ただし 1 フローは 1 トンネルに固定なので、単一の大きな転送は 1 トンネル分より速くなりません。Cloud WAN に切り替えると既定で ECMP が有効。VGW に切り替えると ECMP は一切ありません。",
     },
   },
 ];
@@ -168,7 +171,6 @@ const DSTS = ["10.0.1.5", "10.0.9.9", "10.200.0.1"];
 export function RoutingLab() {
   const { t } = useLang();
   const narrow = useNarrow();
-  const reduced = useReducedMotion();
   const [preset, setPreset] = useState(PRESETS[0].id);
   const p0 = PRESETS[0];
   const [hub, setHub] = useState<Hub>(p0.hub);
@@ -186,12 +188,16 @@ export function RoutingLab() {
     setLanes(p.lanes(base()));
     setGuess(null);
   };
+  // Any manual change leaves the preset, so its note can no longer contradict
+  // the result. Switching hubs keeps the "prepend" note: that preset is about
+  // exactly that comparison.
   const edit = (id: string, patch: Partial<Lane>) => {
     setLanes((l) => set(l, id, patch));
+    setPreset("");
     setGuess(null);
   };
 
-  const shown = lanes.filter((l) => l.present);
+  const shown = useMemo(() => lanes.filter((l) => l.present), [lanes]);
   const d = useMemo(
     () => decide(hub, dst, shown, { vpnEcmp: ecmp }),
     [hub, dst, shown, ecmp],
@@ -242,6 +248,7 @@ export function RoutingLab() {
             value={hub}
             onChange={(h) => {
               setHub(h);
+              if (preset !== "prepend") setPreset("");
               setGuess(null);
             }}
           />
@@ -251,9 +258,10 @@ export function RoutingLab() {
               value={dst}
               onChange={(e) => {
                 setDst(e.target.value);
+                setPreset("");
                 setGuess(null);
               }}
-              className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 font-mono"
+              className="num min-h-9 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1"
             >
               {DSTS.map((x) => (
                 <option key={x}>{x}</option>
@@ -285,13 +293,13 @@ export function RoutingLab() {
               <text x={180} y={54} textAnchor="middle" fontSize={15} fill="var(--ink)">
                 {t({ en: "Your network", ja: "社内ネットワーク" })}
               </text>
-              <rect x={20} y={340} width={320} height={60} rx={8} fill="var(--sign)" />
+              <rect x={20} y={340} width={320} height={60} rx={8} fill="var(--hub)" />
               <text
                 x={180}
                 y={376}
                 textAnchor="middle"
                 fontSize={15}
-                fill="var(--on-color)"
+                fill="var(--on-hub)"
               >
                 {t(HUBS.find((h) => h.id === hub)!.label)}
               </text>
@@ -316,17 +324,17 @@ export function RoutingLab() {
                 textAnchor="middle"
                 fontSize={14}
                 fill="var(--muted)"
-                className="mono"
+                className="num"
               >
                 {dst}
               </text>
-              <rect x={700} y={105} width={180} height={90} rx={10} fill="var(--sign)" />
+              <rect x={700} y={105} width={180} height={90} rx={10} fill="var(--hub)" />
               <text
                 x={790}
                 y={146}
                 textAnchor="middle"
                 fontSize={18}
-                fill="var(--on-color)"
+                fill="var(--on-hub)"
               >
                 {t(HUBS.find((h) => h.id === hub)!.label)}
               </text>
@@ -335,8 +343,7 @@ export function RoutingLab() {
                 y={168}
                 textAnchor="middle"
                 fontSize={14}
-                fill="var(--on-color)"
-                opacity={0.85}
+                fill="var(--on-hub)"
               >
                 {t({ en: "picks the road", ja: "が道を選ぶ" })}
               </text>
@@ -348,7 +355,9 @@ export function RoutingLab() {
             const dim = revealed && !win;
             const dPath = laneD(l.id);
             const lx = narrow ? xs[l.id] : 450;
-            const ly = narrow ? 210 : ys[l.id];
+            // Lanes are only 110 apart on phones: stagger the labels.
+            const ly = narrow ? { dx: 150, vpn1: 210, vpn2: 270 }[l.id]! : ys[l.id];
+            const lw = narrow ? 96 : 150;
             return (
               <g key={l.id} opacity={dim ? 0.35 : 1}>
                 <path
@@ -364,35 +373,46 @@ export function RoutingLab() {
                   stroke={COLOR[l.id]}
                   strokeWidth={win ? 7 : 5}
                   strokeLinecap="round"
-                  strokeDasharray={l.up ? (l.path === "vpn" ? "10 6" : undefined) : "2 9"}
+                  strokeDasharray={
+                    !l.up
+                      ? "2 9"
+                      : l.id === "vpn2"
+                        ? "4 6"
+                        : l.path === "vpn"
+                          ? "10 6"
+                          : undefined
+                  }
                 />
-                {win && !reduced && (
+                {win && (
+                  // A static packet on the winning road, next to the hub: the
+                  // decision is the point, not a loop of motion.
                   <circle
-                    r={8}
+                    cx={narrow ? xs[l.id] : 640}
+                    cy={narrow ? 310 : ys[l.id]}
+                    r={9}
                     fill="var(--lane)"
                     stroke="var(--asphalt)"
                     strokeWidth={2}
-                  >
-                    <animateMotion
-                      dur={d.ecmp ? "2s" : "2.4s"}
-                      repeatCount="indefinite"
-                      path={dPath}
-                    />
-                  </circle>
+                  />
                 )}
                 <g transform={`translate(${lx} ${ly})`}>
                   <rect
-                    x={-75}
+                    x={-lw / 2}
                     y={-17}
-                    width={150}
+                    width={lw}
                     height={34}
                     rx={6}
                     fill="var(--paper)"
                     stroke={COLOR[l.id]}
                     strokeWidth={2}
                   />
-                  <text textAnchor="middle" y={6} fontSize={16} fill="var(--ink)">
-                    {t(NAME[l.id])} {l.up ? "" : "✕"}
+                  <text
+                    textAnchor="middle"
+                    y={6}
+                    fontSize={narrow ? 14 : 16}
+                    fill="var(--ink)"
+                  >
+                    {narrow && l.id === "dx" ? "DX" : t(NAME[l.id])} {l.up ? "" : "✕"}
                   </text>
                 </g>
               </g>
@@ -477,7 +497,7 @@ export function RoutingLab() {
                   <select
                     value={l.prefix}
                     onChange={(e) => edit(l.id, { prefix: e.target.value })}
-                    className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-0.5 font-mono"
+                    className="num min-h-9 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-0.5"
                   >
                     {PREFIXES.map((x) => (
                       <option key={x}>{x}</option>
@@ -489,7 +509,12 @@ export function RoutingLab() {
                   <select
                     value={l.asPath}
                     onChange={(e) => edit(l.id, { asPath: Number(e.target.value) })}
-                    className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-0.5 font-mono"
+                    aria-describedby={
+                      l.path === "vpn" && l.vpnRouting === "static"
+                        ? `${l.id}-static`
+                        : undefined
+                    }
+                    className="num min-h-9 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-0.5"
                     disabled={l.path === "vpn" && l.vpnRouting === "static"}
                   >
                     {[1, 2, 3, 4].map((n) => (
@@ -499,6 +524,17 @@ export function RoutingLab() {
                     ))}
                   </select>
                 </label>
+                {l.path === "vpn" && l.vpnRouting === "static" && (
+                  <p
+                    id={`${l.id}-static`}
+                    className="col-span-2 text-xs text-[var(--muted)]"
+                  >
+                    {t({
+                      en: "Static routes carry no AS_PATH, so it is not compared.",
+                      ja: "静的ルートには AS_PATH がないので比較されません。",
+                    })}
+                  </p>
+                )}
                 <Toggle
                   label={{ en: "up", ja: "稼働" }}
                   checked={l.up}
@@ -535,76 +571,83 @@ export function RoutingLab() {
       </div>
 
       {revealed && (
-        <ol
-          className="panel p-4 sm:p-5 lg:col-span-2"
-          aria-label={t({ en: "Decision ladder", ja: "判定の順番" })}
-        >
-          <p className="mb-3 font-bold">
+        <div className="panel p-4 sm:p-5 lg:col-span-2">
+          <p id="ladder-title" className="mb-3 font-bold">
             {t({
               en: "How the hub decided, rule by rule",
               ja: "ハブの判定を 1 ステップずつ",
             })}
           </p>
-          {d.steps
-            // Show the whole checklist; rules that changed nothing are greyed out
-            // so you can see they were checked and passed.
-            .filter((s) => s.rule !== "unsupported" || s.dropped.length > 0)
-            .filter((s) => s.kept.length + s.dropped.length > 0)
-            .map((s, i) => (
-              <li
-                key={i}
-                className={`flex flex-wrap items-center gap-2 border-t border-[var(--line)] py-2 first:border-t-0 ${
-                  s.dropped.length === 0 && s.rule !== "ecmp" ? "opacity-45" : ""
-                }`}
-              >
-                <span className="w-6 text-center font-black text-[var(--muted)]">
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1 font-semibold">
-                  {t(RULE[s.rule])}
-                  {s.rule === "type" && (
-                    <span className="block text-xs font-normal text-[var(--muted)]">
-                      {t(TYPE_ORDER[hub])}
+          <ol aria-labelledby="ladder-title">
+            {d.steps
+              // Show the whole checklist; rules that changed nothing are greyed out
+              // so you can see they were checked and passed.
+              .filter((s) => s.rule !== "unsupported" || s.dropped.length > 0)
+              .filter((s) => s.kept.length + s.dropped.length > 0)
+              .map((s, i) => (
+                <li
+                  key={i}
+                  className={`flex flex-wrap items-center gap-2 border-t border-[var(--line)] py-2 first:border-t-0 ${
+                    s.dropped.length === 0 && s.rule !== "ecmp" ? "opacity-45" : ""
+                  }`}
+                >
+                  <span className="w-6 text-center font-black text-[var(--muted)]">
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 font-semibold">
+                    {t(RULE[s.rule])}
+                    {s.rule === "type" && (
+                      <span className="block text-xs font-normal text-[var(--muted)]">
+                        {t(TYPE_ORDER[hub])}
+                      </span>
+                    )}
+                  </span>
+                  {s.dropped.map((id) => (
+                    <span
+                      key={id}
+                      className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
+                      style={{ background: "var(--paper-2)", color: COLOR[id] }}
+                    >
+                      {t(NAME[id])}
                     </span>
-                  )}
-                </span>
-                {s.dropped.map((id) => (
-                  <span
-                    key={id}
-                    className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
-                    style={{ background: "var(--paper-2)", color: COLOR[id] }}
-                  >
-                    {t(NAME[id])}
-                  </span>
-                ))}
-                {s.kept.map((id) => (
-                  <span
-                    key={id}
-                    className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
-                    style={{ background: COLOR[id] }}
-                  >
-                    {t(NAME[id])}
-                  </span>
-                ))}
-              </li>
-            ))}
-          <li className="border-t border-[var(--line)] pt-3 font-bold">
-            {d.winners.length === 0
-              ? t({
-                  en: "No usable route: the packet is dropped.",
-                  ja: "使える経路なし: パケットは破棄されます。",
-                })
-              : `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`}
-          </li>
-          {lanes.some((l) => l.present && lostAt(l.id) === "unsupported") && (
-            <li className="pt-2 text-sm text-[var(--muted)]">
-              {t({
-                en: "Cloud WAN VPN attachments must use BGP, so a static VPN cannot attach.",
-                ja: "Cloud WAN の VPN アタッチメントは BGP 必須なので、静的 VPN はつなげません。",
-              })}
+                  ))}
+                  {s.kept.map((id) => (
+                    <span
+                      key={id}
+                      className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
+                      style={{ background: COLOR[id] }}
+                    >
+                      {t(NAME[id])}
+                    </span>
+                  ))}
+                </li>
+              ))}
+            <li className="border-t border-[var(--line)] pt-3 font-bold">
+              {d.winners.length === 0
+                ? t({
+                    en: "No usable route: the packet is dropped.",
+                    ja: "使える経路なし: パケットは破棄されます。",
+                  })
+                : `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`}
             </li>
+            {lanes.some((l) => l.present && lostAt(l.id) === "unsupported") && (
+              <li className="pt-2 text-sm text-[var(--muted)]">
+                {t({
+                  en: "Cloud WAN VPN attachments must use BGP, so a static VPN cannot attach.",
+                  ja: "Cloud WAN の VPN アタッチメントは BGP 必須なので、静的 VPN はつなげません。",
+                })}
+              </li>
+            )}
+          </ol>
+          {hub === "tgw" && (
+            <p className="mt-2 text-xs text-[var(--muted)]">
+              {t({
+                en: "This lab has DX and VPN only; the full Transit Gateway order is listed under route type priority.",
+                ja: "このラボは DX と VPN だけの簡略版です。Transit Gateway の完全な順序は「経路の種類による優先順位」に記載しています。",
+              })}
+            </p>
           )}
-        </ol>
+        </div>
       )}
     </div>
   );

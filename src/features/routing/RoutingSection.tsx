@@ -33,6 +33,19 @@ export function RoutingSection() {
             href="https://0-draft.github.io/cross-connect/#routing"
           >
             Cross Connect: BGP
+          </a>{" "}
+          <T
+            c={{
+              en: "How fast DX fails over (BFD, hold timers, failover tests):",
+              ja: "DX の切り替わりの速さ (BFD・ホールドタイマー・フェイルオーバーテスト):",
+            }}
+          />{" "}
+          <a
+            className="font-bold underline"
+            href="https://0-draft.github.io/cross-connect/#resiliency"
+          >
+            Cross Connect: {""}
+            <T c={{ en: "Resiliency", ja: "冗長性" }} />
           </a>
         </Callout>
       </div>

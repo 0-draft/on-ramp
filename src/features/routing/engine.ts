@@ -4,10 +4,16 @@ import { contains, ipToInt, parseCidr } from "@/lib/cidr";
  * How each AWS hub picks between routes your network advertises, encoded
  * from the documented evaluation orders (docs/06-routing-and-path-selection.md):
  *
- * - VGW: health > longest prefix > DX BGP > VPN static > VPN BGP > AS_PATH > MED; one path, no ECMP.
+ * - VGW: health > longest prefix > DX BGP > VPN static > VPN BGP > AS_PATH > MED (AS_PATH
+ *   and MED only between BGP VPN routes); one path, no ECMP.
  * - TGW: health > longest prefix > static (incl. VPN static) > DXGW > Connect > VPN BGP
  *   > AS_PATH > MED (defaults DX 0, VPN/Connect 100) > ECMP for VPN (if enabled), DXGW, Connect.
- * - Cloud WAN: health > longest prefix > static > AS_PATH > MED > DXGW > Connect > VPN.
+ * - Cloud WAN: health > longest prefix > (static) > AS_PATH > MED > DXGW > Connect > VPN
+ *   > ECMP for BGP VPN (vpn-ecmp-support, default on) and Connect. Static VPNs cannot
+ *   attach to Cloud WAN, and the lab has no other static routes, so the static tier
+ *   never decides anything here.
+ *
+ * Static VPN routes carry no AS_PATH, so AS_PATH never knocks one out.
  */
 
 export type Hub = "vgw" | "tgw" | "cloudwan";
@@ -61,9 +67,14 @@ function typeRank(hub: Hub, a: Advert): number {
     return { dx: 1, connect: 2, vpn: 3 }[a.path];
   }
   // Cloud WAN compares attachment type only after AS_PATH and MED.
-  if (static_) return -1;
   return { dx: 0, connect: 1, vpn: 2 }[a.path];
 }
+
+const isStaticVpn = (a: Advert) => a.path === "vpn" && a.vpnRouting === "static";
+const isBgpVpn = (a: Advert) => a.path === "vpn" && a.vpnRouting !== "static";
+
+/** AS_PATH length as compared; a static route has none, so it is never longer. */
+const pathLen = (a: Advert) => (isStaticVpn(a) ? 0 : a.asPath);
 
 function medOf(hub: Hub, a: Advert): number {
   if (a.med !== undefined) return a.med;
@@ -127,15 +138,18 @@ export function decide(
   pool = keepMin(steps, "longest", pool, (a) => -parseCidr(a.prefix)!.len);
 
   if (hub === "cloudwan") {
-    // Static first, then BGP attributes, then attachment type.
-    pool = keepMin(steps, "type", pool, (a) => (typeRank(hub, a) < 0 ? 0 : 1));
-    pool = keepMin(steps, "aspath", pool, (a) => a.asPath);
+    // BGP attributes first, attachment type last.
+    pool = keepMin(steps, "aspath", pool, pathLen);
     pool = keepMin(steps, "med", pool, (a) => medOf(hub, a));
     pool = keepMin(steps, "type", pool, (a) => typeRank(hub, a));
   } else {
     pool = keepMin(steps, "type", pool, (a) => typeRank(hub, a));
-    pool = keepMin(steps, "aspath", pool, (a) => a.asPath);
-    pool = keepMin(steps, "med", pool, (a) => medOf(hub, a));
+    // A VGW compares AS_PATH and MED only between BGP VPN routes; a TGW
+    // compares them within one attachment type, which is all that is left.
+    if (hub === "tgw" || (pool.length > 0 && pool.every(isBgpVpn))) {
+      pool = keepMin(steps, "aspath", pool, pathLen);
+      pool = keepMin(steps, "med", pool, (a) => medOf(hub, a));
+    }
   }
 
   if (pool.length <= 1) {
@@ -148,7 +162,7 @@ export function decide(
   // default; AWS documents no Cloud WAN ECMP across DX gateway attachments.
   const kind = pool[0].path;
   const sameKind = pool.every((a) => a.path === kind);
-  const anyStatic = pool.some((a) => a.path === "vpn" && a.vpnRouting === "static");
+  const anyStatic = pool.some(isStaticVpn);
   const ecmp =
     sameKind &&
     !anyStatic &&
