@@ -64,7 +64,8 @@ function CidrCard() {
           max={32}
           value={len}
           onChange={(e) => setLen(Number(e.target.value))}
-          className="w-48 accent-[var(--sign)]"
+          aria-valuetext={`/${len}`}
+          className="w-48"
         />
         <span className="font-mono text-lg font-bold">/{len}</span>
       </label>
@@ -78,7 +79,7 @@ function CidrCard() {
             key={i}
             className="h-5 rounded-sm"
             style={{
-              background: i < len ? "var(--r-vpn)" : "var(--paper-2)",
+              background: i < len ? "var(--data)" : "var(--paper-2)",
               border: "1px solid var(--line)",
             }}
           />
@@ -86,7 +87,7 @@ function CidrCard() {
       </div>
       <p className="mt-1 flex flex-wrap gap-4 text-xs text-[var(--muted)]">
         <span>
-          <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[var(--r-vpn)]" />
+          <span className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[var(--data)]" />
           {t({
             en: `${len} network bits (fixed)`,
             ja: `ネットワーク部 ${len} ビット (固定)`,
@@ -219,8 +220,8 @@ function RouteSignCard() {
       </p>
       <p className="mt-2 text-sm">
         {t({
-          en: "This is longest prefix match. Every router here applies it first; route types and BGP attributes only break ties between identical prefixes.",
-          ja: "これが最長一致 (ロンゲストプレフィックスマッチ) です。ここに出てくるどのルーターもまずこれを適用し、経路の種類や BGP 属性は同じプレフィックス同士の同点決着にしか使われません。",
+          en: "This is longest prefix match. Every router here applies it first; route types and BGP attributes only break ties between identical prefixes. One exception: a VPC's local route beats propagated routes, even more specific ones.",
+          ja: "これが最長一致 (ロンゲストプレフィックスマッチ) です。ここに出てくるどのルーターもまずこれを適用し、経路の種類や BGP 属性は同じプレフィックス同士の同点決着にしか使われません。例外: VPC の local ルートは、より細かい伝播ルートにも勝ちます。",
         })}
       </p>
     </div>
@@ -340,7 +341,9 @@ const ENC: {
   layer: L;
   from: number;
   to: number;
+  /** Encryption layers are not routes, so they get layer greys and a border style. */
   color: string;
+  border: "solid" | "dashed" | "double";
   note: L;
 }[] = [
   {
@@ -348,7 +351,8 @@ const ENC: {
     layer: { en: "Layer 2, one hop", ja: "L2・1 区間" },
     from: 1,
     to: 2,
-    color: "var(--r-dx)",
+    color: "var(--layer-1)",
+    border: "solid",
     note: {
       en: "Only your router ↔ the AWS DX router, on dedicated 10/100/400 Gbps ports.",
       ja: "自社ルーター ↔ AWS DX ルーター間だけ。専用接続 10/100/400 Gbps のみ。",
@@ -359,7 +363,8 @@ const ENC: {
     layer: { en: "Layer 3, gateway to gateway", ja: "L3・ゲートウェイ間" },
     from: 1,
     to: 3,
-    color: "var(--r-vpn)",
+    color: "var(--layer-2)",
+    border: "dashed",
     note: {
       en: "Your router ↔ the AWS gateway: a Site-to-Site VPN, or Private IP VPN over DX.",
       ja: "自社ルーター ↔ AWS ゲートウェイ。Site-to-Site VPN、または DX 上の Private IP VPN。",
@@ -370,7 +375,8 @@ const ENC: {
     layer: { en: "Layer 7, app to app", ja: "L7・アプリ間" },
     from: 0,
     to: 4,
-    color: "var(--r-private)",
+    color: "var(--layer-3)",
+    border: "double",
     note: {
       en: "End to end, whatever road is underneath. Your application's job.",
       ja: "下の道に関係なく端から端まで。アプリ側の責任。",
@@ -383,11 +389,16 @@ function EncryptionCard() {
   return (
     <div>
       <div className="overflow-x-auto">
-        <div className="grid min-w-[34rem] grid-cols-5 gap-y-2 text-center text-xs font-bold">
+        <div className="relative grid min-w-[34rem] grid-cols-5 gap-y-2 text-center text-xs font-bold">
+          {/* The road the five stops sit on, so each bar maps to a stretch of it. */}
+          <span
+            aria-hidden="true"
+            className="absolute top-[0.3rem] right-[10%] left-[10%] h-1.5 rounded-full bg-[var(--asphalt)]"
+          />
           {HOPS.map((h, i) => (
             <div key={i} className="flex flex-col items-center gap-1">
               <span
-                className="h-4 w-4 rounded-full border-4 border-[var(--asphalt)] bg-[var(--paper)]"
+                className="relative h-4 w-4 rounded-full border-4 border-[var(--asphalt)] bg-[var(--paper)]"
                 aria-hidden="true"
               />
               {t(h)}
@@ -396,10 +407,13 @@ function EncryptionCard() {
           {ENC.map((e) => (
             <div
               key={e.name}
-              className="mx-[10%] rounded-md px-2 py-1 text-left text-[var(--on-color)]"
-              style={{ gridColumn: `${e.from + 1} / ${e.to + 2}`, background: e.color }}
+              className="mx-[10%] rounded-md bg-[var(--paper-2)] px-2 py-1 text-left text-[var(--ink)]"
+              style={{
+                gridColumn: `${e.from + 1} / ${e.to + 2}`,
+                border: `${e.border === "double" ? 4 : 3}px ${e.border} ${e.color}`,
+              }}
             >
-              {e.name} <span className="font-normal opacity-90">({t(e.layer)})</span>
+              {e.name} <span className="font-normal">({t(e.layer)})</span>
             </div>
           ))}
         </div>
