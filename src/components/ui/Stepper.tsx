@@ -47,7 +47,7 @@ export function Stepper({
         <button
           type="button"
           onClick={() => go(index === last ? 0 : index + 1)}
-          className="rounded-lg px-3 py-1.5 text-sm font-bold text-white"
+          className="rounded-lg px-3 py-1.5 text-sm font-bold text-[var(--on-color)]"
           style={{ background: color }}
         >
           {index === last
@@ -60,7 +60,7 @@ export function Stepper({
       </div>
       <p className="mt-2 min-h-[3em] font-semibold" aria-live="polite">
         <span
-          className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs font-black text-white"
+          className="mr-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs font-black text-[var(--on-color)]"
           style={{ background: color }}
         >
           {index + 1}

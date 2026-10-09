@@ -84,7 +84,7 @@ export function CapacityLab() {
             Array.from({ length: peers }, (_, i) => (
               <div
                 key={i}
-                className="flex items-center justify-center border-r-2 border-[var(--paper)] text-xs font-bold text-white"
+                className="flex items-center justify-center border-r-2 border-[var(--paper)] text-xs font-bold text-[var(--on-color)]"
                 style={{
                   width: `${(GBPS_PER_GRE_PEER / scale) * 100}%`,
                   background: "var(--r-sdwan)",
@@ -95,7 +95,7 @@ export function CapacityLab() {
             ))
           ) : (
             <div
-              className="flex items-center justify-center text-xs font-bold text-white"
+              className="flex items-center justify-center text-xs font-bold text-[var(--on-color)]"
               style={{ width: `${(cap / scale) * 100}%`, background: "var(--sign)" }}
             >
               100
@@ -111,7 +111,7 @@ export function CapacityLab() {
             style={{
               width: `${(demand / scale) * 100}%`,
               background: ok ? "var(--ok)" : "var(--bad)",
-              color: "#fff",
+              color: "var(--on-color)",
             }}
           >
             {demand}

@@ -181,7 +181,7 @@ export function ScaleLab() {
                   {p.limits.map((l, i) => (
                     <li key={i} className="flex gap-1.5">
                       <span
-                        className="mt-0.5 shrink-0 rounded px-1 font-black text-white"
+                        className="mt-0.5 shrink-0 rounded px-1 font-black text-[var(--on-color)]"
                         style={{ background: l.hard ? "var(--bad)" : "var(--warn)" }}
                       >
                         {l.hard

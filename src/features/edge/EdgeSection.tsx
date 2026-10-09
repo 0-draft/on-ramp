@@ -575,7 +575,7 @@ export function EdgeSection() {
         {DATA.map((d) => (
           <li key={d.name} className="panel flex flex-wrap items-start gap-3 p-3">
             <span
-              className="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-black text-white"
+              className="mt-0.5 shrink-0 rounded px-2 py-0.5 text-xs font-black text-[var(--on-color)]"
               style={{ background: d.status === "ok" ? "var(--ok)" : "var(--bad)" }}
             >
               {d.status === "ok"

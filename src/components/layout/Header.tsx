@@ -63,7 +63,7 @@ export function Header() {
   }[theme];
 
   return (
-    <div className="sticky top-0 z-40 border-b-4 border-[var(--lane)] bg-[var(--sign)] text-[var(--sign-ink)] shadow-md">
+    <header className="sticky top-0 z-40 border-b-4 border-[var(--lane)] bg-[var(--sign)] text-[var(--sign-ink)] shadow-md">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-2 sm:px-6">
         <a href="#top" className="shrink-0 font-black tracking-tight">
           On-ramp
@@ -80,7 +80,7 @@ export function Header() {
                   aria-current={active === n.id ? "location" : undefined}
                   className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm font-semibold hover:bg-[var(--sign-2)] aria-[current=location]:bg-[var(--sign-ink)] aria-[current=location]:text-[var(--sign)]"
                 >
-                  <span className="text-xs opacity-75">{i + 1}</span>
+                  <span className="text-xs">{i + 1}</span>
                   {t(n.label)}
                 </a>
               </li>
@@ -116,6 +116,6 @@ export function Header() {
           ))}
         </div>
       </div>
-    </div>
+    </header>
   );
 }

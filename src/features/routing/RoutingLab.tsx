@@ -286,7 +286,13 @@ export function RoutingLab() {
                 {t({ en: "Your network", ja: "社内ネットワーク" })}
               </text>
               <rect x={20} y={340} width={320} height={60} rx={8} fill="var(--sign)" />
-              <text x={180} y={376} textAnchor="middle" fontSize={15} fill="#fff">
+              <text
+                x={180}
+                y={376}
+                textAnchor="middle"
+                fontSize={15}
+                fill="var(--on-color)"
+              >
                 {t(HUBS.find((h) => h.id === hub)!.label)}
               </text>
             </>
@@ -315,7 +321,13 @@ export function RoutingLab() {
                 {dst}
               </text>
               <rect x={700} y={105} width={180} height={90} rx={10} fill="var(--sign)" />
-              <text x={790} y={146} textAnchor="middle" fontSize={18} fill="#fff">
+              <text
+                x={790}
+                y={146}
+                textAnchor="middle"
+                fontSize={18}
+                fill="var(--on-color)"
+              >
                 {t(HUBS.find((h) => h.id === hub)!.label)}
               </text>
               <text
@@ -323,7 +335,7 @@ export function RoutingLab() {
                 y={168}
                 textAnchor="middle"
                 fontSize={14}
-                fill="#fff"
+                fill="var(--on-color)"
                 opacity={0.85}
               >
                 {t({ en: "picks the road", ja: "が道を選ぶ" })}
@@ -568,7 +580,7 @@ export function RoutingLab() {
                 {s.kept.map((id) => (
                   <span
                     key={id}
-                    className="rounded px-2 py-0.5 text-xs font-bold text-white"
+                    className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
                     style={{ background: COLOR[id] }}
                   >
                     {t(NAME[id])}

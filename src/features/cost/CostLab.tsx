@@ -158,7 +158,7 @@ export function CostLab() {
               </div>
               <span className="col-span-2 text-right font-mono text-sm font-bold sm:col-span-1">
                 {best && (
-                  <span className="mr-2 rounded bg-[var(--ok)] px-1.5 py-0.5 font-sans text-xs text-white">
+                  <span className="mr-2 rounded bg-[var(--ok)] px-1.5 py-0.5 font-sans text-xs text-[var(--on-color)]">
                     {t({ en: "cheapest", ja: "最安" })}
                   </span>
                 )}

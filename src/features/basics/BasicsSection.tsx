@@ -396,7 +396,7 @@ function EncryptionCard() {
           {ENC.map((e) => (
             <div
               key={e.name}
-              className="mx-[10%] rounded-md px-2 py-1 text-left text-white"
+              className="mx-[10%] rounded-md px-2 py-1 text-left text-[var(--on-color)]"
               style={{ gridColumn: `${e.from + 1} / ${e.to + 2}`, background: e.color }}
             >
               {e.name} <span className="font-normal opacity-90">({t(e.layer)})</span>

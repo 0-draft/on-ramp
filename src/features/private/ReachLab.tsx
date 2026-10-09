@@ -292,7 +292,7 @@ export function ReachLab() {
           {blocked && (
             <g transform={`translate(${stop.x} ${stop.y})`}>
               <circle r={14} fill="var(--bad)" />
-              <text y={6} textAnchor="middle" fontSize={17} fill="#fff">
+              <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
                 ✕
               </text>
             </g>
@@ -328,7 +328,7 @@ export function ReachLab() {
           {shown && (
             <g transform={`translate(${tg.x + tg.w - 4} ${tg.y + 4})`}>
               <circle r={14} fill={MARK[v.result].color} />
-              <text y={6} textAnchor="middle" fontSize={17} fill="#fff">
+              <text y={6} textAnchor="middle" fontSize={17} fill="var(--on-color)">
                 {MARK[v.result].sym}
               </text>
             </g>

@@ -48,7 +48,8 @@ export function StopStrip({
                 style={{
                   borderColor: passed ? route.color : "var(--line)",
                   background: i === hop ? route.color : "var(--paper)",
-                  color: i === hop ? "#fff" : passed ? route.color : "var(--muted)",
+                  color:
+                    i === hop ? "var(--on-color)" : passed ? route.color : "var(--muted)",
                 }}
               >
                 {i + 1}
@@ -91,7 +92,7 @@ export function RouteCard({
           </div>
           <a
             href={`#${route.section}`}
-            className="ml-auto rounded-lg px-3 py-2 text-sm font-bold text-white"
+            className="ml-auto rounded-lg px-3 py-2 text-sm font-bold text-[var(--on-color)]"
             style={{ background: route.color }}
           >
             {t({ en: "Take this exit", ja: "この出口へ" })}

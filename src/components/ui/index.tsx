@@ -96,7 +96,7 @@ export function Shield({
   }[size];
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-md border-2 border-[var(--paper)] font-black leading-none text-white outline-2 ${s}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-md border-2 border-[var(--paper)] font-black leading-none text-[var(--on-color)] outline-2 ${s}`}
       style={{ background: color, outlineColor: color, outlineStyle: "solid" }}
     >
       {label}
@@ -162,7 +162,16 @@ export function Segmented<K extends string>({
             onClick={() => onChange(o.id)}
             onKeyDown={(e) => onKey(e, i)}
             className="rounded-lg px-3 py-1.5 text-sm font-bold transition-colors"
-            style={on ? { background: color, color: "#fff" } : { color: "var(--muted)" }}
+            style={
+              on
+                ? {
+                    background: color,
+                    // White on sign green in both themes; route colours flip.
+                    color:
+                      color === "var(--sign)" ? "var(--sign-ink)" : "var(--on-color)",
+                  }
+                : { color: "var(--muted)" }
+            }
           >
             {t(o.label)}
           </button>

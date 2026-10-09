@@ -206,7 +206,7 @@ export function FailoverLab() {
             title="VGW / Transit Gateway"
             sub={t({ en: "AWS side", ja: "AWS 側" })}
             fill="var(--sign)"
-            ink="#fff"
+            ink="var(--on-color)"
             stroke="var(--sign)"
           />
           {([1, 2] as const).map((n) => {

@@ -164,7 +164,7 @@ export function ApplianceLab() {
           y={sub ? y - 3 : y + 5}
           textAnchor="middle"
           fontSize={14}
-          fill={spot === "tgw" ? "#fff" : dead ? "var(--bad)" : "var(--ink)"}
+          fill={spot === "tgw" ? "var(--on-color)" : dead ? "var(--bad)" : "var(--ink)"}
         >
           {t(label)}
         </text>
@@ -174,7 +174,7 @@ export function ApplianceLab() {
             y={y + 14}
             textAnchor="middle"
             fontSize={13}
-            fill={spot === "tgw" ? "#fff" : "var(--muted)"}
+            fill={spot === "tgw" ? "var(--on-color)" : "var(--muted)"}
           >
             {t(sub)}
           </text>
@@ -278,7 +278,7 @@ export function ApplianceLab() {
             y={py - 33}
             textAnchor="middle"
             fontSize={14}
-            fill={s.dropped ? "#fff" : "#000"}
+            fill={s.dropped ? "var(--on-color)" : "#000"}
           >
             {s.dropped ? "✕" : i + 1}
           </text>

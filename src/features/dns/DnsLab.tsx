@@ -240,7 +240,7 @@ export function DnsLab() {
               y={H - 32}
               textAnchor="middle"
               fontSize={16}
-              fill="#fff"
+              fill="var(--on-color)"
               className="mono"
             >
               {answerText}
@@ -342,7 +342,7 @@ export function DnsLab() {
               y={H - 32}
               textAnchor="middle"
               fontSize={14}
-              fill="#fff"
+              fill="var(--on-color)"
               className="mono"
             >
               {answerText}

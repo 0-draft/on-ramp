@@ -263,7 +263,7 @@ export function PrivateSection() {
             ].map((h, i) => (
               <li key={i} className="flex items-center gap-3">
                 <span
-                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-white"
+                  className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-black text-[var(--on-color)]"
                   style={{ background: color }}
                 >
                   {i + 1}

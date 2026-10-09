@@ -371,7 +371,7 @@ export function RoadMap({
               textAnchor="middle"
               fontSize={13}
               fontWeight={800}
-              fill={i === hop ? "#fff" : ROUTE[selected].color}
+              fill={i === hop ? "var(--on-color)" : ROUTE[selected].color}
             >
               {i + 1}
             </text>

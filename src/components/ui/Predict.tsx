@@ -53,7 +53,7 @@ export function Predict({
                       ? "var(--bad)"
                       : "var(--line)",
                 background: state === "answer" ? "var(--ok)" : undefined,
-                color: state === "answer" ? "#fff" : undefined,
+                color: state === "answer" ? "var(--on-color)" : undefined,
               }}
             >
               {t(o.label)}

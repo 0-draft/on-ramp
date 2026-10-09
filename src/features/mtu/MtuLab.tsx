@@ -75,7 +75,7 @@ function Envelope({ id }: { id: MtuPathId }) {
           <span className="font-mono">20 B</span>
         </div>
         <div
-          className="mt-2 rounded-md px-2 py-3 text-sm font-bold text-white"
+          className="mt-2 rounded-md px-2 py-3 text-sm font-bold text-[var(--on-color)]"
           style={{ background: color }}
         >
           <div className="flex flex-wrap justify-between gap-2">
@@ -216,7 +216,7 @@ function Clearance({
           y={ground - 12 - h / 2 + 6}
           textAnchor="middle"
           fontSize={16}
-          fill="#fff"
+          fill="var(--on-color)"
           className="mono"
         >
           {fmt(size)} B

@@ -306,7 +306,7 @@ export function WhySection() {
               <div className="flex items-start justify-between gap-3">
                 <p className="font-bold">{t(GAP[g].q)}</p>
                 <span
-                  className="shrink-0 rounded px-2 py-0.5 text-xs font-black text-white"
+                  className="shrink-0 rounded px-2 py-0.5 text-xs font-black text-[var(--on-color)]"
                   style={{ background: isOpen ? "var(--bad)" : "var(--ok)" }}
                 >
                   {isOpen

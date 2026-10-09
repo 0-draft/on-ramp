@@ -1,4 +1,5 @@
 import { useLang } from "@/i18n/useLang";
+import { AS_OF } from "@/data/asOf";
 
 const C = {
   disclaimer: {
@@ -6,8 +7,8 @@ const C = {
     ja: "AWS とは無関係の非公式解説です。料金やクォータは変わるので、設計・購入前に必ず AWS 公式ドキュメントを確認してください。",
   },
   asOf: {
-    en: "Facts verified against AWS documentation, What's New posts and the AWS Price List API as of 2026-10-10. Prices are USD list prices.",
-    ja: "記載内容は 2026-10-10 時点の AWS 公式ドキュメント・What's New・Price List API で確認済み。料金は USD の表示価格です。",
+    en: `Facts verified against AWS documentation, What's New posts and the AWS Price List API as of ${AS_OF}. Prices are USD list prices.`,
+    ja: `記載内容は ${AS_OF} 時点の AWS 公式ドキュメント・What's New・Price List API で確認済み。料金は USD の表示価格です。`,
   },
   notes: {
     en: "Research notes (Markdown, with sources)",
@@ -23,7 +24,7 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 text-sm sm:px-6">
         <p className="text-lg font-black">On-ramp</p>
         <p>{t(C.asOf)}</p>
-        <p className="opacity-85">{t(C.disclaimer)}</p>
+        <p>{t(C.disclaimer)}</p>
         <p className="mt-2 font-bold">{t(C.more)}</p>
         <ul className="flex flex-wrap gap-x-5 gap-y-1">
           <li>
