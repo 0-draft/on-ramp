@@ -6,7 +6,11 @@ export interface QuizCard {
   why: L;
   /** Section that explains it. */
   to: string;
+  /** Where the same myth is untangled in more depth elsewhere. */
+  deeper?: string;
 }
+
+const CC_MYTHS = "https://0-draft.github.io/cross-connect/#myths";
 
 /** Each card is a confusion point from the research, with its documented answer. */
 export const CARDS: QuizCard[] = [
@@ -21,6 +25,7 @@ export const CARDS: QuizCard[] = [
       ja: "AWS ドキュメントの通り、Direct Connect はデフォルトでは暗号化しません。MACsec (1 区間) か DX 上の IPsec VPN (ゲートウェイ間) を追加します。",
     },
     to: "dx",
+    deeper: CC_MYTHS,
   },
   {
     claim: {
@@ -57,6 +62,7 @@ export const CARDS: QuizCard[] = [
       ja: "DX ゲートウェイは VIF と関連付けたゲートウェイの間で経路を配るだけ。関連付けた VPC 同士の直接通信はサポートされません。",
     },
     to: "hubs",
+    deeper: CC_MYTHS,
   },
   {
     claim: {
@@ -102,7 +108,7 @@ export const CARDS: QuizCard[] = [
     fact: false,
     why: {
       en: "A standard tunnel tops out at 1.25 Gbps and a large tunnel at 5 Gbps. Going faster takes ECMP across tunnels on a TGW or Cloud WAN, and one flow still uses one tunnel.",
-      ja: "標準トンネルは 1.25 Gbps、大容量トンネルでも 5 Gbps が上限。それ以上は TGW / Cloud WAN でトンネル間の ECMP が必要で、それでも 1 フローは 1 トンネル。",
+      ja: "標準トンネルは 1.25 Gbps、広帯域幅トンネルでも 5 Gbps が上限。それ以上は TGW / Cloud WAN でトンネル間の ECMP が必要で、それでも 1 フローは 1 トンネル。",
     },
     to: "vpn",
   },
@@ -126,7 +132,7 @@ export const CARDS: QuizCard[] = [
     fact: false,
     why: {
       en: "VPN tops out at an MTU of 1,446 (MSS 1,406), with no jumbo frames and no path MTU discovery. Big packets can vanish after a failover from DX to VPN.",
-      ja: "VPN の MTU は最大 1,446 (MSS 1,406)。ジャンボフレームもパス MTU 探索もありません。DX から VPN へ切り替わった途端に大きなパケットが消えることも。",
+      ja: "VPN の MTU は最大 1,446 (MSS 1,406)。ジャンボフレームもパス MTU 検出 (PMTUD) もありません。DX から VPN へ切り替わった途端に大きなパケットが消えることも。",
     },
     to: "mtu",
   },
@@ -149,8 +155,8 @@ export const CARDS: QuizCard[] = [
     },
     fact: false,
     why: {
-      en: "The VPC base+2 resolver is not reachable from on-prem over VPN or DX, and forwarding to it is unsupported. That's what Resolver inbound endpoints are for.",
-      ja: "VPC の「ベース + 2」リゾルバーにはオンプレから VPN / DX で届かず、そこへの転送はサポート外。そのために Resolver インバウンドエンドポイントがあります。",
+      en: "The VPC base+2 resolver is not reachable from on-prem over VPN or DX, and forwarding to it is unsupported. That's what Route 53 VPC Resolver inbound endpoints are for.",
+      ja: "VPC の「ベース + 2」リゾルバーにはオンプレから VPN / DX で届かず、そこへの転送はサポート外。そのために Route 53 VPC Resolver のインバウンドエンドポイントがあります。",
     },
     to: "dns",
   },
