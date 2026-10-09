@@ -12,7 +12,7 @@ const MODES: { id: Mode; label: L }[] = [
   },
   {
     id: "cwan-tunnelless",
-    label: { en: "Cloud WAN Tunnel-less", ja: "Cloud WAN Tunnel-less" },
+    label: { en: "Cloud WAN Tunnel-less", ja: "Cloud WAN トンネルレス" },
   },
 ];
 
@@ -23,8 +23,9 @@ export function CapacityLab() {
   const { t } = useLang();
   const id = useId();
   const [mode, setMode] = useState<Mode>("tgw-gre");
-  const [peers, setPeers] = useState(1);
-  const [demand, setDemand] = useState(10);
+  // Starts on a case that fits, so the lab does not give away the question above it.
+  const [peers, setPeers] = useState(2);
+  const [demand, setDemand] = useState(5);
   const cap = capacity(mode, peers);
   const ok = fits(mode, peers, demand);
   const scale = Math.max(cap, demand, 20);
@@ -46,7 +47,7 @@ export function CapacityLab() {
             className="flex items-baseline justify-between text-sm font-semibold"
           >
             {t({ en: "Connect peers", ja: "Connect ピア数" })}
-            <span className="text-2xl font-black">{peers}</span>
+            <span className="num text-2xl font-black">{peers}</span>
           </label>
           <input
             id={id}
@@ -55,7 +56,7 @@ export function CapacityLab() {
             max={PEERS_MAX}
             value={peers}
             onChange={(e) => setPeers(Number(e.target.value))}
-            className="mt-1 w-full accent-[var(--r-sdwan)]"
+            className="mt-1 w-full"
           />
         </div>
         <label className="flex items-center justify-between gap-2 text-sm font-semibold">
@@ -63,7 +64,7 @@ export function CapacityLab() {
           <select
             value={demand}
             onChange={(e) => setDemand(Number(e.target.value))}
-            className="rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1 font-mono"
+            className="num min-h-9 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2 py-1"
           >
             {DEMANDS.map((d) => (
               <option key={d} value={d}>
@@ -96,7 +97,7 @@ export function CapacityLab() {
           ) : (
             <div
               className="flex items-center justify-center text-xs font-bold text-[var(--on-color)]"
-              style={{ width: `${(cap / scale) * 100}%`, background: "var(--sign)" }}
+              style={{ width: `${(cap / scale) * 100}%`, background: "var(--r-sdwan)" }}
             >
               100
             </div>
@@ -141,7 +142,7 @@ export function CapacityLab() {
             })
           : t({
               en: "Tunnel-less Connect has no GRE peer limit: it is bounded by the VPC attachment, up to 100 Gbps per Availability Zone. The trade-off is one ENI per VRF on the appliance.",
-              ja: "Tunnel-less Connect には GRE ピアの上限がなく、VPC アタッチメントの AZ あたり最大 100 Gbps が上限です。代わりにアプライアンス側で VRF ごとに ENI が 1 つ必要です。",
+              ja: "トンネルレス Connect には GRE ピアの上限がなく、VPC アタッチメントの AZ あたり最大 100 Gbps が上限です。代わりにアプライアンス側で VRF ごとに ENI が 1 つ必要です。",
             })}
       </p>
     </div>

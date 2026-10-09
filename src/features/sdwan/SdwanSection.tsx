@@ -1,6 +1,6 @@
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
-import { Callout, MetaphorLimit, Section, Sources } from "@/components/ui";
+import { DataTable, MetaphorLimit, Section, Sources, Traps } from "@/components/ui";
 import { Predict } from "@/components/ui/Predict";
 import { EncapLab } from "./EncapLab";
 import { CapacityLab } from "./CapacityLab";
@@ -25,7 +25,7 @@ const OPTIONS: Option[] = [
     },
     when: {
       en: "A Regional TGW hub; a VRF per Connect attachment",
-      ja: "リージョン単位の TGW ハブ、Connect アタッチメントごとに VRF",
+      ja: "リージョン単位の TGW ハブ。Connect アタッチメントごとに VRF",
     },
   },
   {
@@ -95,7 +95,7 @@ export function SdwanSection() {
       }}
       lead={{
         en: "If your branches already run an SD-WAN fabric, you usually want AWS to become one more site in it, keeping the vendor's path selection and segmentation. The standard pattern is a pair of SD-WAN appliances that speak GRE and BGP to the AWS hub through a Connect attachment, which itself rides on another attachment.",
-        ja: "拠点が既に SD-WAN で結ばれているなら、AWS もその 1 拠点にして、ベンダーの経路制御やセグメント分割をそのまま使いたいはず。定番は、SD-WAN アプライアンスのペアが Connect アタッチメントで AWS のハブと GRE + BGP で話す形で、その Connect アタッチメント自体も別のアタッチメントの上に乗っています。",
+        ja: "拠点が既に SD-WAN で結ばれているなら、AWS もその 1 拠点にして、ベンダーの経路制御やセグメント分割をそのまま使いたいはず。定番は、SD-WAN アプライアンスのペアが Connect アタッチメントで AWS のハブと GRE + BGP で接続する形で、その Connect アタッチメント自体も別のアタッチメントの上に乗っています。",
       }}
     >
       <h3 className="text-xl font-extrabold">
@@ -116,13 +116,10 @@ export function SdwanSection() {
       </h3>
       <p className="mt-2 max-w-3xl">
         {t({
-          en: "Bandwidth grows in 5 Gbps steps per GRE peer, up to four peers. Tunnel-less Connect removes the GRE limit and is bounded by the VPC attachment instead.",
-          ja: "帯域は GRE ピア 1 つにつき 5 Gbps ずつ、最大 4 ピアまで増えます。Tunnel-less Connect は GRE の上限がなく、VPC アタッチメントが上限になります。",
+          en: "Bandwidth grows in 5 Gbps steps per GRE peer, up to four peers. Tunnel-less Connect removes the GRE limit and is bounded by the VPC attachment instead. Guess first, then try it in the lab below.",
+          ja: "帯域は GRE ピア 1 つにつき 5 Gbps ずつ、最大 4 ピアまで増えます。トンネルレス Connect は GRE の上限がなく、VPC アタッチメントが上限になります。先に予想してから、下のラボで確かめてください。",
         })}
       </p>
-      <div className="mt-4">
-        <CapacityLab />
-      </div>
       <div className="mt-4">
         <Predict
           question={{
@@ -147,90 +144,64 @@ export function SdwanSection() {
         />
       </div>
 
+      <div className="mt-4">
+        <CapacityLab />
+      </div>
       <h3 className="mt-10 text-xl font-extrabold">
         {t({ en: "The options side by side", ja: "選択肢の比較" })}
       </h3>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[40rem] border-collapse text-sm">
-          <thead>
-            <tr className="border-b-2 border-[var(--ink)] text-left">
-              <th className="px-2 py-2">{t({ en: "Option", ja: "選択肢" })}</th>
-              <th className="px-2 py-2">
-                {t({ en: "Encapsulation", ja: "カプセル化" })}
-              </th>
-              <th className="px-2 py-2">{t({ en: "Bandwidth", ja: "帯域" })}</th>
-              <th className="px-2 py-2">{t({ en: "When", ja: "使いどころ" })}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {OPTIONS.map((o) => (
-              <tr key={o.name} className="border-b border-[var(--line)] align-top">
-                <td className="px-2 py-2 font-semibold">{o.name}</td>
-                <td className="px-2 py-2">{t(o.encap)}</td>
-                <td className="px-2 py-2">{t(o.bw)}</td>
-                <td className="px-2 py-2">{t(o.when)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mt-3">
+        <DataTable
+          columns={[
+            { en: "Option", ja: "選択肢" },
+            { en: "Encapsulation", ja: "カプセル化" },
+            { en: "Bandwidth", ja: "帯域" },
+            { en: "When", ja: "使いどころ" },
+          ]}
+          rows={OPTIONS.map((o) => [o.name, t(o.encap), t(o.bw), t(o.when)])}
+        />
+        <p className="mt-2 text-sm text-[var(--muted)]">
+          {t({
+            en: "A VRF (virtual routing and forwarding) is a separate routing table on one device, which is how SD-WAN keeps segments apart.",
+            ja: "VRF (仮想ルーティング・転送) は 1 台の機器の中で経路表を分ける仕組みで、SD-WAN はこれでセグメントを分離します。",
+          })}
+        </p>
       </div>
 
-      <h3 className="mt-10 text-xl font-extrabold">
-        {t({ en: "Traps", ja: "落とし穴" })}
-      </h3>
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <Callout
-          tone="warn"
-          title={{ en: "No BFD on Connect", ja: "Connect に BFD はない" }}
-        >
-          {t({
-            en: "Connect supports neither BFD nor graceful restart, so failover waits for the 30-second BGP hold timer. Configure both BGP sessions on every peer.",
-            ja: "Connect は BFD もグレースフルリスタートも非対応で、フェイルオーバーは BGP ホールドタイマー 30 秒待ち。各ピアの BGP セッションは 2 本とも設定すること。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{ en: "eBGP needs multihop", ja: "eBGP にはマルチホップが必要" }}
-        >
-          {t({
-            en: "eBGP to a Connect peer needs ebgp-multihop with TTL 2. Leave the peer ASN empty and you end up in iBGP with the TGW.",
-            ja: "Connect ピアとの eBGP には ebgp-multihop (TTL 2) が必要。ピア ASN を空にすると TGW と iBGP になります。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{
-            en: "Cloud WAN Connect does not ride on DX",
-            ja: "Cloud WAN Connect は DX に乗らない",
-          }}
-        >
-          {t({
-            en: "Cloud WAN Connect uses VPC attachments as transport. For on-prem SD-WAN over DX into Cloud WAN, AWS documents TGW Connect over DX plus TGW-to-Cloud WAN peering.",
-            ja: "Cloud WAN Connect のトランスポートは VPC アタッチメントのみ。DX 経由のオンプレ SD-WAN を Cloud WAN に入れるには、AWS は「DX 上の TGW Connect + TGW と Cloud WAN のピアリング」を案内しています。",
-          })}
-        </Callout>
-        <Callout
-          tone="warn"
-          title={{ en: "The TGW CIDR pool is shared", ja: "TGW CIDR は共用プール" }}
-        >
-          {t({
-            en: "GRE outer addresses on the AWS side come from the Transit Gateway CIDR blocks, shared with Private IP VPN and Client VPN. Don't overlap it with VPC or on-prem ranges.",
-            ja: "AWS 側の GRE 外側アドレスは Transit Gateway CIDR ブロックから払い出され、Private IP VPN や Client VPN と共用です。VPC やオンプレのアドレスと重ねないこと。",
-          })}
-        </Callout>
+      <div className="mt-10">
+        <Traps
+          items={[
+            {
+              en: "No BFD (Bidirectional Forwarding Detection, sub-second failure detection) on Connect, and no graceful restart, so failover waits for the 30-second BGP hold timer. Configure both BGP sessions on every peer.",
+              ja: "Connect は BFD (サブ秒で障害を検知する仕組み) もグレースフルリスタートも非対応で、フェイルオーバーは BGP ホールドタイマー 30 秒待ち。各ピアの BGP セッションは 2 本とも設定すること。",
+            },
+            {
+              en: "eBGP to a Connect peer needs ebgp-multihop with TTL 2. Leave the peer ASN empty and you end up in iBGP with the TGW.",
+              ja: "Connect ピアとの eBGP には ebgp-multihop (TTL 2) が必要。ピア ASN を空にすると TGW と iBGP になります。",
+            },
+            {
+              en: "Cloud WAN Connect does not ride on DX: it uses VPC attachments as transport. For on-prem SD-WAN over DX into Cloud WAN, AWS documents TGW Connect over DX plus TGW-to-Cloud WAN peering.",
+              ja: "Cloud WAN Connect は DX に乗りません。トランスポートは VPC アタッチメントのみ。DX 経由のオンプレ SD-WAN を Cloud WAN に入れるには、AWS は「DX 上の TGW Connect + TGW と Cloud WAN のピアリング」を案内しています。",
+            },
+            {
+              en: "The TGW CIDR pool is shared: GRE outer addresses on the AWS side come from the Transit Gateway CIDR blocks, shared with Private IP VPN and Client VPN. Don't overlap it with VPC or on-prem ranges.",
+              ja: "TGW CIDR は共用プールです。AWS 側の GRE 外側アドレスは Transit Gateway CIDR ブロックから払い出され、プライベート IP VPN や Client VPN と共用。VPC やオンプレのアドレスと重ねないこと。",
+            },
+          ]}
+        />
       </div>
 
       <p className="mt-6 max-w-3xl">
         {t({
           en: "Price (Tokyo): a TGW Connect attachment and its VPC transport attachment are $0.07 per hour each, about $102 a month before data. Connect adds no data processing charge beyond the transport attachment's $0.02/GB. On Cloud WAN, the edge alone is $365 a month plus $0.09 per attachment-hour.",
-          ja: "料金 (東京): TGW Connect アタッチメントとトランスポート用 VPC アタッチメントがそれぞれ 1 時間 $0.07 で、データ料金を除き月 約 $102。Connect 分のデータ処理料はなく、トランスポート側の $0.02/GB のみ。Cloud WAN ならエッジだけで月 $365、加えてアタッチメント 1 時間 $0.09。",
+          ja: "料金 (東京): TGW Connect アタッチメントとトランスポート用 VPC アタッチメントがそれぞれ 1 時間 $0.07 で、データ料金を除き月約 $102。Connect 分のデータ処理料はなく、トランスポート側の $0.02/GB のみ。Cloud WAN ならエッジだけで月 $365、加えてアタッチメント 1 時間 $0.09。",
         })}
       </p>
 
       <MetaphorLimit>
         {t({
           en: "Roads do not run inside other roads, but tunnels do: your packet rides in a vendor overlay, inside GRE, inside a VPC or DX attachment. Every layer adds a header, and only some of them encrypt. That is why the cutaway above, not the map, is the honest picture.",
-          ja: "道路の中に道路は通りませんが、トンネルは入れ子になります。パケットはベンダーのオーバーレイに包まれ、さらに GRE に、さらに VPC か DX のアタッチメントに包まれる。レイヤーごとにヘッダーが増え、暗号化するのはその一部だけ。だから地図より上の断面図のほうが実態に近いのです。",
+          ja: "道路の中に道路は通りませんが、トンネルは入れ子になります。パケットはベンダーのオーバーレイに包まれ、さらに GRE に、さらに VPC か DX のアタッチメントに包まれる。レイヤーごとにヘッダーが増え、暗号化するのはその一部だけ。だから地図ではなく、上の断面図のほうが実態に近いのです。",
         })}
       </MetaphorLimit>
 

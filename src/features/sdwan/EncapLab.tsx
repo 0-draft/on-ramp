@@ -81,7 +81,7 @@ const LEGS: Record<Where, Leg[]> = {
             en: "AWS network inside the Region",
             ja: "リージョン内の AWS ネットワーク",
           },
-          color: "var(--sign)",
+          color: "var(--layer-3)",
           encrypted: null,
         },
         GRE,
@@ -114,7 +114,7 @@ const LEGS: Record<Where, Leg[]> = {
     {
       title: {
         en: "Appliance to a Cloud WAN edge, Tunnel-less Connect",
-        ja: "アプライアンス → Cloud WAN エッジ (Tunnel-less Connect)",
+        ja: "アプライアンス → Cloud WAN エッジ (トンネルレス Connect)",
       },
       layers: [
         {
@@ -123,7 +123,7 @@ const LEGS: Record<Where, Leg[]> = {
             ja: "VPC アタッチメント (トランスポート)",
           },
           note: { en: "BGP peers directly with the edge", ja: "BGP はエッジと直接ピア" },
-          color: "var(--sign)",
+          color: "var(--layer-3)",
           encrypted: null,
         },
         PACKET,
@@ -140,7 +140,7 @@ const WHERE: { id: Where; label: L }[] = [
   },
   {
     id: "tunnelless",
-    label: { en: "Cloud WAN Tunnel-less", ja: "Cloud WAN Tunnel-less" },
+    label: { en: "Cloud WAN Tunnel-less", ja: "Cloud WAN トンネルレス" },
   },
 ];
 
@@ -208,7 +208,7 @@ export function EncapLab() {
         {where === "tunnelless"
           ? t({
               en: "No GRE header at all: Cloud WAN supports 8500 MTU on Tunnel-less Connect VPC attachments, bounded by the VPC attachment's 100 Gbps per AZ.",
-              ja: "GRE ヘッダーはなし。Cloud WAN は Tunnel-less Connect の VPC アタッチメントで MTU 8500 をサポートし、上限は VPC アタッチメントの AZ あたり 100 Gbps。",
+              ja: "GRE ヘッダーはなし。Cloud WAN はトンネルレス Connect の VPC アタッチメントで MTU 8500 をサポートし、上限は VPC アタッチメントの AZ あたり 100 Gbps。",
             })
           : t({
               en: `The GRE header costs ${GRE_OVERHEAD} bytes: over a 1500-byte outer MTU only ${greInnerMtu(1500)} bytes are left for your packet. Dashed borders mark plaintext layers.`,
