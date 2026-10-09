@@ -6,6 +6,9 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # Let freshly published versions age a few days before proposing them.
+    cooldown:
+      default-days: 3
     ignore:
       # typescript-eslint declares peer typescript "<6.1.0"; a TypeScript bump
       # past that cannot install. Lift once the lint toolchain widens its range.
@@ -30,7 +33,14 @@ updates:
           - globals
       test:
         patterns:
-          ["vitest", "@vitest/*", "@testing-library/*", "jsdom", "@playwright/test"]
+          [
+            "vitest",
+            "@vitest/*",
+            "@testing-library/*",
+            "jsdom",
+            "@playwright/test",
+            "@axe-core/*",
+          ]
       types:
         patterns: ["@types/node"]
 
