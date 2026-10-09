@@ -20,4 +20,9 @@ describe("glossary", () => {
       "Propagation",
     );
   });
+  it("ignores full-width input from a Japanese IME (NFKC)", () => {
+    const tgw = all.find((t) => t.en === "Transit Gateway (TGW)")!;
+    expect(matches(tgw, "ＴＧＷ")).toBe(true);
+    expect(matches(tgw, "ｔｒａｎｓｉｔ")).toBe(true);
+  });
 });

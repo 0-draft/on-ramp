@@ -12,9 +12,9 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | VPN tunnel | VPN トンネル | ✓ | One IPsec security association path; 1.25 Gbps standard, 5 Gbps large | VPN connection |
 | Customer gateway | カスタマーゲートウェイ | ✓ | The AWS resource that *describes* your on-premises VPN device (IP, ASN, certificate) | Customer gateway device |
 | Customer gateway device | カスタマーゲートウェイデバイス | ✓ | The physical or software router or firewall on your side | Customer gateway |
-| Accelerated Site-to-Site VPN | 高速化された Site-to-Site VPN (表記未確認) | – | VPN that enters AWS at the nearest Global Accelerator edge; TGW or Cloud WAN only | Large bandwidth tunnel |
-| Large bandwidth tunnel | – | – | Site-to-Site VPN tunnel option of up to 5 Gbps (2025-11); TGW or Cloud WAN only | Accelerated VPN |
-| VPN Concentrator | VPN コンセントレーター (表記未確認) | – | Site-to-Site VPN feature that puts many low-bandwidth sites behind one TGW attachment (2025-11) | The VGW, which the Japanese docs also describe as the "VPN コンセントレータ" on the AWS side |
+| Accelerated Site-to-Site VPN | 高速 Site-to-Site VPN 接続 (高速 VPN) | ✓ | VPN that enters AWS at the nearest Global Accelerator edge; TGW or Cloud WAN only | Large bandwidth tunnel |
+| Large bandwidth tunnel | 広帯域幅トンネル (LBT) | – | Site-to-Site VPN tunnel option of up to 5 Gbps (2025-11); TGW or Cloud WAN only | Accelerated VPN |
+| VPN Concentrator | Site-to-Site VPN コンセントレータ | ✓ | Site-to-Site VPN feature that puts many low-bandwidth sites behind one TGW attachment (2025-11) | The VGW, which the Japanese docs also describe as the "VPN コンセントレータ" on the AWS side |
 | Private IP VPN | プライベート IP VPN (ja doc title: 「AWS Site-to-Site VPN を使用したプライベート IP Direct Connect」) | – | IPsec VPN over a DX transit VIF using private outside addresses; requires TGW | Public VIF VPN |
 | AWS Direct Connect | AWS Direct Connect | ✓ | Private Ethernet connection from your network to AWS at a DX location | Site-to-Site VPN |
 | Direct Connect location | Direct Connect ロケーション | ✓ | Colocation facility where AWS DX routers live and cross connects happen | AWS Region |
@@ -42,11 +42,11 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Virtual private gateway (VGW) | 仮想プライベートゲートウェイ | ✓ | VPN/DX termination for exactly one VPC | Transit Gateway |
 | Direct Connect gateway (DXGW) | Direct Connect ゲートウェイ | ✓ | Global, route-only object linking VIFs to VGWs, TGWs or Cloud WAN; does not forward between its associations | Transit Gateway |
 | Allowed prefixes | 許可されたプレフィックス (表記未確認) | – | List on a DXGW association that defines what is advertised to on-premises | VPC CIDR |
-| Transit Gateway (TGW) | トランジットゲートウェイ / Transit Gateway | ✓ | Regional L3 hub for VPCs, VPN, DX, Connect and peering attachments | Direct Connect gateway |
+| Transit Gateway (TGW) | Transit Gateway (トランジットゲートウェイ) | ✓ | Regional L3 hub for VPCs, VPN, DX, Connect and peering attachments | Direct Connect gateway |
 | Attachment | アタッチメント | ✓ | One connection of a VPC, VPN, DXGW, Connect or peer to a TGW or Cloud WAN | Association |
 | TGW route table | Transit Gateway ルートテーブル | ✓ | Routing domain inside a TGW | VPC route table |
 | Association | 関連付け | ✓ | Which TGW route table an attachment uses for lookups (exactly one) | Propagation |
-| Propagation | ルート伝達 (ルート伝播 also appears) | ✓ | Attachment installs its routes into one or more TGW route tables | Association |
+| Propagation | ルート伝播 (ルート伝達 also appears) | ✓ | Attachment installs its routes into one or more TGW route tables | Association |
 | Connect attachment | Transit Gateway Connect アタッチメント | ✓ | GRE + BGP attachment for SD-WAN appliances over a VPC or DX transport | VPN attachment |
 | Peering attachment | ピアリングアタッチメント | ✓ | TGW-to-TGW link, typically between Regions | VPC peering |
 | Appliance mode | アプライアンスモード | ✓ | Keeps both directions of a flow in one AZ for stateful inspection VPCs | — |
@@ -76,8 +76,8 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Resource endpoint / service network endpoint | リソースエンドポイント / サービスネットワークエンドポイント | ✓ | Consumer-side endpoints for one resource or a whole Lattice service network | Interface endpoint |
 | Amazon VPC Lattice | Amazon VPC Lattice | – | Application-layer service networking across VPCs and accounts | Transit Gateway |
 | Route 53 VPC Resolver | Route 53 VPC Resolver / VPC リゾルバー | ✓ | Built-in VPC DNS at VPC+2; renamed from "Route 53 Resolver" in 2025-11 | Global Resolver |
-| Inbound endpoint | インバウンド Resolver エンドポイント | ✓ | IPs in your VPC that on-premises DNS can forward to | Outbound endpoint |
-| Outbound endpoint | アウトバウンド Resolver エンドポイント | ✓ | Resolver's way out to on-premises DNS, driven by Resolver rules | Inbound endpoint |
+| Inbound endpoint | インバウンドエンドポイント (VPC Resolver) | ✓ | IPs in your VPC that on-premises DNS can forward to | Outbound endpoint |
+| Outbound endpoint | アウトバウンドエンドポイント (VPC Resolver) | ✓ | Resolver's way out to on-premises DNS, driven by Resolver rules | Inbound endpoint |
 | Resolver rule | Resolver ルール / 転送ルール | ✓ | Per-domain forwarding instruction for outbound endpoints | Private hosted zone |
 | Private hosted zone | プライベートホストゾーン | ✓ | Route 53 zone visible only to associated VPCs | Public hosted zone |
 | Route 53 Profiles | Route 53 プロファイル (表記未確認) | – | Shareable bundle of PHZs, Resolver rules and DNS Firewall for many VPCs (2024-04) | Resolver rule sharing |
@@ -88,7 +88,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | English | 日本語 | JA | Definition | Often confused with |
 | --- | --- | --- | --- | --- |
 | AWS Client VPN | AWS Client VPN / クライアント VPN | ✓ | Managed OpenVPN-based remote access for users | Site-to-Site VPN |
-| Client VPN endpoint | クライアント VPN エンドポイント | ✓ | The server-side resource users connect to | VPC endpoint |
+| Client VPN endpoint | Client VPN エンドポイント | ✓ | The server-side resource users connect to | VPC endpoint |
 | Target network | ターゲットネットワーク | ✓ | Subnet (or, since 2026-04, TGW) a Client VPN endpoint is associated with | Client CIDR |
 | Authorization rule | 承認ルール (認可ルール also appears) | ✓ | Which networks a user group may reach through Client VPN | Security group |
 | Split tunnel | スプリットトンネルモード | ✓ | Only AWS-bound routes go through the VPN | Full tunnel |

@@ -56,7 +56,7 @@ export const GLOSSARY: Group[] = [
         verified: true,
         def: {
           en: "One IPsec path; 1.25 Gbps standard, 5 Gbps large",
-          ja: "IPsec の経路 1 本。標準 1.25 Gbps、大容量 5 Gbps",
+          ja: "IPsec の経路 1 本。標準 1.25 Gbps、広帯域幅 5 Gbps",
         },
         confused: { en: "VPN connection", ja: "VPN 接続" },
       },
@@ -82,41 +82,41 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Accelerated Site-to-Site VPN",
-        ja: "高速化された Site-to-Site VPN",
-        verified: false,
+        ja: "高速 Site-to-Site VPN 接続 (高速 VPN)",
+        verified: true,
         def: {
           en: "VPN that enters AWS at the nearest Global Accelerator edge; TGW or Cloud WAN only",
           ja: "最寄りの Global Accelerator エッジから AWS に入る VPN。TGW / Cloud WAN 専用",
         },
-        confused: { en: "Large bandwidth tunnel", ja: "大容量トンネル" },
+        confused: { en: "Large bandwidth tunnel", ja: "広帯域幅トンネル" },
       },
       {
         en: "Large bandwidth tunnel",
-        ja: "Large bandwidth tunnel",
+        ja: "広帯域幅トンネル (LBT)",
         verified: false,
         def: {
           en: "VPN tunnel option of up to 5 Gbps (2025-11); TGW or Cloud WAN only",
           ja: "最大 5 Gbps の VPN トンネルオプション (2025-11)。TGW / Cloud WAN 専用",
         },
-        confused: { en: "Accelerated VPN", ja: "高速化 VPN" },
+        confused: { en: "Accelerated VPN", ja: "高速 VPN" },
       },
       {
         en: "VPN Concentrator",
-        ja: "VPN コンセントレーター",
-        verified: false,
+        ja: "Site-to-Site VPN コンセントレータ",
+        verified: true,
         def: {
           en: "Puts many low-bandwidth sites behind one TGW attachment (2025-11)",
           ja: "多数の低帯域拠点を 1 つの TGW アタッチメントにまとめる機能 (2025-11)",
         },
         confused: {
-          en: "The VGW, which Japanese docs also call a VPN concentrator",
-          ja: "VGW (日本語ドキュメントでは「VPN コンセントレータ」とも)",
+          en: "The VGW, which Japanese docs also call a VPN concentrator. The 2025-11 product is the Site-to-Site VPN Concentrator; the VGW is not it",
+          ja: "VGW (日本語ドキュメントでは VGW も「VPN コンセントレータ」と呼ぶ。2025-11 の製品は Site-to-Site VPN コンセントレータで、VGW とは別物)",
         },
       },
       {
         en: "Private IP VPN",
         ja: "プライベート IP VPN",
-        verified: false,
+        verified: true,
         def: {
           en: "IPsec VPN over a DX transit VIF using private outside addresses; requires TGW",
           ja: "DX のトランジット VIF 上でプライベートアドレスを使う IPsec VPN。TGW が必要",
@@ -161,7 +161,7 @@ export const GLOSSARY: Group[] = [
           en: "Partner-provisioned logical connection, 50 Mbps to 25 Gbps, one VIF",
           ja: "パートナーが提供する論理接続。50 Mbps〜25 Gbps、VIF は 1 つ",
         },
-        confused: { en: "Hosted VIF", ja: "ホスト型 VIF" },
+        confused: { en: "Hosted VIF", ja: "ホスト VIF" },
       },
       {
         en: "Cross connect",
@@ -194,7 +194,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Virtual interface (VIF)",
-        ja: "仮想インターフェイス",
+        ja: "仮想インターフェイス (VIF)",
         verified: true,
         def: {
           en: "A VLAN plus a BGP session on a DX connection",
@@ -204,7 +204,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Private VIF",
-        ja: "プライベート仮想インターフェイス",
+        ja: "プライベート仮想インターフェイス (プライベート VIF)",
         verified: true,
         def: {
           en: "VIF to a VGW or DX gateway for VPC private IPs (MTU 1500 or 9001)",
@@ -214,7 +214,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Public VIF",
-        ja: "パブリック仮想インターフェイス",
+        ja: "パブリック仮想インターフェイス (パブリック VIF)",
         verified: true,
         def: {
           en: "VIF to AWS public IP ranges (S3, APIs)",
@@ -224,7 +224,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Transit VIF",
-        ja: "トランジット仮想インターフェイス",
+        ja: "トランジット仮想インターフェイス (トランジット VIF)",
         verified: true,
         def: {
           en: "VIF to a DX gateway associated with TGW or Cloud WAN (MTU 1500 or 8500)",
@@ -309,7 +309,7 @@ export const GLOSSARY: Group[] = [
     terms: [
       {
         en: "Virtual private gateway (VGW)",
-        ja: "仮想プライベートゲートウェイ",
+        ja: "仮想プライベートゲートウェイ (VGW)",
         verified: true,
         def: {
           en: "VPN and DX termination for exactly one VPC",
@@ -319,7 +319,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Direct Connect gateway (DXGW)",
-        ja: "Direct Connect ゲートウェイ",
+        ja: "Direct Connect ゲートウェイ (DX ゲートウェイ)",
         verified: true,
         def: {
           en: "Global, route-only object linking VIFs to VGWs, TGWs or Cloud WAN; does not forward between its associations",
@@ -339,7 +339,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Transit Gateway (TGW)",
-        ja: "トランジットゲートウェイ",
+        ja: "Transit Gateway (トランジットゲートウェイ)",
         verified: true,
         def: {
           en: "Regional layer 3 hub for VPC, VPN, DX, Connect and peering attachments",
@@ -372,11 +372,11 @@ export const GLOSSARY: Group[] = [
           en: "Which TGW route table an attachment uses for lookups (exactly one)",
           ja: "アタッチメントが参照する TGW ルートテーブル (必ず 1 つ)",
         },
-        confused: { en: "Propagation", ja: "伝達" },
+        confused: { en: "Propagation", ja: "ルート伝播" },
       },
       {
         en: "Propagation",
-        ja: "ルート伝達 (伝播)",
+        ja: "ルート伝播 (伝達)",
         verified: true,
         def: {
           en: "An attachment installs its routes into one or more TGW route tables",
@@ -410,7 +410,7 @@ export const GLOSSARY: Group[] = [
         verified: true,
         def: {
           en: "Keeps both directions of a flow in one AZ for stateful inspection VPCs",
-          ja: "ステートフル検査 VPC のため、フローの往復を同じ AZ に保つ",
+          ja: "ステートフルインスペクション用 VPC で、フローの往復を同じ AZ に保つ",
         },
       },
       {
@@ -630,7 +630,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Inbound endpoint",
-        ja: "インバウンド Resolver エンドポイント",
+        ja: "インバウンドエンドポイント (VPC Resolver)",
         verified: true,
         def: {
           en: "IPs in your VPC that on-prem DNS can forward to",
@@ -640,7 +640,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Outbound endpoint",
-        ja: "アウトバウンド Resolver エンドポイント",
+        ja: "アウトバウンドエンドポイント (VPC Resolver)",
         verified: true,
         def: {
           en: "The Resolver's way out to on-prem DNS, driven by Resolver rules",
@@ -705,7 +705,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Client VPN endpoint",
-        ja: "クライアント VPN エンドポイント",
+        ja: "Client VPN エンドポイント",
         verified: true,
         def: {
           en: "The server-side resource users connect to",
@@ -735,7 +735,7 @@ export const GLOSSARY: Group[] = [
       },
       {
         en: "Split tunnel",
-        ja: "スプリットトンネル",
+        ja: "スプリットトンネル (モード)",
         verified: true,
         def: {
           en: "Only AWS-bound routes go through the VPN",
@@ -797,9 +797,12 @@ export const GLOSSARY: Group[] = [
   },
 ];
 
-/** Case-insensitive match on either name, the definition or the confusable. */
+/** Width- and case-insensitive: "ＴＧＷ" from a Japanese IME finds "TGW". */
+const norm = (x: string) => x.normalize("NFKC").toLowerCase();
+
+/** Match on either name, the definition or the confusable. */
 export function matches(term: Term, q: string): boolean {
-  const s = q.trim().toLowerCase();
+  const s = norm(q.trim());
   if (!s) return true;
   return [
     term.en,
@@ -808,5 +811,5 @@ export function matches(term: Term, q: string): boolean {
     term.def.ja,
     term.confused?.en ?? "",
     term.confused?.ja ?? "",
-  ].some((x) => x.toLowerCase().includes(s));
+  ].some((x) => norm(x).includes(s));
 }
