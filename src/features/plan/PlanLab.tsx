@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import type { ReactNode } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
@@ -11,12 +11,16 @@ const YES_NO: SegOption<"yes" | "no">[] = [
   { id: "yes", label: { en: "Yes", ja: "はい" } },
 ];
 
-function Q({ q, children }: { q: L; children: ReactNode }) {
+/** A question whose visible text names the control group under it. */
+function Q({ q, children }: { q: L; children: (labelledBy: string) => ReactNode }) {
   const { t } = useLang();
+  const id = useId();
   return (
     <div className="flex flex-col gap-1.5 border-t border-[var(--line)] pt-3 first:border-t-0 first:pt-0">
-      <p className="text-sm font-bold">{t(q)}</p>
-      {children}
+      <p id={id} className="text-sm font-bold">
+        {t(q)}
+      </p>
+      {children(id)}
     </div>
   );
 }
@@ -26,20 +30,24 @@ export function PlanLab() {
   const [a, setA] = useState<Answers>(DEFAULTS);
   const set = <K extends keyof Answers>(k: K, v: Answers[K]) =>
     setA((x) => ({ ...x, [k]: v }));
-  const yn = (
-    k: "sdwan" | "manySmallSites" | "farFromRegion" | "encrypt" | "critical" | "overlap",
-  ) => (
-    <Segmented
-      label={{ en: "Yes or no", ja: "はい / いいえ" }}
-      options={YES_NO}
-      value={a[k] ? "yes" : "no"}
-      onChange={(v) => set(k, v === "yes")}
-    />
-  );
+  const yn =
+    (
+      k:
+        "sdwan" | "manySmallSites" | "farFromRegion" | "encrypt" | "critical" | "overlap",
+    ) =>
+    (labelledBy: string) => (
+      <Segmented
+        label={{ en: "Yes or no", ja: "はい / いいえ" }}
+        labelledBy={labelledBy}
+        options={YES_NO}
+        value={a[k] ? "yes" : "no"}
+        onChange={(v) => set(k, v === "yes")}
+      />
+    );
   const sites = a.who !== "people";
   const people = a.who !== "sites";
-  // Questions about sites only matter when sites connect.
-  const plan = advise(sites ? a : { ...a, transport: "internet", overlap: a.overlap });
+  // advise() itself ignores answers to questions that are not asked.
+  const plan = advise(a);
   const internetPath = sites && !a.sdwan && a.transport === "internet" && a.bw !== "high";
 
   return (
@@ -49,42 +57,48 @@ export function PlanLab() {
         onSubmit={(e) => e.preventDefault()}
       >
         <Q q={{ en: "Who needs to reach AWS?", ja: "誰が AWS につなぐ?" }}>
-          <Segmented
-            label={{ en: "Who connects", ja: "接続する主体" }}
-            options={[
-              {
-                id: "sites",
-                label: { en: "Sites (offices, DCs)", ja: "拠点 (オフィス・DC)" },
-              },
-              { id: "people", label: { en: "People", ja: "人" } },
-              { id: "both", label: { en: "Both", ja: "両方" } },
-            ]}
-            value={a.who}
-            onChange={(v) => set("who", v)}
-          />
+          {(id) => (
+            <Segmented
+              labelledBy={id}
+              label={{ en: "Who connects", ja: "接続する主体" }}
+              options={[
+                {
+                  id: "sites",
+                  label: { en: "Sites (offices, DCs)", ja: "拠点 (オフィス・DC)" },
+                },
+                { id: "people", label: { en: "People", ja: "人" } },
+                { id: "both", label: { en: "Both", ja: "両方" } },
+              ]}
+              value={a.who}
+              onChange={(v) => set("who", v)}
+            />
+          )}
         </Q>
         {people && (
           <Q q={{ en: "What do people need?", ja: "人が必要とするのは?" }}>
-            <Segmented
-              label={{ en: "People need", ja: "人の用途" }}
-              options={[
-                {
-                  id: "full",
-                  label: { en: "The whole network", ja: "ネットワーク全体" },
-                },
-                { id: "apps", label: { en: "Specific apps", ja: "特定のアプリ" } },
-                {
-                  id: "nodata",
-                  label: { en: "Data must stay in AWS", ja: "データを出さない" },
-                },
-                {
-                  id: "admins",
-                  label: { en: "Admins to servers", ja: "管理者がサーバーへ" },
-                },
-              ]}
-              value={a.need}
-              onChange={(v) => set("need", v)}
-            />
+            {(id) => (
+              <Segmented
+                labelledBy={id}
+                label={{ en: "People need", ja: "人の用途" }}
+                options={[
+                  {
+                    id: "full",
+                    label: { en: "The whole network", ja: "ネットワーク全体" },
+                  },
+                  { id: "apps", label: { en: "Specific apps", ja: "特定のアプリ" } },
+                  {
+                    id: "nodata",
+                    label: { en: "Data must stay in AWS", ja: "データを出さない" },
+                  },
+                  {
+                    id: "admins",
+                    label: { en: "Admins to servers", ja: "管理者がサーバーへ" },
+                  },
+                ]}
+                value={a.need}
+                onChange={(v) => set("need", v)}
+              />
+            )}
           </Q>
         )}
         {sites && (
@@ -105,25 +119,28 @@ export function PlanLab() {
                     ja: "インターネットを通ってもよい?",
                   }}
                 >
-                  <Segmented
-                    label={{ en: "Transport", ja: "トランスポート" }}
-                    options={[
-                      {
-                        id: "internet",
-                        label: { en: "Yes, encrypted is fine", ja: "暗号化すれば可" },
-                      },
-                      {
-                        id: "steady",
-                        label: { en: "Need steady latency", ja: "安定した遅延が必要" },
-                      },
-                      {
-                        id: "closed",
-                        label: { en: "Never (閉域)", ja: "絶対不可 (閉域)" },
-                      },
-                    ]}
-                    value={a.transport}
-                    onChange={(v) => set("transport", v)}
-                  />
+                  {(id) => (
+                    <Segmented
+                      labelledBy={id}
+                      label={{ en: "Transport", ja: "トランスポート" }}
+                      options={[
+                        {
+                          id: "internet",
+                          label: { en: "Yes, encrypted is fine", ja: "暗号化すれば可" },
+                        },
+                        {
+                          id: "steady",
+                          label: { en: "Need steady latency", ja: "安定した遅延が必要" },
+                        },
+                        {
+                          id: "closed",
+                          label: { en: "Never (閉域)", ja: "絶対不可 (閉域)" },
+                        },
+                      ]}
+                      value={a.transport}
+                      onChange={(v) => set("transport", v)}
+                    />
+                  )}
                 </Q>
                 <Q
                   q={{
@@ -131,19 +148,25 @@ export function PlanLab() {
                     ja: "拠点あたりの継続的な帯域は?",
                   }}
                 >
-                  <Segmented
-                    label={{ en: "Bandwidth", ja: "帯域" }}
-                    options={[
-                      {
-                        id: "low",
-                        label: { en: "Up to 1.25 Gbps", ja: "1.25 Gbps まで" },
-                      },
-                      { id: "mid", label: { en: "1.25 to 5 Gbps", ja: "1.25〜5 Gbps" } },
-                      { id: "high", label: { en: "Over 5 Gbps", ja: "5 Gbps 超" } },
-                    ]}
-                    value={a.bw}
-                    onChange={(v) => set("bw", v)}
-                  />
+                  {(id) => (
+                    <Segmented
+                      labelledBy={id}
+                      label={{ en: "Bandwidth", ja: "帯域" }}
+                      options={[
+                        {
+                          id: "low",
+                          label: { en: "Up to 1.25 Gbps", ja: "1.25 Gbps まで" },
+                        },
+                        {
+                          id: "mid",
+                          label: { en: "1.25 to 5 Gbps", ja: "1.25〜5 Gbps" },
+                        },
+                        { id: "high", label: { en: "Over 5 Gbps", ja: "5 Gbps 超" } },
+                      ]}
+                      value={a.bw}
+                      onChange={(v) => set("bw", v)}
+                    />
+                  )}
                 </Q>
                 {internetPath && (
                   <>
@@ -170,28 +193,34 @@ export function PlanLab() {
               </>
             )}
             <Q q={{ en: "How many VPCs behind it?", ja: "その先の VPC の数は?" }}>
-              <Segmented
-                label={{ en: "VPCs", ja: "VPC" }}
-                options={[
-                  { id: "one", label: { en: "One", ja: "1 つ" } },
-                  { id: "many", label: { en: "Many", ja: "複数" } },
-                ]}
-                value={a.vpcs}
-                onChange={(v) => set("vpcs", v)}
-              />
+              {(id) => (
+                <Segmented
+                  labelledBy={id}
+                  label={{ en: "VPCs", ja: "VPC" }}
+                  options={[
+                    { id: "one", label: { en: "One", ja: "1 つ" } },
+                    { id: "many", label: { en: "Many", ja: "複数" } },
+                  ]}
+                  value={a.vpcs}
+                  onChange={(v) => set("vpcs", v)}
+                />
+              )}
             </Q>
             {!internetPath && !a.sdwan && (
               <>
                 <Q q={{ en: "How many AWS Regions?", ja: "AWS リージョンの数は?" }}>
-                  <Segmented
-                    label={{ en: "Regions", ja: "リージョン" }}
-                    options={[
-                      { id: "one", label: { en: "One", ja: "1 つ" } },
-                      { id: "several", label: { en: "Several", ja: "複数" } },
-                    ]}
-                    value={a.regions}
-                    onChange={(v) => set("regions", v)}
-                  />
+                  {(id) => (
+                    <Segmented
+                      labelledBy={id}
+                      label={{ en: "Regions", ja: "リージョン" }}
+                      options={[
+                        { id: "one", label: { en: "One", ja: "1 つ" } },
+                        { id: "several", label: { en: "Several", ja: "複数" } },
+                      ]}
+                      value={a.regions}
+                      onChange={(v) => set("regions", v)}
+                    />
+                  )}
                 </Q>
                 <Q
                   q={{
@@ -221,9 +250,31 @@ export function PlanLab() {
         >
           {yn("overlap")}
         </Q>
+        {/* Phones: the current answer rides along at the bottom of the form. */}
+        <div className="sticky bottom-2 z-10 -mx-1 mt-1 flex items-center gap-2 rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-2 shadow-lg lg:hidden">
+          <span className="text-xs font-semibold text-[var(--muted)]">
+            {t({ en: "Your on-ramp", ja: "あなたの入口" })}
+          </span>
+          {plan.recs[0] && (
+            <>
+              {plan.recs[0].routes.map((id) => (
+                <Shield
+                  key={id}
+                  label={ROUTE[id].shield}
+                  color={ROUTE[id].color}
+                  size="sm"
+                />
+              ))}
+              <span className="min-w-0 truncate text-sm font-bold">
+                {t(REC[plan.recs[0].id].title)}
+              </span>
+            </>
+          )}
+        </div>
       </form>
 
-      <div className="flex flex-col gap-4">
+      {/* The answer stays in view while you work through the questions. */}
+      <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
         <div className="panel overflow-hidden" aria-live="polite">
           <div className="sign m-3 px-4 py-3">
             <p className="text-lg font-extrabold">

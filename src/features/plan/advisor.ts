@@ -51,6 +51,7 @@ export type RecId =
   | "largeTunnel"
   | "accelerated"
   | "dxSingleRegion"
+  | "dxSingleRegionClosed"
   | "dxMultiRegion"
   | "macsec"
   | "privateIpVpn"
@@ -110,8 +111,9 @@ export function advise(a: Answers): Plan {
       } else if (a.bw === "mid") {
         // Rule 9.
         recs.push({ id: "largeTunnel", routes: ["vpn"] });
-      } else if (a.vpcs === "one") {
-        // Rule 7.
+      } else if (a.vpcs === "one" && !(a.farFromRegion && a.bw === "low")) {
+        // Rule 7. (A distant site gets accelerated VPN below, which needs a
+        // Transit Gateway, so it falls through to rule 8.)
         recs.push({ id: "vpnVgw", pattern: "P1", routes: ["vpn"] });
         avoid.add("staticVpnFirewall");
       } else {
@@ -130,10 +132,14 @@ export function advise(a: Answers): Plan {
 
   if (usesDx) {
     // Rules 12-13.
+    // In a closed network the backup is a second DX location, not an
+    // internet VPN.
     recs.push(
-      a.regions === "one"
-        ? { id: "dxSingleRegion", pattern: "P2", routes: ["dx", "vpn"] }
-        : { id: "dxMultiRegion", pattern: "P3", routes: ["dx"] },
+      a.regions === "several"
+        ? { id: "dxMultiRegion", pattern: "P3", routes: ["dx"] }
+        : a.transport === "closed"
+          ? { id: "dxSingleRegionClosed", pattern: "P2", routes: ["dx"] }
+          : { id: "dxSingleRegion", pattern: "P2", routes: ["dx", "vpn"] },
     );
     // Rule 14.
     if (a.encrypt) {
@@ -154,8 +160,9 @@ export function advise(a: Answers): Plan {
     if (a.regions === "several") avoid.add("dxgwHub");
   }
 
-  // Rule 15.
-  if (a.transport === "closed") {
+  // Rule 15. Only when sites use DX: the transport question is not asked
+  // for people-only plans or when an SD-WAN fabric carries the sites.
+  if (a.transport === "closed" && a.who !== "people" && !a.sdwan) {
     recs.push({ id: "closed", pattern: "P5", routes: ["private", "dns"] });
     avoid.add("s3Gateway");
     avoid.add("publicDns");
@@ -182,7 +189,7 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     title: { en: "AWS Verified Access", ja: "AWS Verified Access" },
     why: {
       en: "Zero trust per application: each request is checked against identity and device posture. HTTP(S) and, since 2025-02, TCP, SSH and RDP. Not a general network.",
-      ja: "アプリ単位のゼロトラスト。リクエストごとに ID とデバイスの状態で判定。HTTP(S) と、2025-02 からは TCP・SSH・RDP も。ネットワーク全体ではない。",
+      ja: "アプリ単位のゼロトラスト。リクエストごとに ID と端末の状態 (ポスチャ) で判定。HTTP(S) と、2025-02 からは TCP・SSH・RDP も。ネットワーク全体ではない。",
     },
   },
   workspaces: {
@@ -202,7 +209,7 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     },
     why: {
       en: "Operators reach instances with no inbound ports, authorized by IAM and logged. In a closed network it needs SSM interface endpoints.",
-      ja: "インバウンドポートなしでインスタンスへ。IAM で認可しログも残る。閉域なら SSM のインターフェイスエンドポイントが必要。",
+      ja: "受信ポートを開けずにインスタンスへ。IAM で認可しログも残る。閉域なら SSM のインターフェイスエンドポイントが必要。",
     },
   },
   sdwan: {
@@ -218,11 +225,11 @@ export const REC: Record<RecId, { title: L; why: L }> = {
   concentrator: {
     title: {
       en: "Site-to-Site VPN Concentrator on a Transit Gateway",
-      ja: "Transit Gateway の Site-to-Site VPN Concentrator",
+      ja: "Transit Gateway の VPN コンセントレータ",
     },
     why: {
       en: "Built for many small sites: up to 100 sites per concentrator at 100 Mbps each, 5 Gbps shared. Transit Gateway only.",
-      ja: "小規模拠点が多数の場合向け。1 コンセントレーターで最大 100 拠点、拠点あたり 100 Mbps、合計 5 Gbps。Transit Gateway 専用。",
+      ja: "小規模拠点が多数の場合向け。1 コンセントレータで最大 100 拠点、拠点あたり 100 Mbps、合計 5 Gbps。Transit Gateway 専用。",
     },
   },
   vpnVgw: {
@@ -246,14 +253,14 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     },
   },
   largeTunnel: {
-    title: { en: "Large bandwidth tunnels (5 Gbps)", ja: "大容量トンネル (5 Gbps)" },
+    title: { en: "Large bandwidth tunnels (5 Gbps)", ja: "広帯域幅トンネル (5 Gbps)" },
     why: {
       en: "5 Gbps per tunnel on a Transit Gateway or Cloud WAN. Not on a VGW, and not combinable with accelerated VPN.",
-      ja: "Transit Gateway か Cloud WAN でトンネルあたり 5 Gbps。VGW では使えず、高速化 VPN とも併用不可。",
+      ja: "Transit Gateway か Cloud WAN でトンネルあたり 5 Gbps。VGW では使えず、高速 VPN とも併用不可。",
     },
   },
   accelerated: {
-    title: { en: "Accelerated Site-to-Site VPN", ja: "高速化 Site-to-Site VPN" },
+    title: { en: "Accelerated Site-to-Site VPN", ja: "高速 Site-to-Site VPN" },
     why: {
       en: "Enters the AWS backbone at the edge nearest the site via Global Accelerator. Transit Gateway only; choose it at creation.",
       ja: "Global Accelerator で拠点に一番近いエッジから AWS のバックボーンへ。Transit Gateway 専用、作成時にしか選べない。",
@@ -266,7 +273,17 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     },
     why: {
       en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway, plus a BGP VPN on the same Transit Gateway. Advertise the same prefixes on both. Hosted connections below 1 Gbps, dedicated from 1 Gbps.",
-      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け、同じ Transit Gateway に BGP VPN を。両方で同じプレフィックスを広告。1 Gbps 未満はホスト型、1 Gbps からは専有型。",
+      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け、同じ Transit Gateway に BGP VPN を。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続、1 Gbps からは専用接続。",
+    },
+  },
+  dxSingleRegionClosed: {
+    title: {
+      en: "Direct Connect + DX gateway + Transit Gateway, a second DX location as backup",
+      ja: "Direct Connect + DX ゲートウェイ + Transit Gateway、バックアップは 2 つ目の DX ロケーション",
+    },
+    why: {
+      en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway. In a closed network, back up with the second DX location (or Private IP VPN over another DX), not an internet VPN. Advertise the same prefixes on both. Hosted connections below 1 Gbps, dedicated from 1 Gbps.",
+      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け。閉域ではインターネット VPN ではなく、2 つ目の DX ロケーション (または別 DX 上のプライベート IP VPN) をバックアップに。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続、1 Gbps からは専用接続。",
     },
   },
   dxMultiRegion: {
@@ -276,13 +293,13 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     },
     why: {
       en: "A DX gateway is global, but it does not pass traffic between Regions: use Transit Gateway peering or Cloud WAN (native DX gateway attachment since 2024-11) for east-west.",
-      ja: "DX ゲートウェイはグローバルだが、リージョン間の通信は中継しない。東西の通信は Transit Gateway ピアリングか Cloud WAN (2024-11 から DX ゲートウェイを直接アタッチ可能) で。",
+      ja: "DX ゲートウェイはグローバルだが、リージョン間の通信は中継しない。リージョン間 (East-West) の通信は Transit Gateway ピアリングか Cloud WAN (2024-11 から DX ゲートウェイを直接アタッチ可能) で。",
     },
   },
   macsec: {
     title: {
       en: "MACsec on dedicated 10/100/400 Gbps",
-      ja: "専有型 10/100/400 Gbps で MACsec",
+      ja: "専用接続 10/100/400 Gbps で MACsec",
     },
     why: {
       en: "Line-rate layer-2 encryption between your router and the AWS device, at selected DX locations only. Direct Connect is not encrypted by default.",
@@ -305,8 +322,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "閉域: どこにもインターネットを使わない",
     },
     why: {
-      en: "No internet gateway (enforce with VPC Block Public Access), interface endpoints for every AWS API you call (S3 interface, not gateway), and Route 53 Resolver inbound and outbound endpoints for DNS.",
-      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (S3 もゲートウェイ型ではなくインターフェイス型)、DNS には Route 53 Resolver のインバウンド/アウトバウンドエンドポイント。",
+      en: "No internet gateway (enforce with VPC Block Public Access), interface endpoints for every AWS API you call (S3 interface, not gateway), and Route 53 VPC Resolver inbound and outbound endpoints for DNS.",
+      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (S3 もゲートウェイ型ではなくインターフェイス型)、DNS には Route 53 VPC Resolver のインバウンド/アウトバウンドエンドポイント。",
     },
   },
   overlap: {
@@ -393,8 +410,8 @@ export const ANTI: Record<AntiId, { title: L; fix: L }> = {
   publicDns: {
     title: { en: "Private link, public DNS", ja: "経路は閉域、DNS は公開のまま" },
     fix: {
-      en: "Clients resolve public IPs and leave through the internet. Forward to a Resolver inbound endpoint.",
-      ja: "パブリック IP に解決されインターネットへ出てしまう。Resolver インバウンドエンドポイントへ転送を。",
+      en: "Clients resolve public IPs and leave through the internet. Forward to a VPC Resolver inbound endpoint.",
+      ja: "パブリック IP に解決されインターネットへ出てしまう。VPC Resolver のインバウンドエンドポイントへ転送を。",
     },
   },
   vgwPerVpc: {

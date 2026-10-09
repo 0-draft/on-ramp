@@ -41,7 +41,7 @@ const PATTERNS: { id: string; routes: RouteId[]; name: L; what: L; upgrade: L }[
     },
     upgrade: {
       en: "Pick Cloud WAN past two or three Regions, or when segmentation should be policy.",
-      ja: "リージョンが 3 つ前後を超える、またはセグメントをポリシーで書きたいなら Cloud WAN。",
+      ja: "リージョンが 2〜3 を超える、またはセグメントをポリシーで書きたいなら Cloud WAN。",
     },
   },
   {
@@ -62,12 +62,12 @@ const PATTERNS: { id: string; routes: RouteId[]; name: L; what: L; upgrade: L }[
     routes: ["dx", "private", "dns"],
     name: { en: "Closed network only (閉域)", ja: "閉域のみ" },
     what: {
-      en: "DX in two metro areas, MACsec or Private IP VPN, no internet gateway, interface endpoints for every AWS API, Resolver endpoints both ways.",
-      ja: "2 つの都市圏の DX、MACsec かプライベート IP VPN、インターネットゲートウェイなし、全 AWS API にインターフェイスエンドポイント、双方向の Resolver エンドポイント。",
+      en: "DX in two metro areas, MACsec or Private IP VPN, no internet gateway, interface endpoints for every AWS API, VPC Resolver endpoints both ways.",
+      ja: "2 つの都市圏の DX、MACsec かプライベート IP VPN、インターネットゲートウェイなし、全 AWS API にインターフェイスエンドポイント、双方向の VPC Resolver エンドポイント。",
     },
     upgrade: {
       en: "Prove it with VPC Encryption Controls, Flow Logs and Network Access Analyzer.",
-      ja: "VPC Encryption Controls、フローログ、Network Access Analyzer で証明。",
+      ja: "VPC 暗号化コントロール、フローログ、Network Access Analyzer で証明。",
     },
   },
   {
@@ -106,7 +106,7 @@ export function PlanSection() {
       title={{ en: "Plan your on-ramp", ja: "自分の入口を設計する" }}
       lead={{
         en: "Answer a few questions in the order AWS's own Hybrid Connectivity whitepaper asks them: who connects, how much and how steady, how many VPCs and Regions, then encryption and compliance. The answer is a route, a reference pattern, and the wrong turns that pattern is known for.",
-        ja: "AWS の Hybrid Connectivity ホワイトペーパーと同じ順で答えてください: 誰がつなぐか、どれだけ・どれほど安定して、VPC とリージョンはいくつか、最後に暗号化とコンプライアンス。答えとして経路、参照パターン、そのパターンでよくある間違いが出ます。",
+        ja: "AWS の Hybrid Connectivity ホワイトペーパーと同じ順で答えてください: 誰がつなぐか、必要な帯域と安定性、VPC とリージョンはいくつか、最後に暗号化とコンプライアンス。答えとして経路、参照パターン、そのパターンでよくある間違いが出ます。",
       }}
     >
       <PlanLab />
@@ -121,7 +121,7 @@ export function PlanSection() {
       <h3 className="mt-10 text-xl font-extrabold">
         {t({ en: "The seven reference patterns", ja: "7 つの参照パターン" })}
       </h3>
-      <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PATTERNS.map((p) => (
           <li key={p.id} className="panel flex flex-col gap-2 p-4">
             <div className="flex flex-wrap items-center gap-2">

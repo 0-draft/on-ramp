@@ -18,7 +18,8 @@ describe("advise (docs/13 codeable rules)", () => {
   });
 
   it("rule 10: far from the Region adds accelerated VPN, but never with large tunnels", () => {
-    expect(ids({ farFromRegion: true })).toEqual(["vpnVgw", "accelerated"]);
+    // Accelerated VPN needs a Transit Gateway, so even one VPC lands on a TGW.
+    expect(ids({ farFromRegion: true })).toEqual(["vpnTgw", "accelerated"]);
     expect(ids({ farFromRegion: true, bw: "mid" })).toEqual(["largeTunnel"]);
   });
 
@@ -71,7 +72,13 @@ describe("advise (docs/13 codeable rules)", () => {
 
   it("rule 15: closed network -> DX plus P5", () => {
     const p = advise({ ...DEFAULTS, transport: "closed" });
-    expect(p.recs.map((r) => r.id)).toEqual(["dxSingleRegion", "resilMax", "closed"]);
+    // The backup is a second DX location, not an internet VPN.
+    expect(p.recs.map((r) => r.id)).toEqual([
+      "dxSingleRegionClosed",
+      "resilMax",
+      "closed",
+    ]);
+    expect(p.recs[0].routes).toEqual(["dx"]);
     expect(p.avoid).toEqual(expect.arrayContaining(["s3Gateway", "publicDns"]));
   });
 
@@ -91,5 +98,23 @@ describe("advise (docs/13 codeable rules)", () => {
       "verifiedAccess",
       "vpnTgw",
     ]);
+  });
+
+  it("a distant single-VPC site gets accelerated VPN on a Transit Gateway, never a VGW", () => {
+    const r = ids({ vpcs: "one", bw: "low", farFromRegion: true });
+    expect(r).toEqual(["vpnTgw", "accelerated"]);
+    expect(r).not.toContain("vpnVgw");
+  });
+
+  it("ignores the hidden transport answer when SD-WAN carries the sites", () => {
+    const p = advise({ ...DEFAULTS, sdwan: true, transport: "closed" });
+    expect(p.recs.map((r) => r.id)).toEqual(["sdwan"]);
+    expect(p.avoid).not.toContain("s3Gateway");
+  });
+
+  it("ignores site answers for a people-only plan", () => {
+    const p = advise({ ...DEFAULTS, who: "people", need: "apps", transport: "closed" });
+    expect(p.recs.map((r) => r.id)).toEqual(["verifiedAccess"]);
+    expect(p.avoid).toEqual([]);
   });
 });
