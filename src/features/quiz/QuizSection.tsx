@@ -25,16 +25,29 @@ export function QuizSection() {
         ja: `設計レビューでよく聞く ${CARDS.length} の発言。理由を読む前に答えを決めてください。先に予想することで記憶に残ります。`,
       }}
     >
-      {/* A running score that stays in view while you work down the cards. */}
-      <p
-        className="num sticky top-14 z-10 mb-4 w-fit rounded-lg border-2 border-[var(--ink)] bg-[var(--paper)] px-3 py-1.5 text-sm font-bold shadow-sm"
-        aria-live="polite"
-      >
-        {t({
-          en: `${answered} / ${CARDS.length} answered · ${right} right`,
-          ja: `${CARDS.length} 問中 ${answered} 問回答 · ${right} 問正解`,
-        })}
-      </p>
+      {/* A running score that stays in view while you work down the cards:
+          plain text over a thin progress bar, so it never looks like a button. */}
+      <div className="sticky top-14 z-10 -mx-1 mb-4 bg-[var(--bg)] px-1 py-2">
+        <p className="num text-sm font-bold" aria-live="polite">
+          {t({
+            en: `${answered} / ${CARDS.length} answered`,
+            ja: `${CARDS.length} 問中 ${answered} 問回答`,
+          })}
+          <span aria-hidden="true" className="mx-2 text-[var(--muted)]">
+            ·
+          </span>
+          {t({ en: `${right} right`, ja: `${right} 問正解` })}
+        </p>
+        <div
+          className="mt-1.5 h-1.5 w-full max-w-sm overflow-hidden rounded-full bg-[var(--paper-2)]"
+          aria-hidden="true"
+        >
+          <div
+            className="h-full rounded-full bg-[var(--ok)] transition-[width]"
+            style={{ width: `${(answered / CARDS.length) * 100}%` }}
+          />
+        </div>
+      </div>
       <ol className="grid gap-3 md:grid-cols-2">
         {CARDS.map((c, i) => (
           <li key={i}>

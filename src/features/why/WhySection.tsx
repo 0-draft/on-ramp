@@ -273,9 +273,11 @@ export function WhySection() {
           return (
             <li
               key={i}
-              className="flex flex-wrap items-center gap-x-3 rounded-lg px-4 py-2.5 text-[var(--on-hub)] transition-shadow"
+              className="flex flex-wrap items-center gap-x-3 rounded-lg px-4 py-2.5 text-[var(--sign-ink)] transition-shadow"
               style={{
-                background: "var(--hub)",
+                // Asphalt is dark slate by day and mid slate at night, so the
+                // stack never glares on a dark page.
+                background: "var(--asphalt)",
                 // Underlay at the bottom and widest; each layer above sits on it.
                 marginInline: `${i * 1.25}rem`,
                 boxShadow:
@@ -339,7 +341,7 @@ export function WhySection() {
                 >
                   {isOpen
                     ? t({ en: "✕ gap", ja: "✕ 穴あり" })
-                    : t({ en: "✓ closed", ja: "✓ 対策済み" })}
+                    : t({ en: "✓ fixed", ja: "✓ 対策済み" })}
                 </span>
               </div>
               <p className="mt-1 text-sm text-[var(--muted)]">
@@ -362,7 +364,7 @@ export function WhySection() {
       <p className="mt-3 font-bold" aria-live="polite">
         {open.length === 0
           ? t({
-              en: "All four closed. Now it's private, encrypted, findable and redundant.",
+              en: "All four fixed. Now it's private, encrypted, findable and redundant.",
               ja: "4 つとも対策済み。これで閉域・暗号化・名前解決・冗長化がそろいました。",
             })
           : t({

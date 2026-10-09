@@ -36,11 +36,11 @@ describe("interactions", () => {
   const wrap = (el: React.ReactNode) =>
     render(<LangProvider initial="en">{el}</LangProvider>);
 
-  it("why: closing every gap reports all closed", () => {
+  it("why: fixing every gap reports all fixed", () => {
     wrap(<WhySection />);
     expect(screen.getByText("4 of 4 gaps still open.")).toBeInTheDocument();
     for (const s of screen.getAllByRole("switch")) fireEvent.click(s);
-    expect(screen.getByText(/All four closed/)).toBeInTheDocument();
+    expect(screen.getByText(/All four fixed/)).toBeInTheDocument();
   });
 
   it("why: fixing a gap lights its layer as fixed", () => {
@@ -68,7 +68,7 @@ describe("interactions", () => {
     wrap(<QuizSection />);
     fireEvent.click(screen.getAllByRole("button", { name: "Myth" })[0]);
     expect(screen.getByText("Right.")).toBeInTheDocument();
-    expect(screen.getByText(/1 \/ \d+ answered · 1 right/)).toBeInTheDocument();
+    expect(screen.getByText(/1 \/ \d+ answered/)).toHaveTextContent(/1 right/);
   });
 
   it("glossary: full-width IME input still finds TGW", () => {

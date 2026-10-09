@@ -142,6 +142,22 @@ export function PlanSection() {
             <p className="mt-auto text-sm text-[var(--muted)]">{t(p.upgrade)}</p>
           </li>
         ))}
+        {/* Seven patterns leave one cell in a four-column row: point back at
+            the questionnaire instead of leaving a hole. */}
+        <li className="flex flex-col justify-center gap-2 rounded-xl border-2 border-dashed border-[var(--line)] p-4">
+          <p className="font-bold">
+            {t({ en: "Not sure which one is yours?", ja: "どれが自分に合うか迷ったら" })}
+          </p>
+          <p className="text-sm text-[var(--muted)]">
+            {t({
+              en: "Answer the questions above and the advisor picks the pattern and the traps to avoid.",
+              ja: "上の質問に答えると、パターンと避けるべき落とし穴を選んでくれます。",
+            })}
+          </p>
+          <a href="#plan" className="mt-1 w-fit text-sm font-bold underline">
+            {t({ en: "Back to the questions ↑", ja: "質問に戻る ↑" })}
+          </a>
+        </li>
       </ul>
 
       <Sources

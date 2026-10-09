@@ -16,11 +16,31 @@ export function CostSection() {
       id="cost"
       title={{ en: "Tolls: what each road costs per month", ja: "通行料: 道ごとの月額" }}
       lead={{
-        en: "AWS charges for data leaving a Region, and the rate depends on the road: internet and VPN pay the internet rate, Direct Connect pays a much lower per-GB rate but rents a port by the hour, and a Transit Gateway adds its own toll on every GB.",
-        ja: "AWS はリージョンから出ていくデータに課金し、単価は道によって違います。インターネットと VPN はインターネット単価、Direct Connect は GB 単価がずっと安い代わりにポートを時間で借り、Transit Gateway は 1 GB ごとに独自の通行料を上乗せします。",
+        en: "AWS charges for data leaving a Region, and the rate depends on the road: Direct Connect pays a much lower per-GB rate but rents a port by the hour, and a Transit Gateway adds its own toll on every GB. Guess one comparison first, then open the calculator.",
+        ja: "AWS はリージョンから出ていくデータに課金し、単価は道によって違います。Direct Connect は GB 単価がずっと安い代わりにポートを時間で借り、Transit Gateway は 1 GB ごとに独自の通行料を上乗せします。まず 1 つ予想してから計算機を開いてください。",
       }}
     >
-      <div className="prose-ish mb-6 max-w-3xl">
+      <Predict
+        question={{
+          en: "You send 10 TB a month from Tokyo to your office. Which is cheaper on the AWS bill: plain internet, or a Site-to-Site VPN on a virtual private gateway?",
+          ja: "東京リージョンから社内へ月 10 TB 送ります。AWS の請求が安いのは、素のインターネットと、仮想プライベートゲートウェイの Site-to-Site VPN のどちら?",
+        }}
+        options={[
+          { id: "internet", label: { en: "Internet", ja: "インターネット" } },
+          { id: "vpn", label: { en: "VPN", ja: "VPN" } },
+          { id: "same", label: { en: "Exactly the same", ja: "まったく同じ" } },
+        ]}
+        answer="internet"
+        why={t({
+          en: "VPN traffic is billed at the internet data transfer rate ($1,167.36 for 10 TB), and the VPN adds $0.048 an hour for the connection: $1,202.40. You buy a VPN for encryption and private addressing, not to save money.",
+          ja: "VPN の通信はインターネットと同じデータ転送単価 (10 TB で $1,167.36) で、さらに接続料が 1 時間 $0.048 かかり $1,202.40。VPN は暗号化とプライベートアドレスのために買うもので、節約のためではありません。",
+        })}
+      >
+        {/* The bars answer the question, so they stay locked until you guess. */}
+        <CostLab />
+      </Predict>
+
+      <div className="prose-ish mt-6 max-w-3xl">
         <p>
           {t({
             en: `Slide the monthly volume and watch the bars. At small volumes, the hourly charges dominate and the internet wins. Around ${tb(dxBreakEvenGb(P.dxDedicated1g), 1)} TB a month, a 1 Gbps dedicated port has paid for itself through its cheaper per-GB rate ($${P.dxDtoJapan} vs $${P.internetTiers[0].perGb}). A VPN never saves money on transfer: its data is billed at the internet rate, plus connection hours. Options that cannot carry the volume even at a flat average rate are greyed out.`,
@@ -43,26 +63,6 @@ export function CostSection() {
           </a>
         </p>
       </div>
-
-      <Predict
-        question={{
-          en: "You send 10 TB a month from Tokyo to your office. Which is cheaper on the AWS bill: plain internet, or a Site-to-Site VPN on a virtual private gateway?",
-          ja: "東京リージョンから社内へ月 10 TB 送ります。AWS の請求が安いのは、素のインターネットと、仮想プライベートゲートウェイの Site-to-Site VPN のどちら?",
-        }}
-        options={[
-          { id: "internet", label: { en: "Internet", ja: "インターネット" } },
-          { id: "vpn", label: { en: "VPN", ja: "VPN" } },
-          { id: "same", label: { en: "Exactly the same", ja: "まったく同じ" } },
-        ]}
-        answer="internet"
-        why={t({
-          en: "VPN traffic is billed at the internet data transfer rate ($1,167.36 for 10 TB), and the VPN adds $0.048 an hour for the connection: $1,202.40. You buy a VPN for encryption and private addressing, not to save money.",
-          ja: "VPN の通信はインターネットと同じデータ転送単価 (10 TB で $1,167.36) で、さらに接続料が 1 時間 $0.048 かかり $1,202.40。VPN は暗号化とプライベートアドレスのために買うもので、節約のためではありません。",
-        })}
-      >
-        {/* The bars answer the question, so they stay locked until you guess. */}
-        <CostLab />
-      </Predict>
 
       <p className="mt-3 text-sm text-[var(--muted)]">
         {t({
