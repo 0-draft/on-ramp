@@ -1,3 +1,4 @@
+import { DiagramBox } from "@/components/ui/DiagramBox";
 import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
@@ -60,58 +61,6 @@ const STATE: Record<TunnelState, { label: L; stroke: string; dash?: string }> = 
     dash: "2 8",
   },
 };
-
-function Box({
-  b,
-  title,
-  sub,
-  fill = "var(--paper)",
-  ink = "var(--ink)",
-  stroke = "var(--line)",
-}: {
-  b: { x: number; y: number; w: number; h: number };
-  title: string;
-  sub?: string;
-  fill?: string;
-  ink?: string;
-  stroke?: string;
-}) {
-  return (
-    <g>
-      <rect
-        x={b.x}
-        y={b.y}
-        width={b.w}
-        height={b.h}
-        rx={8}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={2}
-      />
-      <text
-        x={b.x + b.w / 2}
-        y={b.y + b.h / 2 + (sub ? -4 : 5)}
-        textAnchor="middle"
-        fontSize={15}
-        fill={ink}
-      >
-        {title}
-      </text>
-      {sub && (
-        <text
-          x={b.x + b.w / 2}
-          y={b.y + b.h / 2 + 15}
-          textAnchor="middle"
-          fontSize={13}
-          fill={ink}
-          opacity={0.85}
-        >
-          {sub}
-        </text>
-      )}
-    </g>
-  );
-}
 
 export function FailoverLab() {
   const { t } = useLang();
@@ -196,13 +145,17 @@ export function FailoverLab() {
               </g>
             );
           })}
-          <Box
-            b={cgw}
+          <DiagramBox
+            strokeWidth={2}
+            fontSize={15}
+            r={cgw}
             title={t({ en: "Customer gateway", ja: "カスタマーゲートウェイ" })}
             sub={t({ en: "your router", ja: "自社ルーター" })}
           />
-          <Box
-            b={hub}
+          <DiagramBox
+            strokeWidth={2}
+            fontSize={15}
+            r={hub}
             title="VGW / Transit Gateway"
             sub={t({ en: "AWS side", ja: "AWS 側" })}
             fill="var(--hub)"
@@ -213,9 +166,11 @@ export function FailoverLab() {
             const st = n === 1 ? f.t1 : f.t2;
             const carrying = f.awsEgress === (n === 1 ? "t1" : "t2");
             return (
-              <Box
+              <DiagramBox
+                strokeWidth={2}
+                fontSize={15}
                 key={n}
-                b={ep(n)}
+                r={ep(n)}
                 title={`${t({ en: "Tunnel", ja: "トンネル" })} ${n} (AZ ${n === 1 ? "a" : "b"})`}
                 sub={t(STATE[st].label)}
                 stroke={carrying ? "var(--ink)" : STATE[st].stroke}

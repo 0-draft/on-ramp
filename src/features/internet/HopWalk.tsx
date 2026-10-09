@@ -1,3 +1,4 @@
+import { DiagramBox } from "@/components/ui/DiagramBox";
 import { useState } from "react";
 import type { L } from "@/i18n/lang";
 import { useLang } from "@/i18n/useLang";
@@ -65,7 +66,7 @@ export function HopWalk() {
   const color = ROUTE.internet.color;
 
   const W = narrow ? 360 : 900;
-  const H = narrow ? 520 : 210;
+  const H = narrow ? 520 : 188;
   const box = (k: number) =>
     narrow
       ? { x: 70, y: 20 + k * 100, w: 220, h: 64 }
@@ -147,35 +148,16 @@ export function HopWalk() {
             const awsSide = k >= 3;
             return (
               <g key={k}>
-                <rect
-                  x={b.x}
-                  y={b.y}
-                  width={b.w}
-                  height={b.h}
-                  rx={8}
+                <DiagramBox
+                  r={b}
+                  title={t(h.label)}
+                  sub={k === 0 ? "10.1.2.3" : t(h.sub)}
                   fill={cur ? "var(--paper)" : "var(--paper-2)"}
                   stroke={cur ? color : awsSide ? "var(--hub)" : "var(--line)"}
                   strokeWidth={cur ? 3 : 1.5}
-                  strokeDasharray={awsSide && !cur ? "5 4" : undefined}
-                />
-                <text
-                  x={b.x + b.w / 2}
-                  y={b.y + b.h / 2 - 4}
-                  textAnchor="middle"
+                  dash={awsSide && !cur ? "5 4" : undefined}
                   fontSize={15}
-                  fill="var(--ink)"
-                >
-                  {t(h.label)}
-                </text>
-                <text
-                  x={b.x + b.w / 2}
-                  y={b.y + b.h / 2 + 15}
-                  textAnchor="middle"
-                  fontSize={13}
-                  fill="var(--muted)"
-                >
-                  {k === 0 ? "10.1.2.3" : t(h.sub)}
-                </text>
+                />
               </g>
             );
           })}
