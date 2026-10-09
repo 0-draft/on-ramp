@@ -99,6 +99,35 @@ export function HubSketch({ kind }: { kind: HubKind }) {
     </g>
   );
 
+  /** A faint dashed boundary showing how far the hub reaches. */
+  const scope = (
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    text: L,
+    tx: number,
+    ty: number,
+  ) => (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={w}
+        height={h}
+        rx={8}
+        fill="none"
+        stroke="var(--asphalt-2)"
+        strokeWidth={1}
+        strokeDasharray="3 3"
+        opacity={0.7}
+      />
+      <text x={tx} y={ty} fontSize={11} fill="var(--muted)">
+        {t(text)}
+      </text>
+    </g>
+  );
+
   const label: Record<HubKind, L> = {
     vgw: { en: "One VPC, one Region", ja: "VPC 1 つ・1 リージョン" },
     dxgw: { en: "Maps only: no packet passes", ja: "経路を配るだけ: パケットは通らない" },
@@ -133,6 +162,7 @@ export function HubSketch({ kind }: { kind: HubKind }) {
         {onprem}
         {kind === "vgw" && (
           <>
+            {scope(98, 46, 150, 50, { en: "one VPC", ja: "VPC 1 つ" }, 100, 40)}
             {line("M64 70 L104 70", "a")}
             {hub(104, 55, 50, "VGW")}
             {line("M154 70 L184 70", "b")}
@@ -141,6 +171,7 @@ export function HubSketch({ kind }: { kind: HubKind }) {
         )}
         {kind === "dxgw" && (
           <>
+            {scope(90, 49, 76, 42, { en: "control plane", ja: "制御だけ" }, 92, 44)}
             {line("M64 70 L96 70", "a")}
             {hub(96, 55, 64, "DXGW", true)}
             {line("M160 64 C175 64 175 22 190 22", "b", true)}
@@ -161,6 +192,7 @@ export function HubSketch({ kind }: { kind: HubKind }) {
         )}
         {kind === "tgw" && (
           <>
+            {scope(88, 2, 168, 136, { en: "one Region", ja: "1 リージョン" }, 94, 18)}
             {line("M64 70 L96 70", "a")}
             {hub(96, 55, 52, "TGW")}
             {line("M148 64 C165 64 165 22 184 22", "b")}
@@ -172,6 +204,7 @@ export function HubSketch({ kind }: { kind: HubKind }) {
         )}
         {kind === "cloudwan" && (
           <>
+            {scope(76, 2, 180, 136, { en: "global", ja: "全リージョン" }, 140, 18)}
             {line("M64 70 L86 70", "a")}
             {hub(86, 22, 48, "CNE")}
             {hub(86, 90, 48, "CNE")}

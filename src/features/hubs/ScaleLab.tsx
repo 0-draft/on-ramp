@@ -111,7 +111,7 @@ export function ScaleLab() {
 
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                 <dt className="text-[var(--muted)]">
-                  {t({ en: "Gateways / hubs", ja: "ゲートウェイ / ハブ" })}
+                  {t({ en: "Gateways / hubs", ja: "ハブ数" })}
                 </dt>
                 <dd className="num text-right font-bold">{p.hubs}</dd>
                 <dt className="text-[var(--muted)]">

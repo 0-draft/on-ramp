@@ -167,22 +167,25 @@ export function HubsSection() {
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {HUBS.map((h) => (
-              <article key={h.name} className="panel p-3">
+              <article key={h.name} className="panel flex flex-col p-3">
                 <h3 className="font-extrabold">{h.name}</h3>
-                <p className="text-sm text-[var(--muted)]">{t(h.analogy)}</p>
-                <div className="mt-2">
+                <p className="min-h-[2.5rem] text-sm text-[var(--muted)]">
+                  {t(h.analogy)}
+                </p>
+                <div className="mt-auto pt-2">
                   <HubSketch kind={h.kind} />
                 </div>
               </article>
             ))}
           </div>
-          <div className="mt-4">
-            <DataTable
-              columns={[{ en: "Hub", ja: "ハブ" }, ...HUBS[0].facts.map((f) => f.k)]}
-              rows={HUBS.map((h) => [h.name, ...h.facts.map((f) => t(f.v))])}
-            />
-          </div>
         </Predict>
+        {/* Reference material stays open: only the sketches answer the question. */}
+        <div className="mt-4">
+          <DataTable
+            columns={[{ en: "Hub", ja: "ハブ" }, ...HUBS[0].facts.map((f) => f.k)]}
+            rows={HUBS.map((h) => [h.name, ...h.facts.map((f) => t(f.v))])}
+          />
+        </div>
       </div>
 
       <h3 className="mt-10 text-xl font-extrabold">

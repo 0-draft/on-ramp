@@ -260,15 +260,36 @@ export function RoutingLab() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Segmented
-            label={{ en: "AWS hub", ja: "AWS 側のハブ" }}
-            options={HUBS}
-            value={hub}
-            onChange={(h) => {
-              setHub(h);
-              if (preset !== "prepend") setPreset("");
-            }}
-          />
+          {narrow ? (
+            // On phones the long hub names wrap badly as a segmented row.
+            <label className="flex w-full flex-col gap-1 text-sm font-semibold">
+              {t({ en: "AWS hub", ja: "AWS 側のハブ" })}
+              <select
+                value={hub}
+                onChange={(e) => {
+                  setHub(e.target.value as Hub);
+                  if (preset !== "prepend") setPreset("");
+                }}
+                className="min-h-10 rounded-md border border-[var(--line)] bg-[var(--paper)] px-2"
+              >
+                {HUBS.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {t(h.label)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : (
+            <Segmented
+              label={{ en: "AWS hub", ja: "AWS 側のハブ" }}
+              options={HUBS}
+              value={hub}
+              onChange={(h) => {
+                setHub(h);
+                if (preset !== "prepend") setPreset("");
+              }}
+            />
+          )}
           <label className="flex items-center gap-2 text-sm font-semibold">
             {t({ en: "Packet to", ja: "宛先" })}
             <select
@@ -375,7 +396,8 @@ export function RoutingLab() {
             const ly = narrow ? { dx: 150, vpn1: 210, vpn2: 270 }[l.id]! : ys[l.id];
             const lw = narrow ? 96 : 150;
             return (
-              <g key={l.id} opacity={dim ? 0.35 : 1}>
+              // A road that is down is drawn as a faint grey dashed line.
+              <g key={l.id} opacity={!l.up ? 0.25 : dim ? 0.35 : 1}>
                 <path
                   d={dPath}
                   fill="none"
@@ -386,12 +408,12 @@ export function RoutingLab() {
                 <path
                   d={dPath}
                   fill="none"
-                  stroke={COLOR[l.id]}
+                  stroke={l.up ? COLOR[l.id] : "var(--asphalt-2)"}
                   strokeWidth={win ? 7 : 5}
                   strokeLinecap="round"
                   strokeDasharray={
                     !l.up
-                      ? "2 9"
+                      ? "6 8"
                       : l.id === "vpn2"
                         ? "4 6"
                         : l.path === "vpn"
@@ -428,7 +450,8 @@ export function RoutingLab() {
                     fontSize={narrow ? 14 : 16}
                     fill="var(--ink)"
                   >
-                    {narrow && l.id === "dx" ? "DX" : t(NAME[l.id])} {l.up ? "" : "✕"}
+                    {narrow && l.id === "dx" ? "DX" : t(NAME[l.id])}
+                    {l.up ? "" : "\u00a0\u00a0✕"}
                   </text>
                 </g>
               </g>
