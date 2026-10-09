@@ -14,6 +14,7 @@ describe("cidr", () => {
     expect(parseCidr("0.0.0.0/0")).toEqual({ base: 0, len: 0 });
     expect(parseCidr("10.0.0.0/33")).toBeNull();
     expect(parseCidr("10.0.0.0")).toBeNull();
+    expect(parseCidr("10.0.0.0/24/x")).toBeNull();
   });
 
   it("tests membership", () => {

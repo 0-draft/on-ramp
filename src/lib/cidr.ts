@@ -19,7 +19,9 @@ export interface Cidr {
 }
 
 export function parseCidr(s: string): Cidr | null {
-  const [ip, l] = s.trim().split("/");
+  const parts = s.trim().split("/");
+  if (parts.length !== 2) return null;
+  const [ip, l] = parts;
   const base = ipToInt(ip ?? "");
   const len = Number(l);
   if (base === null || !/^\d{1,2}$/.test(l ?? "") || len > 32) return null;

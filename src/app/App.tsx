@@ -1,4 +1,5 @@
 import { Header } from "@/components/layout/Header";
+import { useLang } from "@/i18n/useLang";
 import { Footer } from "@/components/layout/Footer";
 import { Hero } from "@/features/hero/Hero";
 import { WhySection } from "@/features/why/WhySection";
@@ -21,13 +22,14 @@ import { CostSection } from "@/features/cost/CostSection";
 import { PlanSection } from "@/features/plan/PlanSection";
 
 export default function App() {
+  const { t } = useLang();
   return (
     <>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-[var(--lane)] focus:px-4 focus:py-2 focus:text-black"
       >
-        Skip to content
+        {t({ en: "Skip to content", ja: "本文へスキップ" })}
       </a>
       <Header />
       <main id="main" className="mx-auto max-w-6xl px-4 sm:px-6">
