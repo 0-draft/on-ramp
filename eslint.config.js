@@ -36,6 +36,14 @@ export default defineConfig(
     },
   },
   {
+    // Tests get Vitest globals and jest-dom types from their own tsconfig, so
+    // app code cannot accidentally type-check against them.
+    files: ["src/**/*.test.{ts,tsx}", "src/test-setup.ts"],
+    languageOptions: {
+      parserOptions: { projectService: false, project: "./tsconfig.test.json" },
+    },
+  },
+  {
     // vite.config.ts runs in Node and is type-checked via tsconfig.node.json.
     files: ["vite.config.ts", "playwright.config.ts", "e2e/**/*.ts"],
     languageOptions: {
