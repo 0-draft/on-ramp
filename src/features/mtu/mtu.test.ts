@@ -34,7 +34,9 @@ describe("classify", () => {
 
   it("uses PMTUD where AWS documents it", () => {
     expect(classify(MTU_PATH.internet, 1501)).toBe("pmtud");
-    expect(classify(MTU_PATH.connect, 1500)).toBe("pmtud");
+    // AWS documents PMTUD on Connect only at its own 8500 limit, not at the
+    // 1476 boundary of a 1500 underlay.
+    expect(classify(MTU_PATH.connect, 1500)).toBe("unknown");
   });
 
   it("does not claim behavior AWS does not document", () => {

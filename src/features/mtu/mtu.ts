@@ -58,7 +58,7 @@ export const MTU_PATHS: MtuPath[] = [
     clamp: false,
     note: {
       en: "1500 through an internet gateway. Path MTU Discovery works, but only if your firewalls let ICMP type 3 code 4 (fragmentation needed) through.",
-      ja: "インターネットゲートウェイ経由は 1500。Path MTU Discovery は機能するが、ファイアウォールが ICMP type 3 code 4 (fragmentation needed) を通す場合に限る。",
+      ja: "インターネットゲートウェイ経由は 1500。パス MTU 検出 (PMTUD) は機能するが、ファイアウォールが ICMP type 3 code 4 (fragmentation needed) を通す場合に限る。",
     },
   },
   {
@@ -152,11 +152,11 @@ export const MTU_PATHS: MtuPath[] = [
     mtu: 1476,
     outer: 1500,
     wrappers: [{ label: { en: "Outer IP + GRE", ja: "外側 IP + GRE" }, bytes: 24 }],
-    pmtud: "yes",
+    pmtud: "undocumented",
     clamp: true,
     note: {
-      en: "GRE costs 24 bytes: 1476 inside a 1500 outer MTU. Transit Gateway supports 8500 on Connect and does PMTUD for traffic entering via Connect. GRE is not encryption.",
-      ja: "GRE は 24 バイト: 外側 1500 なら内側 1476。Transit Gateway は Connect で 8500 をサポートし、Connect から入る通信は PMTUD 対象。GRE は暗号化ではない。",
+      en: "GRE costs 24 bytes: 1476 inside a 1500 underlay. Transit Gateway itself takes 8500 on Connect and sends PMTUD messages only above that; below it, whether anyone reports a too-big packet depends on your SD-WAN appliance. GRE is not encryption.",
+      ja: "GRE は 24 バイト: 下回りが 1500 なら内側 1476。Transit Gateway 自体は Connect で 8500 まで受け、PMTUD を返すのはそれを超えたときだけ。それ未満で大きすぎるパケットを誰が知らせるかは SD-WAN 機器次第。GRE は暗号化ではありません。",
     },
   },
   {
@@ -172,7 +172,7 @@ export const MTU_PATHS: MtuPath[] = [
     clamp: true,
     note: {
       en: "8500 bytes. Larger packets are dropped, there is no PMTUD, and MSS is clamped, so TCP is fine and large UDP is not.",
-      ja: "8500 バイト。超えると破棄され、PMTUD はなく、MSS はクランプされる。TCP は大丈夫、大きな UDP はダメ。",
+      ja: "8500 バイト。超えると破棄され、PMTUD はなく、MSS はクランプされる。TCP は問題ないが、大きな UDP は通らない。",
     },
   },
 ];
