@@ -122,10 +122,15 @@ export function ApplianceLab() {
     const [bx, by] = P[b];
     let d: string;
     if (narrow) {
+      // The spoke road goes around the inspection VPC on the right, so it
+      // never looks like it passes through the firewalls.
+      const lane = 352;
       d =
         b === "onprem"
           ? `M${tx} ${ty - 24} L${bx} ${by + 24}`
-          : `M${tx} ${ty + 24} C${tx} ${ty + 80} ${bx} ${by - 80} ${bx} ${by - 24}`;
+          : b === "spoke"
+            ? `M${tx + HALF.tgw} ${ty} C${lane} ${ty} ${lane} ${ty} ${lane} ${ty + 40} L${lane} ${by - 40} C${lane} ${by} ${lane} ${by} ${bx + HALF.spoke} ${by}`
+            : `M${tx} ${ty + 24} C${tx} ${ty + 80} ${bx} ${by - 80} ${bx} ${by - 24}`;
     } else if (b === "onprem") {
       d = `M${tx - HALF.tgw} ${ty} L${bx + HALF.onprem} ${by}`;
     } else {

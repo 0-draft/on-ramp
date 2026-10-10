@@ -230,7 +230,7 @@ function ExitLink({ to }: { to: string }) {
   return (
     <a
       href={`#${to}`}
-      className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--sign)] px-2 py-1 text-xs font-bold whitespace-nowrap text-[var(--sign-ink)]"
+      className="ml-auto inline-flex shrink-0 items-center gap-1 rounded-md bg-[var(--sign)] px-2 py-1 text-xs font-bold whitespace-nowrap text-[var(--sign-ink)]"
     >
       <span className="rounded-sm bg-[var(--sign-ink)] px-1 text-[var(--sign)]">
         {exitOf(to)}

@@ -207,7 +207,8 @@ export function Header() {
           onScroll={updateFade}
           className="hidden min-w-0 flex-1 snap-x overflow-x-auto scroll-px-2 [scrollbar-width:none] sm:block"
           style={{
-            maskImage: `linear-gradient(to right, ${fade.left ? "transparent" : "#000"}, #000 3.5rem, #000 calc(100% - 3.5rem), ${fade.right ? "transparent" : "#000"})`,
+            // The outer 1.25rem is fully clear, so a cut-off label never shows as a ghost.
+            maskImage: `linear-gradient(to right, ${fade.left ? "transparent" : "#000"}, ${fade.left ? "transparent 1.25rem" : "#000 1.25rem"}, #000 3.5rem, #000 calc(100% - 3.5rem), ${fade.right ? "transparent calc(100% - 1.25rem)" : "#000 calc(100% - 1.25rem)"}, ${fade.right ? "transparent" : "#000"})`,
           }}
         >
           <ol className="flex gap-1 whitespace-nowrap">
