@@ -50,8 +50,8 @@ const TYPE_ORDER: Record<Hub, L> = {
     ja: "DX (BGP) > VPN (静的) > VPN (BGP)",
   },
   tgw: {
-    en: "Static (incl. static VPN) > prefix list > VPC > DX gateway > Connect > Private IP VPN > VPN (BGP)",
-    ja: "静的ルート (静的 VPN 含む) > プレフィックスリスト > VPC > DX ゲートウェイ > Connect > プライベート IP VPN > VPN (BGP)",
+    en: "Static (incl. static VPN) > prefix list > VPC > DX gateway > Connect > Private IP VPN > VPN (BGP) > VPN Concentrator > Client VPN > TGW peering (Cloud WAN)",
+    ja: "静的ルート (静的 VPN 含む) > プレフィックスリスト > VPC > DX ゲートウェイ > Connect > プライベート IP VPN > VPN (BGP) > VPN コンセントレータ > Client VPN > TGW ピアリング (Cloud WAN)",
   },
   cloudwan: {
     en: "Static first; then AS_PATH and MED; only then DX > Connect > VPN",
@@ -178,8 +178,9 @@ export function RoutingLab() {
   const [dst, setDst] = useState(p0.dst);
   const [ecmp, setEcmp] = useState(p0.ecmp);
   const [lanes, setLanes] = useState<Lane[]>(() => p0.lanes(base()));
-  // The scenario key whose answer has been revealed (by a guess). Any change
-  // to the scenario re-arms the question.
+  // The scenario key whose answer has been revealed (by a right guess or by
+  // asking for it). Any change to the scenario re-arms the question, and the
+  // ladder hides its verdict until that scenario is answered too.
   const [answered, setAnswered] = useState<string | null>(null);
 
   const applyPreset = (p: Preset) => {
@@ -565,7 +566,9 @@ export function RoutingLab() {
           options={choices}
           answer={answer}
           resetKey={key}
-          onPick={() => setAnswered(key)}
+          onPick={(_id, right) => {
+            if (right) setAnswered(key);
+          }}
           why={
             note ? (
               <Callout tone="warn">{t(note)}</Callout>
@@ -610,33 +613,51 @@ export function RoutingLab() {
                         </span>
                       )}
                     </span>
-                    {s.dropped.map((id) => (
-                      <span
-                        key={id}
-                        className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
-                        style={{ background: "var(--paper-2)", color: COLOR[id] }}
-                      >
-                        {t(NAME[id])}
-                      </span>
-                    ))}
-                    {s.kept.map((id) => (
-                      <span
-                        key={id}
-                        className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
-                        style={{ background: COLOR[id] }}
-                      >
-                        {t(NAME[id])}
-                      </span>
-                    ))}
+                    {revealed &&
+                      s.dropped.map((id) => (
+                        <span
+                          key={id}
+                          className="rounded px-2 py-0.5 text-xs font-bold line-through opacity-70"
+                          style={{ background: "var(--paper-2)", color: COLOR[id] }}
+                        >
+                          {t(NAME[id])}
+                        </span>
+                      ))}
+                    {revealed &&
+                      s.kept.map((id) => (
+                        <span
+                          key={id}
+                          className="rounded px-2 py-0.5 text-xs font-bold text-[var(--on-color)]"
+                          style={{ background: COLOR[id] }}
+                        >
+                          {t(NAME[id])}
+                        </span>
+                      ))}
                   </li>
                 ))}
               <li className="border-t border-[var(--line)] pt-3 font-bold">
-                {d.winners.length === 0
-                  ? t({
-                      en: "No usable route: the packet is dropped.",
-                      ja: "使える経路なし: パケットは破棄されます。",
-                    })
-                  : `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`}
+                {!revealed ? (
+                  <span className="flex flex-wrap items-center gap-3 font-semibold text-[var(--muted)]">
+                    {t({
+                      en: "Answer the question above for this scenario to see which road wins.",
+                      ja: "このシナリオの質問に答えると、どの道が勝つか表示されます。",
+                    })}
+                    <button
+                      type="button"
+                      onClick={() => setAnswered(key)}
+                      className="min-h-9 rounded-lg border border-[var(--line)] px-3 text-sm font-bold text-[var(--ink)]"
+                    >
+                      {t({ en: "Show the result", ja: "結果を表示" })}
+                    </button>
+                  </span>
+                ) : d.winners.length === 0 ? (
+                  t({
+                    en: "No usable route: the packet is dropped.",
+                    ja: "使える経路なし: パケットは破棄されます。",
+                  })
+                ) : (
+                  `${t({ en: "Result", ja: "結果" })}: ${d.winners.map((w) => t(NAME[w])).join(" + ")}${d.ecmp ? " (ECMP)" : ""}`
+                )}
               </li>
               {lanes.some((l) => l.present && lostAt(l.id) === "unsupported") && (
                 <li className="pt-2 text-sm text-[var(--muted)]">

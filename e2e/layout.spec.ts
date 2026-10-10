@@ -140,14 +140,20 @@ test("the routing lab reveals why after a guess", async ({ page }) => {
   const lab = page.locator("section#routing");
   await lab.getByRole("button", { name: "Static VPN as backup" }).click();
   await lab.getByRole("button", { name: "Direct Connect", exact: true }).click();
-  await expect(lab.getByText("Not quite.")).toBeVisible();
+  // A wrong pick only says so; the answer and the lab stay hidden.
+  await expect(lab.getByText("Not quite. Try another.")).toBeVisible();
+  await expect(lab.getByText("Result: VPN 1")).toHaveCount(0);
+  await lab.getByRole("button", { name: "VPN 1", exact: true }).click();
   await expect(lab.getByText("Result: VPN 1")).toBeVisible();
-  // Changing the scenario re-arms the question but keeps the lab open.
+  // Changing the scenario re-arms the question but keeps the lab open; the
+  // verdict waits until the new scenario is answered or revealed.
   // Phones get a <select> for the hub, wider screens a radio group.
   const hubSelect = lab.locator("select:has(option[value=vgw])");
   if (await hubSelect.count()) await hubSelect.selectOption("vgw");
   else await lab.getByRole("radio", { name: "Virtual private gateway" }).click();
-  await expect(lab.getByText("Not quite.")).toHaveCount(0);
+  await expect(lab.getByText("How the hub decided, rule by rule")).toBeVisible();
+  await expect(lab.getByText(/^Result:/)).toHaveCount(0);
+  await lab.getByRole("button", { name: "Show the result" }).click();
   await expect(lab.getByText(/^Result:/)).toBeVisible();
 });
 

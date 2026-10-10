@@ -146,6 +146,9 @@ export function decide(
     pool = keepMin(steps, "type", pool, (a) => typeRank(hub, a));
     // A VGW compares AS_PATH and MED only between BGP VPN routes; a TGW
     // compares them within one attachment type, which is all that is left.
+    // AWS also applies a VGW's MED only when the first AS in AS_PATH is the
+    // same; every lane in this lab comes from one on-prem ASN, so that
+    // condition always holds here and is not modelled.
     if (hub === "tgw" || (pool.length > 0 && pool.every(isBgpVpn))) {
       pool = keepMin(steps, "aspath", pool, pathLen);
       pool = keepMin(steps, "med", pool, (a) => medOf(hub, a));
