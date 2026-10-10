@@ -63,7 +63,7 @@ When the same office traffic is moved to an interface or gateway VPC endpoint (f
 
 Through endpoints use `aws:SourceVpce` (endpoint ID), `aws:SourceVpc` (VPC ID) or `aws:VpcSourceIp` (the private client IP as seen by the endpoint), and always combine `aws:VpcSourceIp` with `aws:SourceVpc`, `aws:SourceVpce` or `aws:SourceVpcArn` because private CIDRs overlap across unrelated VPCs.
 
-A policy that must work both from the internet and through an endpoint needs an `OR`: one statement for `aws:SourceIp` and one for `aws:SourceVpce`.
+A policy that must work both from the internet and through an endpoint needs an `OR`. With `Allow`, write two statements, one for `aws:SourceIp` and one for `aws:SourceVpce` (statements are ORed). With `Deny`, write one statement that carries both conditions (`NotIpAddress` on `aws:SourceIp` and `StringNotEquals` on `aws:SourceVpce`), because two separate `Deny` statements would each block the other path.
 
 `Deny` statements on these keys can block AWS services acting on your behalf (forward access sessions); add `aws:ViaAWSService` or `aws:PrincipalIsAWSService` exceptions.
 
@@ -123,7 +123,7 @@ Inbound, you must own the public prefixes you advertise (registered with an RIR)
 
 Direct Connect is not encrypted by default; for encryption use TLS end to end (all S3 and API calls already use HTTPS), Site-to-Site VPN over a public or transit VIF, or MACsec on 10/100 Gbps dedicated connections.
 
-Without a public VIF, the same on-premises client resolves `s3.<region>.amazonaws.com` to public IPs and goes out through the corporate internet egress; to keep it on a private VIF instead, use an S3 interface endpoint and endpoint-specific DNS names (or private DNS with a Route 53 Resolver inbound endpoint), because gateway endpoints do not carry traffic that enters the VPC from VPN, Direct Connect or a transit gateway.
+Without a public VIF, the same on-premises client resolves `s3.<region>.amazonaws.com` to public IPs and goes out through the corporate internet egress; to keep it on a private VIF instead, use an S3 interface endpoint and endpoint-specific DNS names (or private DNS with a Route 53 VPC Resolver inbound endpoint), because gateway endpoints do not carry traffic that enters the VPC from VPN, Direct Connect or a transit gateway.
 
 ```mermaid
 flowchart LR

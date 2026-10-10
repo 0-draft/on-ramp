@@ -4,7 +4,7 @@ This page covers how a corporate network (data center, office, branch) reaches A
 
 ## The one rule that explains everything
 
-A VPC does not provide transitive routing for gateway-type constructs: traffic that enters a VPC from a VPN, DX, peering or Transit Gateway attachment cannot leave through that VPC's internet gateway, NAT gateway or *gateway endpoint*. Anything that must be reachable from outside the VPC has to be an IP address that lives *in* the VPC, which is what an interface endpoint (an ENI with a private IP) is.
+A VPC does not provide transitive routing for gateway-type constructs: traffic that enters a VPC from a VPN, DX, peering or Transit Gateway attachment cannot leave through that VPC's internet gateway or *gateway endpoint* (a NAT gateway is different: centralized egress through a NAT gateway behind a TGW works, see 08-internet-paths.md). Anything that must be reachable from outside the VPC has to be an IP address that lives *in* the VPC, which is what an interface endpoint (an ENI with a private IP) is.
 
 That is why the S3 and DynamoDB documentation both state that gateway endpoints "do not allow access from on-premises networks, from peered VPCs in other AWS Regions, or through a transit gateway", while interface endpoints "allow access from on premises".
 
@@ -56,7 +56,7 @@ An interface endpoint is one ENI per selected subnet (one subnet per AZ), each w
 
 Every interface endpoint gets endpoint-specific *Regional* and *Zonal* names, for example `vpce-0abc-1234.s3.ap-northeast-1.vpce.amazonaws.com` and `vpce-0abc-1234-ap-northeast-1a.s3.ap-northeast-1.vpce.amazonaws.com`. These are in public DNS but answer with the endpoint's private IPs, so an on-prem host can use them with no hybrid DNS at all, as long as it can route to the VPC. The catch: the application must be configured with that custom endpoint URL.
 
-With **private DNS** enabled (the default for AWS services; requires the VPC attributes `enableDnsSupport` and `enableDnsHostnames`), AWS attaches a hidden, AWS-managed private hosted zone to the VPC so the *default* service name, such as `kms.ap-northeast-1.amazonaws.com`, resolves to the endpoint IPs, but only for queries answered by that VPC's Resolver. The records are private and "not publicly resolvable". An on-prem host therefore only sees the private answer if its DNS query is forwarded into the VPC through a Route 53 Resolver inbound endpoint (see [10-hybrid-dns.md](10-hybrid-dns.md)).
+With **private DNS** enabled (the default for AWS services; requires the VPC attributes `enableDnsSupport` and `enableDnsHostnames`), AWS attaches a hidden, AWS-managed private hosted zone to the VPC so the *default* service name, such as `kms.ap-northeast-1.amazonaws.com`, resolves to the endpoint IPs, but only for queries answered by that VPC's Resolver. The records are private and "not publicly resolvable". An on-prem host therefore only sees the private answer if its DNS query is forwarded into the VPC through a Route 53 VPC Resolver inbound endpoint (see [10-hybrid-dns.md](10-hybrid-dns.md)).
 
 ### S3: interface endpoint and "private DNS only for inbound endpoint"
 
@@ -163,7 +163,7 @@ Worked example: an S3 interface endpoint in 2 AZs in Tokyo with 5 TB/month from 
 
 - **Gateway endpoint from on-prem**: it is a route table target, not an IP, so on-prem traffic to S3 over DX private VIF simply has no path. Use an interface endpoint or a public VIF.
 - **Private DNS works in the VPC but not on-prem**: on-prem resolvers ask public DNS, which returns public IPs, and traffic then goes over the internet or is blocked. Forward the service names to an inbound Resolver endpoint, or use the `vpce-` names.
-- **Forwarding all of `amazonaws.com` to AWS**: works, but every AWS name on-prem becomes dependent on the inbound endpoint and its 10,000 QPS per ENI; forward only the service names you have endpoints for (for example `s3.ap-northeast-1.amazonaws.com`).
+- **Forwarding all of `amazonaws.com` to AWS**: works, but every AWS name on-prem becomes dependent on the inbound endpoint and its 10,000 UDP queries per second per endpoint IP (about 1,500 with connection tracking); forward only the service names you have endpoints for (for example `s3.ap-northeast-1.amazonaws.com`).
 - **DynamoDB private hosted zone override**: explicitly unsupported; use the endpoint URL.
 - **S3 "inbound only" without a gateway endpoint**: the API refuses it; without the gateway endpoint in-VPC traffic would otherwise pay endpoint processing.
 - **S3 "inbound only" endpoint from spoke VPCs**: with `PrivateDnsOnlyForInboundResolverEndpoint` on, queries from VPCs resolve S3 to public IPs, so sharing the zone (for example through a Route 53 Profile) most likely still gives spokes public IPs. Give each spoke its own free S3 gateway endpoint, or have it call the endpoint-specific `vpce-` name. (Inference: no AWS page documents Profiles combined with this flag.)

@@ -51,7 +51,7 @@ The source is organized by feature: `src/features/<section>/` holds a section, i
 
 | Workflow | What it does |
 | --- | --- |
-| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E and axe WCAG 2.2 AA checks (desktop and phone, EN and JA, light and dark), actionlint, `npm audit`, dependency review on PRs; then deploys to GitHub Pages when everything on `main` is green |
+| `ci.yml` | typecheck, ESLint, Prettier, markdownlint, build, tests with coverage, Playwright E2E and axe WCAG 2.2 AA checks (desktop and phone, EN and JA, light and dark), actionlint, `npm audit`, dependency review on PRs; then deploys to GitHub Pages when every check on `main` passes (`npm audit` is advisory) |
 | `codeql.yml` | CodeQL for JavaScript/TypeScript and GitHub Actions |
 | `freshness.yml` | Opens a monthly issue to re-verify prices, quotas and launches |
 | Dependabot | Weekly grouped updates for npm and GitHub Actions |

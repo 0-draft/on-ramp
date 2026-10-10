@@ -51,10 +51,10 @@ Each rule reads `if <condition> then <recommendation>`. Earlier rules win. `alt`
 11. `who = site AND (needs_consistent_latency OR bw > 5 Gbps OR internet_not_allowed)` → **Direct Connect**; dedicated if `bw >= 1 Gbps AND own_presence`, hosted if partner-delivered or `bw < 1 Gbps`, **Interconnect – last mile** if `country = US AND partner_available`.
 12. `uses_dx AND regions = 1` → **P2**: DX ×2 locations + DXGW + TGW + Site-to-Site VPN backup.
 13. `uses_dx AND regions > 1` → **P3**: DXGW + Cloud WAN (native DXGW attachment since 2024-11) or DXGW + TGW per Region with TGW peering.
-14. `uses_dx AND encryption_required AND dedicated_speed >= 10 Gbps AND macsec_location` → **MACsec**; else **Private IP VPN over transit VIF** (needs TGW).
+14. `uses_dx AND encryption_required AND dedicated_speed >= 10 Gbps AND macsec_location AND (own_port OR carrier_is_l2_transparent)` → **MACsec** (it needs a dedicated port and a direct Layer 2 adjacency, so it does not cover a hosted connection or a carrier that is not L2 transparent); else **Private IP VPN over transit VIF** (needs TGW).
 15. `internet_egress_allowed = false` → **P5 closed network**: no IGW (enforce with VPC Block Public Access), interface endpoints, Resolver endpoints, Route 53 Profiles.
 16. `cidr_overlaps_with_onprem_or_acquired = true` → **P7 overlap pattern**: service-level exposure (PrivateLink / Lattice resource configurations) first, private NAT gateway second, re-IP long term.
-17. `workload_critical = true AND uses_dx` → resiliency **Maximum** (99.99% SLA: separate connections on separate devices in at least two DX locations), else **High** (99.9%), and **Development and test** only for non-critical.
+17. `workload_critical = true AND uses_dx` → resiliency **Maximum** (99.99% SLA: two or more connections on separate devices in each of two or more DX locations, four or more in total; needs Enterprise Support and a Well-Architected Review), else **High** (99.9%: one connection in each of two or more locations; needs Enterprise Support), and **Development and test** only for non-critical.
 
 ## Pattern P1: small office, one VPC (VPN to VGW)
 
@@ -89,7 +89,7 @@ flowchart LR
 - Components: two or more DX connections in **different DX locations**, transit VIFs to one DXGW, DXGW associated with a TGW (the DXGW and TGW must use different ASNs), and a Site-to-Site VPN attachment on the same TGW as backup.
 - Failover logic: on a TGW, for the same prefix, Direct Connect gateway–propagated routes beat VPN-propagated routes no matter what the BGP attributes say. More specific prefixes still win first. So advertise the same prefixes over both paths, and do not advertise more-specifics over the VPN.
 - MTU: a transit VIF supports 1500 or 8500. VPN traffic is limited to about 1446 bytes, so mixed paths need MSS clamping on premises.
-- Well-Architected: REL02-BP02 recommends redundant connectivity. It describes Maximum resiliency (99.99%) as separate connections on distinct devices in more than one DX location, High resiliency (99.9%) as two connections in multiple locations, and Site-to-Site VPN on TGW as a cost-effective backup.
+- Well-Architected: REL02-BP02 recommends redundant connectivity. It describes Maximum resiliency (99.99%) as two or more connections on distinct devices in each of more than one DX location (four or more in total), High resiliency (99.9%) as one connection in each of two or more locations, and Site-to-Site VPN on TGW as a cost-effective backup.
 - Test it: since 2025-12, AWS Fault Injection Service can disrupt BGP on a VIF to prove failover.
 
 ## Pattern P3: multi-Region (DXGW + TGW per Region, or Cloud WAN)
@@ -108,7 +108,7 @@ flowchart LR
 - Option A, **DXGW + TGW per Region**: one DXGW can be associated with TGWs in several Regions. Each TGW needs a unique ASN. East-west traffic between Regions uses TGW peering, because a DXGW does not pass traffic between its associations.
 - Option B, **Cloud WAN**: since 2024-11 a DXGW can attach directly to a Cloud WAN core network without an intermediate TGW. Segments and service insertion (2024-06) are written once in the core network policy. Routing Policy (2025-11) adds filtering, summarization and BGP attributes.
 - When to pick B: more than two or three Regions, or teams that want segmentation and inspection as policy instead of per-Region route tables. A DXGW associated with a core network cannot be used with other gateway types at the same time.
-- Quota to watch: a DXGW supports a limited number of TGW associations (an AWS industries blog cites six, default and non-adjustable). Check the current Direct Connect quotas page before a design review.
+- Quota to watch: a DXGW supports at most six TGW associations (not adjustable; see [04-direct-connect.md](04-direct-connect.md)). Check the current Direct Connect quotas page before a design review.
 
 ## Pattern P4: SD-WAN integration
 
@@ -137,7 +137,7 @@ flowchart LR
   end
   CR -->|"Carrier closed network / DX hosted"| DX1["DX Tokyo-area"]
   CR -->|"Carrier closed network / DX hosted"| DX2["DX Osaka-area"]
-  DX1 -->|"Transit VIF + MACsec or Private IP VPN"| DXGW["DXGW"]
+  DX1 -->|"Transit VIF + Private IP VPN (MACsec only on an own dedicated port)"| DXGW["DXGW"]
   DX2 --> DXGW
   DXGW -.-> TGW["TGW"]
   TGW --> NET["Network account VPC"]
@@ -150,10 +150,10 @@ flowchart LR
 ```
 
 - Underlay: Direct Connect, often as a hosted connection delivered by a carrier's closed IP-VPN, landing in DX locations in two different metro areas for location redundancy.
-- Encryption: MACsec on 10/100/400 Gbps dedicated ports at supported locations, or **Private IP VPN** (IPsec with RFC 1918 / RFC 6598 outside addresses over a transit VIF, which requires a TGW). The Private IP VPN docs list finance, healthcare and federal compliance as primary use cases.
+- Encryption: MACsec on 10/100/400 Gbps dedicated ports at supported locations (not on a hosted connection, and over a carrier circuit only if it is Layer 2 transparent), or **Private IP VPN** (IPsec with RFC 1918 / RFC 6598 outside addresses over a transit VIF, which requires a TGW). The Private IP VPN docs list finance, healthcare and federal compliance as primary use cases.
 - No internet: no IGW or NAT gateway in workload VPCs. Enforce this with **VPC Block Public Access** (2024-11), which overrides route tables and IGW attachments.
-- AWS API access: **interface endpoints** for every service the workload calls, centralized in a network or shared-services VPC and shared through Route 53 private hosted zones or Route 53 Profiles. Do not use S3 *gateway* endpoints for on-premises clients, because they cannot cross from on-premises. Use the S3 interface endpoint instead.
-- DNS: on-premises DNS forwards `amazonaws.com` (or the specific service zones) and internal AWS zones to the **Resolver inbound endpoint**. AWS-side workloads forward corporate zones to on-premises through **outbound endpoints and Resolver rules**. Since 2025-06, inbound and outbound delegation with NS records is an alternative to conditional forwarding.
+- AWS API access: **interface endpoints** for every service the workload calls, centralized in a network or shared-services VPC and shared through Route 53 private hosted zones or Route 53 Profiles. S3 *gateway* endpoints cannot serve on-premises clients, so give on-premises an S3 interface endpoint; keep a free S3 gateway endpoint in the VPC (it is required for "private DNS only for inbound endpoint"), and give each spoke VPC its own.
+- DNS: on-premises DNS forwards `amazonaws.com` (or the specific service zones) and internal AWS zones to the **Route 53 VPC Resolver inbound endpoint**. AWS-side workloads forward corporate zones to on-premises through **outbound endpoints and VPC Resolver forwarding rules**. Since 2025-06, inbound and outbound delegation with NS records is an alternative to conditional forwarding.
 - Prove it: VPC Encryption Controls (2025-11, a paid feature since 2026-03) can monitor or enforce encryption in transit inside and across VPCs. Pair it with VPC Flow Logs and Network Access Analyzer.
 - Japanese reference material: AWS Japan's *金融リファレンスアーキテクチャ日本版* (Financial Services Reference Architecture Japan) and the 2026 AWS Black Belt seminar on Direct Connect redundant connections.
 

@@ -12,7 +12,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | VPN tunnel | VPN トンネル | ✓ | One IPsec security association path; 1.25 Gbps standard, 5 Gbps large | VPN connection |
 | Customer gateway | カスタマーゲートウェイ | ✓ | The AWS resource that *describes* your on-premises VPN device (IP, ASN, certificate) | Customer gateway device |
 | Customer gateway device | カスタマーゲートウェイデバイス | ✓ | The physical or software router or firewall on your side | Customer gateway |
-| Accelerated Site-to-Site VPN | 高速 Site-to-Site VPN 接続 (高速 VPN) | ✓ | VPN that enters AWS at the nearest Global Accelerator edge; TGW or Cloud WAN only | Large bandwidth tunnel |
+| Accelerated Site-to-Site VPN | 高速 Site-to-Site VPN 接続 (高速 VPN) | ✓ | VPN that enters AWS at the nearest Global Accelerator edge; Transit Gateway only (including the VPN Concentrator), not VGW or Cloud WAN | Large bandwidth tunnel |
 | Large bandwidth tunnel | 広帯域幅トンネル (LBT) | – | Site-to-Site VPN tunnel option of up to 5 Gbps (2025-11); TGW or Cloud WAN only | Accelerated VPN |
 | VPN Concentrator | Site-to-Site VPN コンセントレータ | ✓ | Site-to-Site VPN feature that puts many low-bandwidth sites behind one TGW attachment (2025-11) | The VGW, which the Japanese docs also describe as the "VPN コンセントレータ" on the AWS side |
 | Private IP VPN | プライベート IP VPN (ja doc title: 「AWS Site-to-Site VPN を使用したプライベート IP Direct Connect」) | – | IPsec VPN over a DX transit VIF using private outside addresses; requires TGW | Public VIF VPN |
@@ -22,15 +22,15 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Hosted connection | ホスト接続 (ホスト型接続 also appears) | ✓ | Partner-provisioned logical connection, 50 Mbps–25 Gbps, one VIF | Hosted VIF |
 | Cross connect | クロスコネクト | – | Physical cable inside the colocation facility between your (or your carrier's) equipment and the AWS port | Direct Connect connection |
 | LOA-CFA | LOA-CFA (英語のまま) | ✓ | Letter of Authorization and Connecting Facility Assignment, which authorizes the cross connect | — |
-| Link aggregation group (LAG) | リンク集約グループ (LAG) | ✓ | Bundle of same-speed dedicated connections at one location acting as one | ECMP across locations |
+| Link aggregation group (LAG) | リンク集約グループ (LAG) | ✓ | Bundle of same-speed dedicated connections on one AWS device at one location, acting as one | ECMP across locations |
 | Virtual interface (VIF) | 仮想インターフェイス | ✓ | VLAN plus BGP session on a DX connection | VPN tunnel |
 | Private VIF | プライベート仮想インターフェイス | ✓ | VIF to a VGW or DXGW for VPC private IPs (MTU 1500/9001) | Transit VIF |
 | Public VIF | パブリック仮想インターフェイス | ✓ | VIF to AWS public IP ranges (S3, APIs) | Internet |
 | Transit VIF | トランジット仮想インターフェイス | ✓ | VIF to a DXGW associated with TGW or Cloud WAN (MTU 1500/8500) | Private VIF |
-| MACsec | MACsec | ✓ | IEEE 802.1AE line-rate L2 encryption between your router and the AWS DX router | IPsec |
+| MACsec | MACsec | ✓ | IEEE 802.1AE line-rate L2 encryption between your router and the AWS DX router; needs a dedicated port, and covers a carrier circuit only if it is Layer 2 transparent | IPsec |
 | Direct Connect SiteLink | SiteLink | – | Routes traffic between your DX locations over the AWS backbone, bypassing Regions | Transit Gateway peering |
-| Resiliency Toolkit | Resiliency Toolkit / 回復性ツールキット (表記未確認) | – | DX ordering wizard with Maximum, High, and Development and test models | Failover testing |
-| AWS Interconnect – last mile | AWS Interconnect - last mile | – | Managed partner last-mile connection, 1–100 Gbps, four links in two facilities, MACsec on | Hosted connection |
+| Resiliency Toolkit | Resiliency Toolkit / 回復性ツールキット (表記未確認) | – | DX ordering wizard: Maximum, High, and Development and test models; a single connection is the fourth (95% SLA) layout | Failover testing |
+| AWS Interconnect – last mile | AWS Interconnect - last mile | – | Managed partner last-mile connection, 1–100 Gbps, MACsec on by default | Hosted connection |
 | AWS Interconnect – multicloud | AWS Interconnect - multicloud | – | Managed private L3 link between AWS and another cloud | Site-to-Site VPN to another cloud |
 | Closed network | 閉域網 / 閉域接続 | – | Japanese industry term for a private carrier network that does not touch the internet; on AWS it usually means DX plus no internet egress | Encrypted network |
 | BGP / ASN | BGP / 自律システム番号 (ASN) | ✓ | Dynamic routing protocol and the number that identifies each side; DXGW and TGW ASNs must differ | Static routing |
@@ -45,13 +45,13 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Transit Gateway (TGW) | Transit Gateway (トランジットゲートウェイ) | ✓ | Regional L3 hub for VPCs, VPN, DX, Connect and peering attachments | Direct Connect gateway |
 | Attachment | アタッチメント | ✓ | One connection of a VPC, VPN, DXGW, Connect or peer to a TGW or Cloud WAN | Association |
 | TGW route table | Transit Gateway ルートテーブル | ✓ | Routing domain inside a TGW | VPC route table |
-| Association | 関連付け | ✓ | Which TGW route table an attachment uses for lookups (exactly one) | Propagation |
+| Association | 関連付け | ✓ | The one TGW route table (or, since 2026-07, policy table) an attachment uses for lookups | Propagation |
 | Propagation | ルート伝播 (ルート伝達 also appears) | ✓ | Attachment installs its routes into one or more TGW route tables | Association |
 | Connect attachment | Transit Gateway Connect アタッチメント | ✓ | GRE + BGP attachment for SD-WAN appliances over a VPC or DX transport | VPN attachment |
 | Peering attachment | ピアリングアタッチメント | ✓ | TGW-to-TGW link, typically between Regions | VPC peering |
 | Appliance mode | アプライアンスモード | ✓ | Keeps both directions of a flow in one AZ for stateful inspection VPCs | — |
 | ECMP | 等コストマルチパス (ECMP) ルーティング | ✓ | Spreads traffic over equal routes; TGW yes, VGW no | LAG |
-| Policy-based routing | ポリシーベースルーティング (表記未確認) | – | TGW rules that pick a route table by source, port or protocol (2026-07) | Route table association |
+| Policy-based routing | ポリシーベースルーティング (表記未確認) | – | TGW policy-table rules that pick a route table by source or destination CIDR, port or protocol; traffic matching no rule is dropped (2026-07) | Route table association |
 | AWS Cloud WAN | AWS Cloud WAN | – | Managed global WAN defined by a core network policy | Transit Gateway |
 | Core network | コアネットワーク | – | The AWS-managed part of a Cloud WAN global network | Global network |
 | Core network edge | コアネットワークエッジ | – | Per-Region Cloud WAN router managed by AWS | Transit Gateway |
@@ -67,7 +67,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Internet gateway | インターネットゲートウェイ | ✓ | VPC attachment for public internet traffic | NAT gateway |
 | Private NAT gateway | プライベート NAT ゲートウェイ | – | NAT to private addresses, used for overlapping CIDRs | NAT gateway |
 | VPC peering connection | VPC ピアリング接続 | ✓ | One-to-one VPC link; not transitive, no edge-to-edge routing | Transit Gateway |
-| VPC Block Public Access | VPC のパブリックアクセスをブロック (表記未確認) | – | Account or Region control that overrides routes and blocks IGW traffic | Network ACL |
+| VPC Block Public Access | VPC Block Public Access (表記未確認) | – | Account or Region control that overrides routes and blocks IGW traffic | Network ACL |
 | VPC Encryption Controls | VPC 暗号化コントロール (表記未確認) | – | Monitor or enforce encryption in transit for VPC traffic (2025-11) | MACsec |
 | Gateway endpoint | ゲートウェイエンドポイント | ✓ | Route-table target for S3 or DynamoDB; not usable from on-premises | Interface endpoint |
 | Interface endpoint | インターフェイスエンドポイント | ✓ | ENI with a private IP for an AWS or partner service; reachable from on-premises | Gateway endpoint |
@@ -80,7 +80,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Outbound endpoint | アウトバウンドエンドポイント (VPC Resolver) | ✓ | Resolver's way out to on-premises DNS, driven by Resolver rules | Inbound endpoint |
 | Resolver rule | Resolver ルール / 転送ルール | ✓ | Per-domain forwarding instruction for outbound endpoints | Private hosted zone |
 | Private hosted zone | プライベートホストゾーン | ✓ | Route 53 zone visible only to associated VPCs | Public hosted zone |
-| Route 53 Profiles | Route 53 プロファイル (表記未確認) | – | Shareable bundle of PHZs, Resolver rules and DNS Firewall for many VPCs (2024-04) | Resolver rule sharing |
+| Route 53 Profiles | Route 53 Profiles (表記未確認) | – | Shareable bundle of PHZs, Resolver rules, DNS Firewall rule groups and interface endpoint DNS for many VPCs (2024-04) | Resolver rule sharing |
 | Route 53 Global Resolver | Route 53 Global Resolver | – | Anycast resolver for authorized clients anywhere (GA 2026-03) | VPC Resolver |
 
 ## People and data paths
@@ -91,7 +91,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | Client VPN endpoint | Client VPN エンドポイント | ✓ | The server-side resource users connect to | VPC endpoint |
 | Target network | ターゲットネットワーク | ✓ | Subnet (or, since 2026-04, TGW) a Client VPN endpoint is associated with | Client CIDR |
 | Authorization rule | 承認ルール (認可ルール also appears) | ✓ | Which networks a user group may reach through Client VPN | Security group |
-| Split tunnel | スプリットトンネルモード | ✓ | Only AWS-bound routes go through the VPN | Full tunnel |
+| Split tunnel | スプリットトンネルモード | ✓ | Only the routes in the endpoint's route table go through the VPN (they can include on-premises); everything else uses the local internet | Full tunnel |
 | AWS Verified Access | AWS Verified Access | ✓ | Per-application zero-trust access with identity and device policies | Client VPN |
 | Trust provider | 信頼プロバイダー | ✓ | Identity or device-posture source for Verified Access | Identity provider |
 | Verified Access endpoint / group | Verified Access エンドポイント / グループ | ✓ | An application, and a set of applications sharing a policy | Client VPN endpoint |

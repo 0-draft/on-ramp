@@ -51,7 +51,7 @@ npm run test:e2e   # 実ブラウザでの確認 (要: npx playwright install ch
 
 | ワークフロー | 内容 |
 | --- | --- |
-| `ci.yml` | 型チェック、ESLint、Prettier、markdownlint、ビルド、カバレッジつきテスト、Playwright E2E と axe による WCAG 2.2 AA チェック (デスクトップ・スマホ、英・日、ライト・ダーク)、actionlint、`npm audit`、PR の依存関係レビュー。`main` で全部通ったら GitHub Pages へデプロイ |
+| `ci.yml` | 型チェック、ESLint、Prettier、markdownlint、ビルド、カバレッジつきテスト、Playwright E2E と axe による WCAG 2.2 AA チェック (デスクトップ・スマホ、英・日、ライト・ダーク)、actionlint、`npm audit`、PR の依存関係レビュー。`main` でチェックが全部通ったら GitHub Pages へデプロイ (`npm audit` は参考扱い) |
 | `codeql.yml` | JavaScript/TypeScript と GitHub Actions の CodeQL |
 | `freshness.yml` | 料金・クォータ・新機能の再確認 issue を毎月作成 |
 | Dependabot | npm と GitHub Actions の週次グループ更新 |

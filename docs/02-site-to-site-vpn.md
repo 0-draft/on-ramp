@@ -128,7 +128,7 @@ Large Bandwidth Tunnels launched on 2025-11-12. Constraints: TGW or Cloud WAN on
 
 Since 2026-05-06 you can modify tunnel bandwidth between Standard and Large on an existing connection while keeping tunnel IPs, inside CIDRs, PSKs and other settings. The launch post lists Tokyo and Osaka among the supported Regions. Before that date, changing bandwidth meant creating a new connection.
 
-On a transit gateway or Cloud WAN, ECMP aggregates tunnels and connections, but only with BGP. Two LBT connections give four 5 Gbps tunnels, which AWS describes as 20 Gbps aggregate. A single TCP or UDP flow is hashed onto one tunnel, so one flow never exceeds that tunnel's limit (1.25 or 5 Gbps). Public-IP and private-IP VPN connections cannot be combined in one ECMP set.
+On a transit gateway or Cloud WAN, ECMP aggregates tunnels and connections, but only with BGP. On a transit gateway it is the VPN ECMP support option; Cloud WAN enables VPN ECMP by default (`vpn-ecmp-support: true` in the core network policy). Two LBT connections give four 5 Gbps tunnels, which AWS describes as 20 Gbps aggregate. A single TCP or UDP flow is hashed onto one tunnel, so one flow never exceeds that tunnel's limit (1.25 or 5 Gbps). Public-IP and private-IP VPN connections cannot be combined in one ECMP set.
 
 ```mermaid
 flowchart LR
@@ -315,7 +315,7 @@ AWS commits to a 99.95% Monthly Uptime Percentage per Site-to-Site VPN connectio
 ## Common traps
 
 - Configuring only one tunnel. AWS replaces endpoints one tunnel at a time, so a single-tunnel setup goes down during routine maintenance.
-- Expecting more than 1.25 Gbps from a VGW. LBT, ECMP and acceleration are all TGW / Cloud WAN features; the VGW picks one egress tunnel across all of its connections.
+- Expecting more than 1.25 Gbps from a VGW. LBT and ECMP are TGW / Cloud WAN features and acceleration is TGW only; the VGW picks one egress tunnel across all of its connections.
 - Expecting ECMP with static routing. ECMP on TGW needs BGP, and the CGW must hash flows across tunnels.
 - Expecting one big transfer to use the aggregate. A single flow stays on one tunnel and is capped at 1.25 or 5 Gbps.
 - Combining Large Bandwidth Tunnels with accelerated VPN. Not supported.

@@ -166,11 +166,11 @@ flowchart LR
 
 | Date | Milestone |
 | --- | --- |
-| 2025-11 | Preview with Google Cloud |
-| 2026-04 | GA (Google Cloud), five Regions at GA, new single-fee pricing |
+| 2025-11-30 | Preview with Google Cloud |
+| 2026-04-14 | GA (Google Cloud), five Regions at GA, new single-fee pricing |
 | 2026-05 | Free tier: one local (Tier 1) 500 Mbps interconnect per Region per GA CSP; includes a Network Synthetic Monitor; "approximately 160 TB per month" |
 | 2026-04/05 | OCI preview (us-east-1) |
-| 2026-07 | OCI GA (us-east-1) |
+| 2026-07-29 | OCI GA (us-east-1) |
 | 2026-08 | Microsoft Azure preview (us-east-1, us-west-1, eu-central-1, ap-southeast-2) |
 
 Google Cloud Region pairs at time of checking: us-east-1, us-west-1, us-west-2, eu-west-2, eu-central-1, eu-north-1, ap-southeast-1, ap-southeast-2. **No ap-northeast-1 (Tokyo) pairing is listed.**
@@ -181,15 +181,15 @@ Price example (us-east-1, Price List API): 1 Gbps Tier 1 $1.37/h, Tier 5 $9.59/h
 
 | Date | Milestone |
 | --- | --- |
-| 2025-11 | Gated preview with Lumen (US) |
-| 2026-04 | GA with Lumen |
+| 2025-11-30 | Gated preview with Lumen (US) |
+| 2026-04-13 | GA with Lumen |
 | 2026-06-30 | AT&T added as gated preview (US) |
 
 You pick Region, bandwidth (1–100 Gbps, scalable in the console), Direct Connect gateway and partner subscriber ID; AWS returns an activation key and the partner side is pre-provisioned with BGP, VLAN and ASN automated. MACsec is enabled by default between the DX and partner devices. Availability: Lumen in us-east-1 (New Jersey sites), reachable from anywhere in the continental US via the Lumen fabric, able to reach any AWS Region. **Not available in Japan as of 2026-10-10.**
 
 ### Classic partner last mile
 
-Outside the Interconnect product, the "last mile" is still a Direct Connect Delivery Partner: hosted connections (the Tokyo price list shows 50 Mbps, 100–500 Mbps, 1, 2, 5 and 10 Gbps) or a carrier circuit to a dedicated port in a DX location. Since 2025-07, MACsec is supported on partner-owned interconnects (10 and 100 Gbps, 100+ PoPs), which encrypts the AWS-to-partner link but not your circuit to the partner.
+Outside the Interconnect product, the "last mile" is still a Direct Connect Delivery Partner: hosted connections (the Tokyo price list shows 50 Mbps, 100–500 Mbps, 1, 2, 5 and 10 Gbps; partners can also offer 25 Gbps hosted connections since 2024-04-24, see 04-direct-connect.md) or a carrier circuit to a dedicated port in a DX location. Since 2025-07, MACsec is supported on partner-owned interconnects (10 and 100 Gbps, 100+ PoPs), which encrypts the AWS-to-partner link but not your circuit to the partner.
 
 ## Common traps
 

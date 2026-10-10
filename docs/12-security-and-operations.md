@@ -1,6 +1,6 @@
 # Security, operations and cost across all paths
 
-This page cuts across every on-premises-to-AWS path in this repo and compares them on five axes: encryption, overlapping address space, IPv6, MTU/MSS, observability, and data-transfer cost (with ap-northeast-1 Tokyo prices and a worked 10 TB/month example). Behaviors come from AWS documentation, What's New posts and blogs; prices come from the AWS Price List API offer files for ap-northeast-1 published in September–October 2026. Verified as of 2026-10-10.
+This page cuts across every on-premises-to-AWS path in this repo and compares them on six axes: encryption, overlapping address space, IPv6, MTU/MSS, observability, and data-transfer cost (with ap-northeast-1 Tokyo prices and a worked 10 TB/month example). Behaviors come from AWS documentation, What's New posts and blogs; prices come from the AWS Price List API offer files for ap-northeast-1 published in September–October 2026. Verified as of 2026-10-10.
 
 Prices are list on-demand USD, exclude tax, partner/carrier/colocation fees, and any private pricing. A month is 730 hours throughout, the convention AWS uses in its pricing examples.
 
@@ -66,10 +66,10 @@ Transit Gateway and VPC peering cannot route between identical CIDRs; one side h
 | Direct Connect public VIF | 1500 (jumbo is documented only for private and transit VIFs) | — | DX virtual interfaces doc |
 | DX to a Local Zone | 1468 (not in Los Angeles) | PMTUD supported and recommended; single flow about 2.5 Gbps | DX FAQ |
 | Transit Gateway (VPC, DX, Connect, peering incl. inter-Region and Cloud WAN peering) | 8500 | PMTUD only for traffic ingressing on VPC and Connect attachments; MSS clamping on all packets | TGW quotas |
-| Transit Gateway VPN attachment | 1500 (then VPN overhead → 1446) | No PMTUD | TGW quotas |
-| Transit Gateway Connect | 8500 | Up to 5 Gbps per GRE peer, 4 peers per attachment | TGW quotas |
+| Transit Gateway VPN attachment | 1500 (then VPN overhead → 1446) | No PMTUD; TGW clamps MSS (set MSS 1406 or lower on the customer gateway as well) | TGW quotas, Site-to-Site VPN docs |
+| Transit Gateway Connect | 8500 (GRE over a 1500 underlay leaves 1476 inside) | TGW clamps and sends PMTUD only against its own 8500; for a 1500 underlay set MSS 1436 on the SD-WAN appliance. Up to 5 Gbps per GRE peer, 4 peers per attachment | TGW quotas |
 | Cloud WAN core network | 8500; VPN 1500; >8500 dropped | PMTUD only on VPC attachments; MSS clamping | Cloud WAN quotas |
-| PrivateLink interface endpoint | 8500 (larger packets dropped) | — | CloudWatch recommended alarms |
+| PrivateLink interface endpoint | 8500 (larger packets dropped) | No PMTUD; MSS clamped (see 09-private-service-access.md) | CloudWatch recommended alarms, PrivateLink quotas |
 | Gateway Load Balancer | 8500 payload; appliance must take 8568 (GENEVE +68) | No fragmentation, no PMTUD | GWLB doc |
 | Outposts service link | Path must carry 1500 | — | Prescriptive Guidance |
 | Outposts local gateway | 1500 | — | Prescriptive Guidance |
