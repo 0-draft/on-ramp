@@ -103,8 +103,8 @@ export const ROUTES: Route[] = [
     kind: "overlay",
     name: { en: "Site-to-Site VPN", ja: "Site-to-Site VPN" },
     tagline: {
-      en: "Two IPsec tunnels from your router to AWS, usually across the internet. Up in minutes; each tunnel has a fixed ceiling.",
-      ja: "社内ルーターから AWS へ IPsec トンネル 2 本。普通はインターネット越し。数分で開通、ただしトンネルごとに上限が固定。",
+      en: "Two IPsec tunnels from your router to AWS, usually across the internet. Up in minutes to hours; each tunnel has a fixed ceiling.",
+      ja: "社内ルーターから AWS へ IPsec トンネル 2 本。普通はインターネット越し。数分〜数時間で開通、ただしトンネルごとに上限が固定。",
     },
     section: "vpn",
     stops: [
@@ -115,7 +115,7 @@ export const ROUTES: Route[] = [
         },
         say: {
           en: "Your router wraps the packet in IPsec (ESP) and addresses it to one tunnel's outside IP. The wrapping eats about 54 bytes, so the inner MTU drops to 1446 at best.",
-          ja: "自社ルーターがパケットを IPsec (ESP) で包み、トンネルの外側 IP 宛てに送ります。包む分だけ削られ、内側の MTU は最大でも 1446。",
+          ja: "自社ルーターがパケットを IPsec (ESP) で包み、トンネルの外側 IP 宛てに送ります。包む分 (約 54 バイト) だけ削られ、内側の MTU は最大でも 1446。",
         },
         at: 0,
       },
@@ -156,8 +156,14 @@ export const ROUTES: Route[] = [
         },
       },
       { k: ENC, v: { en: "Yes, IPsec", ja: "はい (IPsec)" } },
-      { k: LEAD, v: { en: "Minutes", ja: "数分" } },
-      { k: COST, v: { en: "Connection-hours + data out", ja: "接続時間 + データ転送" } },
+      { k: LEAD, v: { en: "Minutes to hours", ja: "数分〜数時間" } },
+      {
+        k: COST,
+        v: {
+          en: "Connection-hours + data out (+ TGW attachment-hours and $0.02/GB on TGW)",
+          ja: "接続時間 + データ転送 (TGW なら + アタッチメント時間と 1 GB $0.02)",
+        },
+      },
     ],
   },
   {
@@ -234,8 +240,8 @@ export const ROUTES: Route[] = [
       {
         k: LEAD,
         v: {
-          en: "Days (hosted) to months (carrier circuit)",
-          ja: "数日 (ホスト型)〜数か月 (回線工事)",
+          en: "Days to weeks (hosted, via a carrier); a dedicated port waits on the carrier circuit",
+          ja: "ホスト接続は数日〜数週間 (事業者経由)。専用接続は回線工事しだい",
         },
       },
       {
@@ -307,7 +313,7 @@ export const ROUTES: Route[] = [
           ja: "ベンダーのオーバーレイ次第。GRE 自体は非暗号",
         },
       },
-      { k: LEAD, v: { en: "Days", ja: "数日" } },
+      { k: LEAD, v: { en: "Depends on your SD-WAN rollout", ja: "SD-WAN の展開しだい" } },
       {
         k: COST,
         v: {
@@ -351,16 +357,16 @@ export const ROUTES: Route[] = [
           ja: "Client VPN / Verified Access / SSM",
         },
         say: {
-          en: "An AWS-managed front door checks who it is (and, with Verified Access, the device) before letting anything through.",
-          ja: "AWS マネージドの入口が、通す前に「誰か」(Verified Access ならデバイスも) を確認します。",
+          en: "An AWS-managed front door checks who it is (and, with Verified Access or Client VPN, the device) before letting anything through.",
+          ja: "AWS マネージドの入口が、通す前に「誰か」(Verified Access と Client VPN ならデバイスも) を確認します。",
         },
         at: 3,
       },
       {
-        name: { en: "One app or one instance", ja: "特定のアプリ / インスタンス" },
+        name: { en: "What the policy allows", ja: "ポリシーで許された先" },
         say: {
-          en: "The person reaches only what the policy allows: one app, one port, one instance. Not the whole network.",
-          ja: "ポリシーで許された先だけに届きます。アプリ 1 つ、ポート 1 つ、インスタンス 1 台。ネットワーク全体ではない。",
+          en: "The person reaches what the policy allows: whole CIDRs with Client VPN, one app with Verified Access, one instance with Session Manager.",
+          ja: "ポリシーで許された先に届きます。Client VPN なら CIDR 単位、Verified Access ならアプリ 1 つ、Session Manager ならインスタンス 1 台。",
         },
         at: 5,
       },
@@ -371,10 +377,13 @@ export const ROUTES: Route[] = [
         v: { en: "Client VPN: 50 Mbps per user", ja: "Client VPN: 1 ユーザー 50 Mbps" },
       },
       { k: ENC, v: { en: "Yes (TLS / OpenVPN)", ja: "はい (TLS / OpenVPN)" } },
-      { k: LEAD, v: { en: "Hours", ja: "数時間" } },
+      { k: LEAD, v: { en: "No hardware to order", ja: "機器の発注なし" } },
       {
         k: COST,
-        v: { en: "Endpoint-hours + per connection", ja: "エンドポイント時間 + 接続単位" },
+        v: {
+          en: "Client VPN: association-hours + connection-hours",
+          ja: "Client VPN: 関連付け時間 + 接続時間",
+        },
       },
     ],
   },
@@ -435,7 +444,10 @@ export const ROUTES: Route[] = [
         },
       },
       { k: ENC, v: { en: "TLS to the service", ja: "サービスまで TLS" } },
-      { k: LEAD, v: { en: "Minutes (after VPN/DX)", ja: "数分 (VPN/DX があれば)" } },
+      {
+        k: LEAD,
+        v: { en: "No hardware (needs VPN or DX)", ja: "機器不要 (VPN/DX が前提)" },
+      },
       {
         k: COST,
         v: { en: "Endpoint AZ-hours + per GB", ja: "エンドポイントの AZ 時間 + GB 単価" },
@@ -502,7 +514,7 @@ export const ROUTES: Route[] = [
         },
       },
       { k: ENC, v: { en: "Optional DoH", ja: "DoH は任意" } },
-      { k: LEAD, v: { en: "Minutes", ja: "数分" } },
+      { k: LEAD, v: { en: "No hardware to order", ja: "機器の発注なし" } },
       {
         k: COST,
         v: { en: "ENI-hours + per million queries", ja: "ENI 時間 + 100 万クエリ単価" },
