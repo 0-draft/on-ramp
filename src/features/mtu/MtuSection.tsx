@@ -41,37 +41,41 @@ export function MtuSection() {
         ]}
         answer="drop"
         why={t({
-          en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives only if MSS is clamped on your router; UDP with DF set just vanishes. The lab below is set to exactly that: VPN path, 1500-byte packet.",
-          ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP はルーターで MSS をクランプしていれば助かりますが、DF 付きの UDP はただ消えます。下のラボはちょうどその状態 (VPN 経路・1500 バイト) です。",
+          en: "The VPN tunnel fits 1446 at best and AWS does no PMTUD on VPN, so nobody tells the sender. TCP survives because MSS is clamped (a Transit Gateway clamps on VPN attachments; also set 1406 or lower on your router); UDP with DF set just vanishes. The lab below is set to exactly that: VPN path, 1500-byte packet.",
+          ja: "VPN トンネルは最大でも 1446 で、AWS は VPN で PMTUD をしないため、送信元に誰も知らせません。TCP は MSS クランプで助かります (Transit Gateway は VPN アタッチメントでクランプ。ルーター側でも 1406 以下に) が、DF 付きの UDP はただ消えます。下のラボはちょうどその状態 (VPN 経路・1500 バイト) です。",
         })}
+        // The takeaway would spoil the question, so it appears only once the
+        // lab is open.
+        after={
+          <>
+            <div className="prose-ish mt-6 max-w-3xl">
+              <p>
+                {t({
+                  en: "The takeaway: the path MTU is the smallest clearance along the way, and AWS gives you no PMTUD on VPN or on Direct Connect into a Transit Gateway. A failover from DX to VPN quietly drops the clearance to 1446 (and with a VPN advertising the same prefix as a private VIF, AWS already caps that prefix at 1500). Set the MSS on your router (1406 or lower for VPN) and let ICMP 'fragmentation needed' through where PMTUD does exist.",
+                  ja: "要点: 経路 MTU は途中で一番低い制限で決まります。AWS では VPN と、Direct Connect から Transit Gateway に入る通信には PMTUD がありません。DX から VPN へのフェイルオーバーで制限は黙って 1446 に下がります (プライベート VIF と同じプレフィックスを VPN が広告していれば、そのプレフィックスは最初から 1500)。ルーターで MSS を設定し (VPN なら 1406 以下)、PMTUD がある経路では ICMP 'fragmentation needed' を通してください。",
+                })}
+              </p>
+            </div>
+
+            <div className="mt-6">
+              <Callout
+                tone="bad"
+                title={{
+                  en: "The failover that shrinks your road",
+                  ja: "道を狭くするフェイルオーバー",
+                }}
+              >
+                {t({
+                  en: "If a VPN (or a second VIF with a different MTU) advertises the same prefix as your jumbo DX path, AWS uses 1500 for that prefix. And when a transit VIF fails over to a VPN on a Transit Gateway, packets sized for 8500 hit a 1446 tunnel with no PMTUD to warn anyone. Clamp MSS on premises so the backup path works on the day you need it.",
+                  ja: "VPN (あるいは MTU の違う 2 本目の VIF) がジャンボ対応の DX と同じプレフィックスを広告すると、AWS はそのプレフィックスに 1500 を使います。さらに Transit Gateway 上でトランジット VIF から VPN に切り替わると、8500 前提のパケットが 1446 のトンネルに当たり、PMTUD で知らせてくれる仕組みもありません。必要な日にバックアップが使えるよう、オンプレ側で MSS をクランプしておきましょう。",
+                })}
+              </Callout>
+            </div>
+          </>
+        }
       >
         <MtuLab />
       </Predict>
-
-      {/* The takeaway comes after the lab so it cannot spoil the question. */}
-      <div className="prose-ish mt-6 max-w-3xl">
-        <p>
-          {t({
-            en: "The takeaway: the path MTU is the smallest clearance along the way, and AWS gives you no PMTUD on VPN or on Direct Connect into a Transit Gateway. A failover from DX to VPN quietly drops the clearance to 1446 (and with a VPN advertising the same prefix as a private VIF, AWS already caps that prefix at 1500). Set the MSS on your router (1406 or lower for VPN) and let ICMP 'fragmentation needed' through where PMTUD does exist.",
-            ja: "要点: 経路 MTU は途中で一番低い制限で決まります。AWS では VPN と、Direct Connect から Transit Gateway に入る通信には PMTUD がありません。DX から VPN へのフェイルオーバーで制限は黙って 1446 に下がります (プライベート VIF と同じプレフィックスを VPN が広告していれば、そのプレフィックスは最初から 1500)。ルーターで MSS を設定し (VPN なら 1406 以下)、PMTUD がある経路では ICMP 'fragmentation needed' を通してください。",
-          })}
-        </p>
-      </div>
-
-      <div className="mt-6">
-        <Callout
-          tone="bad"
-          title={{
-            en: "The failover that shrinks your road",
-            ja: "道を狭くするフェイルオーバー",
-          }}
-        >
-          {t({
-            en: "If a VPN (or a second VIF with a different MTU) advertises the same prefix as your jumbo DX path, AWS uses 1500 for that prefix. And when a transit VIF fails over to a VPN on a Transit Gateway, packets sized for 8500 hit a 1446 tunnel with no PMTUD to warn anyone. Clamp MSS on premises so the backup path works on the day you need it.",
-            ja: "VPN (あるいは MTU の違う 2 本目の VIF) がジャンボ対応の DX と同じプレフィックスを広告すると、AWS はそのプレフィックスに 1500 を使います。さらに Transit Gateway 上でトランジット VIF から VPN に切り替わると、8500 前提のパケットが 1446 のトンネルに当たり、PMTUD で知らせてくれる仕組みもありません。必要な日にバックアップが使えるよう、オンプレ側で MSS をクランプしておきましょう。",
-          })}
-        </Callout>
-      </div>
 
       <MetaphorLimit>
         {t({

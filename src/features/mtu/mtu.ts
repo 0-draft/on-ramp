@@ -38,7 +38,9 @@ export interface MtuPath {
   wrappers: Wrapper[];
   pmtud: Pmtud;
   /** AWS rewrites the TCP MSS on this path, so TCP never sends too big. */
-  clamp: boolean;
+  /** MSS clamping by AWS: true on this path, "tgw" when only a Transit Gateway
+   * termination is documented to clamp (a VGW is not), false when not. */
+  clamp: boolean | "tgw";
   note: L;
 }
 
@@ -78,10 +80,10 @@ export const MTU_PATHS: MtuPath[] = [
       },
     ],
     pmtud: "no",
-    clamp: false,
+    clamp: "tgw",
     note: {
-      en: "The best case: MTU 1446, MSS 1406, reachable only with AES-GCM and NAT-T off. No jumbo frames, no PMTUD. Set MSS 1406 or lower on your customer gateway and fragment before encryption.",
-      ja: "最良のケース: MTU 1446・MSS 1406 (AES-GCM で NAT-T 無効のときのみ)。ジャンボフレームも PMTUD もなし。カスタマーゲートウェイで MSS を 1406 以下にし、暗号化の前にフラグメントする。",
+      en: "The best case: MTU 1446, MSS 1406, reachable only with AES-GCM and NAT-T off. No jumbo frames, no PMTUD. A Transit Gateway clamps MSS on VPN attachments (a VGW is not documented to), so set MSS 1406 or lower on your customer gateway too and fragment before encryption.",
+      ja: "最良のケース: MTU 1446・MSS 1406 (AES-GCM で NAT-T 無効のときのみ)。ジャンボフレームも PMTUD もなし。Transit Gateway は VPN アタッチメントで MSS をクランプする (VGW は記載なし) が、カスタマーゲートウェイでも MSS を 1406 以下にし、暗号化の前にフラグメントする。",
     },
   },
   {
@@ -104,7 +106,7 @@ export const MTU_PATHS: MtuPath[] = [
       },
     ],
     pmtud: "no",
-    clamp: false,
+    clamp: "tgw",
     note: {
       en: "The worst case in AWS's table: bigger cipher padding, a bigger integrity check and the NAT-T UDP header leave 1406 bytes (MSS 1366).",
       ja: "AWS の表で最悪のケース: CBC のパディング、大きな整合性チェック値、NAT-T の UDP ヘッダーで 1406 バイト (MSS 1366) まで減る。",
@@ -153,10 +155,11 @@ export const MTU_PATHS: MtuPath[] = [
     outer: 1500,
     wrappers: [{ label: { en: "Outer IP + GRE", ja: "外側 IP + GRE" }, bytes: 24 }],
     pmtud: "undocumented",
-    clamp: true,
+    // TGW clamps only to its own 8500; it cannot see the 1500 underlay.
+    clamp: false,
     note: {
-      en: "GRE costs 24 bytes: 1476 inside a 1500 underlay. Transit Gateway itself takes 8500 on Connect and sends PMTUD messages only above that; below it, whether anyone reports a too-big packet depends on your SD-WAN appliance. GRE is not encryption.",
-      ja: "GRE は 24 バイト: 下回りが 1500 なら内側 1476。Transit Gateway 自体は Connect で 8500 まで受け、PMTUD を返すのはそれを超えたときだけ。それ未満で大きすぎるパケットを誰が知らせるかは SD-WAN 機器次第。GRE は暗号化ではありません。",
+      en: "GRE costs 24 bytes: 1476 inside a 1500 underlay. Transit Gateway takes 8500 on Connect and clamps MSS only to its own 8500, so over a 1500 underlay set MSS 1436 on your SD-WAN appliance. Whether anyone reports a too-big packet below 8500 depends on that appliance. GRE is not encryption.",
+      ja: "GRE は 24 バイト: 下回りが 1500 なら内側 1476。Transit Gateway は Connect で 8500 まで受け、MSS クランプも自身の 8500 基準。下回りが 1500 なら SD-WAN 機器側で MSS を 1436 に。8500 未満で大きすぎるパケットを誰が知らせるかもその機器次第。GRE は暗号化ではありません。",
     },
   },
   {

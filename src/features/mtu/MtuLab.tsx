@@ -38,7 +38,7 @@ const OUTCOME: Record<Outcome, { label: L; color: string; detail: L }> = {
     label: { en: "Too tall: silently dropped", ja: "高すぎ: 黙って破棄" },
     color: "var(--bad)",
     detail: {
-      en: "No PMTUD on this path, so nobody tells the sender. Small packets work, big ones vanish: the classic 'SSH logs in, then the transfer hangs' symptom. TCP is saved only by MSS clamping or a lower MSS on your router.",
+      en: "No PMTUD on this path, so nobody tells the sender. Small packets work, big ones vanish: the classic 'SSH logs in, then the transfer hangs' symptom. TCP is saved by MSS clamping (a Transit Gateway clamps on VPN) or a lower MSS on your router.",
       ja: "この経路には PMTUD がなく、送信元に誰も知らせません。小さいパケットは通り、大きいものだけ消えます。「SSH はログインできるのに転送が固まる」典型的な症状です。TCP を救えるのは MSS クランプか、ルーター側で MSS を下げることだけです。",
     },
   },
@@ -328,12 +328,17 @@ export function MtuLab() {
                 {t({ en: "MSS clamping by AWS", ja: "AWS による MSS クランプ" })}
               </dt>
               <dd className="font-bold">
-                {p.clamp
+                {p.clamp === true
                   ? t({ en: "Yes: TCP adjusts itself", ja: "あり: TCP は自動で収まる" })
-                  : t({
-                      en: "Not on this path: set MSS on your router",
-                      ja: "この経路ではなし: ルーターで MSS を設定",
-                    })}
+                  : p.clamp === "tgw"
+                    ? t({
+                        en: "On a Transit Gateway, yes; on a VGW, not documented. Set MSS on your router too",
+                        ja: "Transit Gateway ならあり、VGW は記載なし。ルーターでも MSS を設定",
+                      })
+                    : t({
+                        en: "Not on this path: set MSS on your router or appliance",
+                        ja: "この経路ではなし: ルーターや機器で MSS を設定",
+                      })}
               </dd>
             </div>
           </dl>
@@ -377,7 +382,7 @@ export function MtuLab() {
           {t(OUTCOME[outcome].label)}
         </p>
         <p className="mt-1 text-sm">{t(OUTCOME[outcome].detail)}</p>
-        {outcome !== "fits" && p.clamp && (
+        {outcome !== "fits" && p.clamp === true && (
           <p className="mt-1 text-sm text-[var(--muted)]">
             {t({
               en: `TCP never gets here: AWS clamps its MSS to ${fmt(mssOf(p))}. This bites UDP, ICMP and anything tunnelled inside.`,
