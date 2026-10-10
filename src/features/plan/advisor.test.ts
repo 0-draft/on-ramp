@@ -3,6 +3,15 @@ import { advise, DEFAULTS, type Answers } from "./advisor";
 const ids = (a: Partial<Answers>) => advise({ ...DEFAULTS, ...a }).recs.map((r) => r.id);
 
 describe("advise (docs/13 codeable rules)", () => {
+  it("rule 14: a carrier closed network gets Private IP VPN, not MACsec (no own port)", () => {
+    expect(
+      ids({ who: "sites", transport: "closed", bw: "high", encrypt: true }),
+    ).toContain("privateIpVpn");
+    expect(
+      ids({ who: "sites", transport: "closed", bw: "high", encrypt: true }),
+    ).not.toContain("macsec");
+  });
+
   it("rule 7: one VPC, low bandwidth, internet OK -> VPN to VGW (P1)", () => {
     const p = advise({ ...DEFAULTS });
     expect(p.recs).toEqual([{ id: "vpnVgw", pattern: "P1", routes: ["vpn"] }]);

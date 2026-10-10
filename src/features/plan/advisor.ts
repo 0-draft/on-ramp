@@ -142,9 +142,12 @@ export function advise(a: Answers): Plan {
           : { id: "dxSingleRegion", pattern: "P2", routes: ["dx", "vpn"] },
     );
     // Rule 14.
+    // MACsec needs your own dedicated port; a carrier's closed network usually
+    // hands you a hosted connection (or a circuit that is not L2 transparent),
+    // so there it is Private IP VPN instead.
     if (a.encrypt) {
       recs.push(
-        a.bw === "high"
+        a.bw === "high" && a.transport !== "closed"
           ? { id: "macsec", routes: ["dx"] }
           : { id: "privateIpVpn", routes: ["dx", "vpn"] },
       );
@@ -188,14 +191,14 @@ export const REC: Record<RecId, { title: L; why: L }> = {
   verifiedAccess: {
     title: { en: "AWS Verified Access", ja: "AWS Verified Access" },
     why: {
-      en: "Zero trust per application: each request is checked against identity and device posture. HTTP(S) and, since 2025-02, TCP, SSH and RDP. Not a general network.",
-      ja: "アプリ単位のゼロトラスト。リクエストごとに ID と端末の状態 (ポスチャ) で判定。HTTP(S) と、2025-02 からは TCP・SSH・RDP も。ネットワーク全体ではない。",
+      en: "Zero trust per application: each request (HTTP) or connection (TCP) is checked against identity and device posture. HTTP(S) and, since 2025-02, TCP, SSH and RDP. Not a general network.",
+      ja: "アプリ単位のゼロトラスト。リクエスト (HTTP) / 接続 (TCP) ごとに ID と端末の状態 (ポスチャ) で判定。HTTP(S) と、2025-02 からは TCP・SSH・RDP も。ネットワーク全体ではない。",
     },
   },
   workspaces: {
     title: {
-      en: "Amazon WorkSpaces or AppStream 2.0",
-      ja: "Amazon WorkSpaces / AppStream 2.0",
+      en: "Amazon WorkSpaces or WorkSpaces Applications",
+      ja: "Amazon WorkSpaces / WorkSpaces Applications (旧 AppStream 2.0)",
     },
     why: {
       en: "Only pixels leave AWS, so data never reaches the laptop.",
@@ -302,8 +305,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "専用接続 10/100/400 Gbps で MACsec",
     },
     why: {
-      en: "Line-rate layer-2 encryption between your router and the AWS device, at selected DX locations only. Direct Connect is not encrypted by default.",
-      ja: "自社ルーターと AWS 機器の間をラインレートで L2 暗号化。対応 DX ロケーションのみ。Direct Connect はデフォルトでは暗号化されない。",
+      en: "Line-rate layer-2 encryption, hop by hop between your MACsec device and the AWS DX device, at selected DX locations only. Not on hosted connections; a carrier circuit in between is covered only if it is Layer 2 transparent. Direct Connect is not encrypted by default.",
+      ja: "自社の MACsec 機器と AWS DX 機器の間をホップ単位・ラインレートで L2 暗号化。対応 DX ロケーションのみ。ホスト接続では不可、間に事業者回線があるなら L2 透過の場合のみ。Direct Connect はデフォルトでは暗号化されない。",
     },
   },
   privateIpVpn: {
@@ -322,8 +325,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "閉域: どこにもインターネットを使わない",
     },
     why: {
-      en: "No internet gateway (enforce with VPC Block Public Access), interface endpoints for every AWS API you call (S3 interface, not gateway), and Route 53 VPC Resolver inbound and outbound endpoints for DNS.",
-      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (S3 もゲートウェイ型ではなくインターフェイス型)、DNS には Route 53 VPC Resolver のインバウンド/アウトバウンドエンドポイント。",
+      en: "No internet gateway (enforce with VPC Block Public Access), interface endpoints for every AWS API you call (an S3 interface endpoint for on-prem clients; each VPC keeps its own free S3 gateway endpoint, which 'private DNS only for inbound endpoint' requires), and Route 53 VPC Resolver inbound and outbound endpoints for DNS.",
+      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (オンプレ向けは S3 インターフェイス型、各 VPC には無料のゲートウェイ型も置く。「インバウンドエンドポイントのみプライベート DNS」に必須)、DNS には Route 53 VPC Resolver のインバウンド/アウトバウンドエンドポイント。",
     },
   },
   overlap: {
@@ -339,15 +342,15 @@ export const REC: Record<RecId, { title: L; why: L }> = {
   resilMax: {
     title: { en: "Maximum resiliency (99.99% SLA)", ja: "最大回復性 (SLA 99.99%)" },
     why: {
-      en: "Separate connections on separate devices in at least two DX locations.",
-      ja: "少なくとも 2 つの DX ロケーションで、別々のデバイスに別々の接続。",
+      en: "Two connections on separate devices in each of at least two DX locations (four or more). The SLA requires Enterprise Support and a Well-Architected Review; hosted connections are not covered by the AWS SLA.",
+      ja: "2 つ以上の DX ロケーションそれぞれに、別デバイスで 2 接続ずつ (計 4 接続以上)。SLA はエンタープライズサポート契約と Well-Architected レビューが条件。ホスト接続は AWS の SLA 対象外。",
     },
   },
   resilHigh: {
     title: { en: "High resiliency (99.9% SLA)", ja: "高回復性 (SLA 99.9%)" },
     why: {
-      en: "Two connections in more than one DX location. A single connection's SLA is 95%.",
-      ja: "複数の DX ロケーションに 2 本の接続。接続 1 本だけの SLA は 95%。",
+      en: "One connection in each of two or more DX locations. The SLA requires Enterprise Support; hosted connections are not covered by the AWS SLA. A single dedicated connection's SLA is 95%.",
+      ja: "2 つ以上の DX ロケーションに 1 接続ずつ。SLA はエンタープライズサポート契約が条件で、ホスト接続は AWS の SLA 対象外。専用接続 1 本だけの SLA は 95%。",
     },
   },
 };
