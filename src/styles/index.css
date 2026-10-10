@@ -162,6 +162,10 @@ html:lang(ja) :is(h1, h2, h3, h4, th, figcaption, button, label, dt, .phrase) {
 html:lang(ja) :is(h1, h2, h3, h4) {
   line-height: 1.3;
 }
+/* No one- or two-character orphan lines at the end of Japanese paragraphs. */
+html:lang(ja) :is(p, li, dd) {
+  text-wrap: pretty;
+}
 /* BIZ UDPGothic ships 400 and 700 only; heavier weights would fake-bold the
    kana while the Latin gets real 800/900. Cap Japanese headings at 700. */
 html:lang(ja) :is(h1, h2, h3, h4, .font-black, .font-extrabold) {

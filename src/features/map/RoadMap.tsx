@@ -328,15 +328,26 @@ export function RoadMap({
               stroke={r.color}
               strokeWidth={on ? 6 : 4}
               strokeLinecap="round"
-              strokeDasharray={r.kind === "overlay" ? "10 5" : undefined}
             />
             {on && (
-              // The stretch already travelled, drawn solid and wider.
+              // The stretch already travelled, drawn wider.
               <path
                 d={road(PATHS[id].slice(0, (stops[hop]?.at ?? 0) + 1))}
                 fill="none"
                 stroke={r.color}
                 strokeWidth={9}
+                strokeLinecap="round"
+              />
+            )}
+            {r.kind === "overlay" && (
+              // Tunnels get a dashed paper centre line along their whole length,
+              // travelled or not, so "dashed = tunnel" holds in both themes.
+              <path
+                d={D[id]}
+                fill="none"
+                stroke="var(--paper)"
+                strokeWidth={on ? 2.5 : 1.5}
+                strokeDasharray="7 6"
                 strokeLinecap="round"
               />
             )}
@@ -395,7 +406,7 @@ export function RoadMap({
           <circle r={9} fill="var(--lane)" stroke="var(--asphalt)" strokeWidth={2.5} />
         </g>
       )}
-      <text x={600} y={478} textAnchor="middle" fontSize={13} fill="var(--muted)">
+      <text x={600} y={514} textAnchor="middle" fontSize={13} fill="var(--muted)">
         {t({ en: "service link", ja: "サービスリンク" })}
       </text>
     </svg>

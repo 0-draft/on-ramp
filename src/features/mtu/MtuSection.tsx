@@ -71,18 +71,17 @@ export function MtuSection() {
                 })}
               </Callout>
             </div>
+            <MetaphorLimit>
+              {t({
+                en: "A truck that is too tall stops at the bridge and its driver sees why. A packet that is too big just disappears, or comes back as an ICMP note only if every device on the way lets it through. And unlike a truck, a packet can be cut into pieces (fragmented) before it reaches the bridge: AWS recommends doing that on your VPN router before encryption.",
+                ja: "高すぎるトラックは橋の手前で止まり、運転手は理由が分かります。大きすぎるパケットはただ消えるか、途中の全機器が通した場合に限り ICMP の通知が返るだけ。またトラックと違い、パケットは橋の手前で分割 (フラグメント) できます。AWS は VPN ルーターで暗号化の前に分割することを推奨しています。",
+              })}
+            </MetaphorLimit>
           </>
         }
       >
         <MtuLab />
       </Predict>
-
-      <MetaphorLimit>
-        {t({
-          en: "A truck that is too tall stops at the bridge and its driver sees why. A packet that is too big just disappears, or comes back as an ICMP note only if every device on the way lets it through. And unlike a truck, a packet can be cut into pieces (fragmented) before it reaches the bridge: AWS recommends doing that on your VPN router before encryption.",
-          ja: "高すぎるトラックは橋の手前で止まり、運転手は理由が分かります。大きすぎるパケットはただ消えるか、途中の全機器が通した場合に限り ICMP の通知が返るだけ。またトラックと違い、パケットは橋の手前で分割 (フラグメント) できます。AWS は VPN ルーターで暗号化の前に分割することを推奨しています。",
-        })}
-      </MetaphorLimit>
 
       <Sources
         doc="12-security-and-operations.md"
