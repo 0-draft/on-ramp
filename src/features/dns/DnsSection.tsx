@@ -142,13 +142,14 @@ export function DnsSection() {
           why={
             <p>
               {t({
-                en: 'The base + 2 resolver is not reachable from on-prem over VPN or Direct Connect, and AWS calls forwarding to it unsupported. Point the forwarder at a VPC Resolver inbound endpoint\'s IPs instead. Pick "Broken: forward to .2" below to watch it fail.',
-                ja: "「ベース + 2」のリゾルバーは VPN / Direct Connect 越しのオンプレからは届かず、AWS もそこへの転送を非サポートとしています。フォワーダーは VPC Resolver のインバウンドエンドポイントの IP に向けます。下の「失敗: .2 へ転送」で失敗の様子を見られます。",
+                en: "The base + 2 resolver is not reachable from on-prem over VPN or Direct Connect, and AWS calls forwarding to it unsupported. Point the forwarder at a VPC Resolver inbound endpoint's IPs instead. The lab below is set to exactly that case, so you can watch it fail.",
+                ja: "「ベース + 2」のリゾルバーは VPN / Direct Connect 越しのオンプレからは届かず、AWS もそこへの転送を非サポートとしています。フォワーダーは VPC Resolver のインバウンドエンドポイントの IP に向けます。下のラボはちょうどその状態にしてあるので、失敗の様子を見られます。",
               })}
             </p>
           }
         >
-          <DnsLab />
+          {/* Opens on the question's own case, like the MTU lab. */}
+          <DnsLab initial="base2" />
         </Predict>
       </div>
 
@@ -222,7 +223,7 @@ export function DnsSection() {
             </li>
             <li>
               {t({
-                en: "Delegation (2025-06-24): inbound and outbound endpoints can follow NS delegation, so a subdomain can be delegated instead of forwarded.",
+                en: "Delegation (2025-06-24): inbound and outbound endpoints can follow NS delegation, so a subdomain can be delegated instead of forwarded. The inbound side is called an inbound delegation endpoint.",
                 ja: "委任 (2025-06-24): インバウンド / アウトバウンドエンドポイントが NS 委任をたどれるようになり、サブドメインを転送でなく委任できる。インバウンド側は「インバウンド委任エンドポイント」。",
               })}
             </li>

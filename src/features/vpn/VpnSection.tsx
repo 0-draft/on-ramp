@@ -35,7 +35,7 @@ const SPECS: { k: L; v: L }[] = [
   },
 ];
 
-// Where the tunnels end, as a feature matrix (docs/02, "Where a VPN can end").
+// Where the tunnels end, as a feature matrix (docs/02, "AWS-side termination options").
 const Y = "✓";
 const N = "✕";
 const ENDS: { name: string; ecmp: L; large: string; accel: string; ipv6: L; notes: L }[] =
@@ -107,8 +107,8 @@ const VARIANTS: { title: L; body: L }[] = [
   {
     title: { en: "Static or BGP", ja: "静的か BGP か" },
     body: {
-      en: "Static needs you to list prefixes (up to 100 static routes) and fails over on tunnel state alone. BGP is required for ECMP, Cloud WAN and the Concentrator. BGP limits: 100 prefixes from you to a VGW, 1,000 to a Transit Gateway; exceed them and the session drops.",
-      ja: "静的はプレフィックスを手で登録し (静的ルートは最大 100)、フェイルオーバーはトンネル状態だけが頼り。ECMP・Cloud WAN・VPN コンセントレータには BGP が必須。BGP の上限は社内から VGW へ 100、Transit Gateway へ 1,000 プレフィックスで、超えるとセッションが落ちます。",
+      en: "Static needs you to list prefixes (up to 100 static routes on a VGW) and fails over on tunnel state alone. BGP is required for ECMP, Cloud WAN and the Concentrator. BGP limits: 100 prefixes from you to a VGW, 1,000 to a Transit Gateway; exceed them and the session drops.",
+      ja: "静的はプレフィックスを手で登録し (VGW では静的ルートは最大 100)、フェイルオーバーはトンネル状態だけが頼り。ECMP・Cloud WAN・VPN コンセントレータには BGP が必須。BGP の上限は社内から VGW へ 100、Transit Gateway へ 1,000 プレフィックスで、超えるとセッションが落ちます。",
     },
   },
 ];

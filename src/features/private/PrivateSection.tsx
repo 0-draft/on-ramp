@@ -123,8 +123,8 @@ export function PrivateSection() {
           title={{ en: "S3: same name, two answers", ja: "S3: 同じ名前に 2 つの答え" }}
         >
           {t({
-            en: 'Turn on private DNS for an S3 interface endpoint and the option "private DNS only for inbound endpoint" is ticked by default (since March 2023). Queries arriving through a Resolver inbound endpoint get the endpoint\'s private IPs; queries from inside the VPC get public IPs and use the free gateway endpoint. It requires a gateway endpoint in the VPC.',
-            ja: "S3 インターフェイスエンドポイントでプライベート DNS を有効にすると「インバウンドエンドポイントのみプライベート DNS」が既定でオン (2023 年 3 月から)。Resolver インバウンドエンドポイント経由のクエリにはエンドポイントのプライベート IP、VPC 内からのクエリにはパブリック IP が返り、無料のゲートウェイ型を使います。VPC 内にゲートウェイ型エンドポイントが必須です。",
+            en: 'Turn on private DNS for an S3 interface endpoint and the option "private DNS only for inbound endpoint" is ticked by default (since March 2023). Queries arriving through a VPC Resolver inbound endpoint get the endpoint\'s private IPs; queries from inside the VPC get public IPs and use the free gateway endpoint. It requires a gateway endpoint in the VPC.',
+            ja: "S3 インターフェイスエンドポイントでプライベート DNS を有効にすると「インバウンドエンドポイントのみプライベート DNS」が既定でオン (2023 年 3 月から)。VPC Resolver インバウンドエンドポイント経由のクエリにはエンドポイントのプライベート IP、VPC 内からのクエリにはパブリック IP が返り、無料のゲートウェイ型を使います。VPC 内にゲートウェイ型エンドポイントが必須です。",
           })}
         </Callout>
         <Callout
@@ -163,8 +163,11 @@ export function PrivateSection() {
           }}
         />
         <Spec
-          k={{ en: "Interface endpoints per VPC", ja: "VPC あたりの数" }}
-          v={{ en: "50 (adjustable)", ja: "50 (引き上げ可)" }}
+          k={{
+            en: "Interface + GWLB endpoints per VPC",
+            ja: "VPC あたりのインターフェイス + GWLB エンドポイント",
+          }}
+          v={{ en: "50 combined (adjustable)", ja: "合計 50 (引き上げ可)" }}
         />
         <Spec
           k={{ en: "Endpoint policy", ja: "エンドポイントポリシー" }}

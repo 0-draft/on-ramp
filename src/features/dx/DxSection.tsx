@@ -115,8 +115,8 @@ export function DxSection() {
         ja: "Direct Connect: 自分で組み立てる専用道路",
       }}
       lead={{
-        en: "Direct Connect (DX) is a physical port on an AWS router inside a colocation building. AWS only owns the last stretch: getting from your building to that port is your job and your carrier's. In return you get a path that never touches the internet, with steady latency and cheaper data out. A hosted connection can be up in days; a dedicated one, with a new carrier circuit, takes weeks to months.",
-        ja: "Direct Connect (DX) は、コロケーション施設内にある AWS ルーターの物理ポートです。AWS が持つのは最後の区間だけで、自社拠点からそのポートまでは自社と通信事業者の仕事。その代わり、インターネットを一切通らず、遅延が安定し、データ転送料も割安な経路が手に入ります。ホスト接続なら数日、専用接続は回線工事込みで数週間〜数か月かかります。",
+        en: "Direct Connect (DX) is a physical port on an AWS router inside a colocation building. AWS only owns the last stretch: getting from your building to that port is your job and your carrier's. In return you get a path that never touches the internet, with steady latency and cheaper data out. Through a Japanese carrier, a hosted connection takes days to weeks; a dedicated port waits on the carrier circuit, which AWS does not time.",
+        ja: "Direct Connect (DX) は、コロケーション施設内にある AWS ルーターの物理ポートです。AWS が持つのは最後の区間だけで、自社拠点からそのポートまでは自社と通信事業者の仕事。その代わり、インターネットを一切通らず、遅延が安定し、データ転送料も割安な経路が手に入ります。国内事業者経由のホスト接続は数日〜数週間。専用接続は回線工事しだいで、その期間は AWS が決めるものではありません。",
       }}
     >
       <h3 className="text-xl font-extrabold">
@@ -136,8 +136,8 @@ export function DxSection() {
       </div>
       <p className="mt-3 max-w-3xl text-sm">
         {t({
-          en: "Closed network is not encrypted (閉域 ≠ 暗号化): DX keeps traffic off the internet but carries it in plaintext. If policy requires encryption in transit, add MACsec, a Private IP VPN (end to end), or TLS in the application.",
-          ja: "閉域 ≠ 暗号化: DX は通信をインターネットから隔離しますが、中身は平文のまま流れます。通信経路の暗号化が要件なら、MACsec かプライベート IP VPN (端から端まで) を足すか、アプリ側で TLS を使います。",
+          en: "Closed network is not encrypted (閉域 ≠ 暗号化): DX keeps traffic off the internet but carries it in plaintext. If policy requires encryption in transit, add MACsec, a Private IP VPN (your router to the Transit Gateway), or TLS in the application.",
+          ja: "閉域 ≠ 暗号化: DX は通信をインターネットから隔離しますが、中身は平文のまま流れます。通信経路の暗号化が要件なら、MACsec かプライベート IP VPN (自社ルーターから Transit Gateway まで) を足すか、アプリ側で TLS を使います。",
         })}{" "}
         <Deep hash="security">
           Cross Connect: {t({ en: "Security", ja: "セキュリティ" })}
@@ -178,13 +178,14 @@ export function DxSection() {
               className="panel flex flex-wrap items-baseline gap-x-3 gap-y-1 px-4 py-2"
             >
               <span className="font-extrabold">{t(name)}</span>
-              <span className="min-w-0 flex-1">
+              {/* Phones: name and MTU on the first row, description below. */}
+              <span className="order-last min-w-0 basis-full sm:order-none sm:basis-0 sm:flex-1">
                 {t({
                   en: `Reaches ${t(f.reach)}, through ${t(f.via)}`,
                   ja: `${t(f.via)}経由で${t(f.reach)}へ`,
                 })}
               </span>
-              <span className="num text-sm font-bold whitespace-nowrap">
+              <span className="num ml-auto text-sm font-bold whitespace-nowrap sm:ml-0">
                 MTU {f.mtu.toLocaleString("en-US")}
               </span>
             </li>
@@ -204,8 +205,8 @@ export function DxSection() {
       </h3>
       <p className="mt-2 max-w-3xl">
         {t({
-          en: "Only designs that span two DX locations survive a location failure, and only those qualify for the multi-site SLAs: 99.99% with two connections in each of two locations (four or more), 99.9% with one in each. Both multi-site SLAs also require an Enterprise Support plan. A single connection gets 95%.",
-          ja: "ロケーション障害に耐えられるのは 2 つの DX ロケーションにまたがる構成だけで、マルチサイト SLA の対象もそれだけ。2 ロケーションに 2 接続ずつ (計 4 接続以上) で 99.99%、1 接続ずつで 99.9%。どちらのマルチサイト SLA もエンタープライズサポートの契約が条件です。単一接続は 95%。",
+          en: "Only designs that span two DX locations survive a location failure, and only those qualify for the multi-site SLAs: 99.99% with two connections on separate devices in each of two locations (four or more), 99.9% with one in each. Both multi-site SLAs require an Enterprise Support plan and endpoints in two or more AZs; 99.99% also requires a Well-Architected Review with an AWS SA. A single dedicated connection gets 95%; hosted connections are not covered.",
+          ja: "ロケーション障害に耐えられるのは 2 つの DX ロケーションにまたがる構成だけで、マルチサイト SLA の対象もそれだけ。2 ロケーションそれぞれで別デバイスに 2 接続ずつ (計 4 接続以上) で 99.99%、1 接続ずつで 99.9%。マルチサイト SLA はエンタープライズサポートと 2 つ以上の AZ のエンドポイントが条件で、99.99% はさらに AWS SA による Well-Architected レビューが必要です。専用接続 1 本は 95%、ホスト接続は対象外。",
         })}{" "}
         <Deep hash="resiliency">
           Cross Connect: {t({ en: "Resiliency", ja: "冗長性" })}
@@ -230,8 +231,8 @@ export function DxSection() {
           }}
         >
           {t({
-            en: "On 2021-09-02, a fault inside AWS's path into the Tokyo Region hit every Tokyo DX location at once. Keep a different kind of backup too: a VPN, or another Region.",
-            ja: "2021-09-02、東京リージョンへの AWS 内部経路の障害で東京の全 DX ロケーションが同時に影響を受けました。種類の違うバックアップ (VPN や別リージョン) も用意しておくこと。",
+            en: "On 2021-09-02, a fault inside AWS's own path into the Tokyo Region disrupted Direct Connect there, and location diversity did not help. Keep a different kind of backup too: a VPN, or another Region.",
+            ja: "2021-09-02、東京リージョンへの AWS 内部経路の障害で Direct Connect が影響を受け、ロケーション分散では防げませんでした。種類の違うバックアップ (VPN や別リージョン) も用意しておくこと。",
           })}
         </Callout>
       </div>
@@ -262,8 +263,8 @@ export function DxSection() {
                 ja: "NTT ドコモビジネス Flexible InterConnect (FIC)",
               }),
               t({
-                en: "L2: hosted connection you accept. L3: FIC-Router creates the VIF, you accept it",
-                ja: "L2: 受け入れるホスト接続。L3: FIC-Router が VIF を作成し、自社で承認",
+                en: "L2: hosted connection you accept. L3: FIC-Router creates the VIF for you",
+                ja: "L2: 受け入れるホスト接続。L3: FIC-Router が VIF を作成",
               }),
               t({
                 en: "50 Mbps to 10 Gbps; TGW since 2021-01",

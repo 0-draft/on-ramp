@@ -126,12 +126,12 @@ export function CapacityLab() {
       <p className="mt-1 text-sm text-[var(--muted)]">
         {gre
           ? t({
-              en: "Each GRE Connect peer carries up to 5 Gbps and an attachment takes at most 4, so 20 Gbps per attachment with ECMP, and only if every appliance advertises the same prefixes with the same AS_PATH. One GRE tunnel is one flow to EC2, so a single peer never goes past 5 Gbps however large the instance.",
-              ja: "GRE の Connect ピアは 1 つ最大 5 Gbps、1 アタッチメントに最大 4 つなので、ECMP で 1 アタッチメント 20 Gbps。ただし全アプライアンスが同じプレフィックスを同じ AS_PATH で広告している場合だけ。GRE トンネル 1 本は EC2 から見て 1 フローなので、インスタンスがどれだけ大きくても 1 ピアは 5 Gbps を超えません。",
+              en: "Each GRE Connect peer carries up to 5 Gbps and an attachment takes at most 4, so 20 Gbps per attachment with ECMP, and only if every appliance advertises the same prefixes with the same AS_PATH and ASN. One GRE tunnel is one flow to EC2, so a single peer never goes past 5 Gbps however large the instance.",
+              ja: "GRE の Connect ピアは 1 つ最大 5 Gbps、1 アタッチメントに最大 4 つなので、ECMP で 1 アタッチメント 20 Gbps。ただし全アプライアンスが同じプレフィックスを同じ AS_PATH・同じ ASN で広告している場合だけ。GRE トンネル 1 本は EC2 から見て 1 フローなので、インスタンスがどれだけ大きくても 1 ピアは 5 Gbps を超えません。",
             })
           : t({
-              en: "Tunnel-less Connect has no GRE peer limit: it is bounded by the VPC attachment, up to 100 Gbps per Availability Zone. The trade-off is one ENI per VRF on the appliance.",
-              ja: "トンネルレス Connect には GRE ピアの上限がなく、VPC アタッチメントの AZ あたり最大 100 Gbps が上限です。代わりにアプライアンス側で VRF ごとに ENI が 1 つ必要です。",
+              en: "Tunnel-less Connect has no 5 Gbps per-peer GRE cap (still up to 4 peers): it is bounded by the VPC attachment, up to 100 Gbps per Availability Zone. The trade-off is one ENI per VRF on the appliance.",
+              ja: "トンネルレス Connect には GRE ピアあたり 5 Gbps の上限がなく (ピア数は最大 4)、VPC アタッチメントの AZ あたり最大 100 Gbps が上限です。代わりにアプライアンス側で VRF ごとに ENI が 1 つ必要です。",
             })}
       </p>
     </div>

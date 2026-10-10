@@ -378,8 +378,8 @@ export function WhySection() {
       </h3>
       <p className="mt-2 max-w-3xl text-sm text-[var(--muted)]">
         {t({
-          en: "Ranked by how often they come up in AWS Knowledge Center and community articles, weighted by how badly a mistake hurts. Each one points to the exit that untangles it.",
-          ja: "AWS ナレッジセンターやコミュニティ記事での登場頻度と、間違えた時の痛さで並べています。それぞれ解きほぐす出口へリンクしています。",
+          en: "An editorial ranking: how often each comes up in AWS Knowledge Center and community articles, weighed against how badly a mistake hurts. Not a measured count. Each one points to the exit that untangles it.",
+          ja: "AWS ナレッジセンターやコミュニティ記事での出やすさと、間違えた時の痛さを編集部の判断で並べたもので、件数を数えたものではありません。それぞれ解きほぐす出口へリンクしています。",
         })}
       </p>
       <ol className="mt-4 grid gap-2 md:grid-cols-2">

@@ -79,7 +79,7 @@ export function EdgeSection() {
       <p className="mt-2 mb-4 max-w-3xl">
         {t({
           en: "An Outpost is an extension of a VPC in its home Region. It talks to your LAN through a local gateway and to the Region through a service link, an AWS-managed encrypted VPN that needs a clean 1,500-byte MTU and AWS requires redundant connectivity of at least 500 Mbps per compute rack with at most 175 ms round-trip latency.",
-          ja: "Outpost はホームリージョンの VPC の延長です。社内 LAN とはローカルゲートウェイで、リージョンとはサービスリンク (AWS 管理の暗号化 VPN) でつながります。サービスリンクには MTU 1,500 がそのまま通る経路と、冗長化されたコンピュートラックごとに 500 Mbps 以上・往復遅延 175 ms 以下の接続が必要です (AWS の要件)。",
+          ja: "Outpost はホームリージョンの VPC の延長です。社内 LAN とはローカルゲートウェイで、リージョンとはサービスリンク (AWS 管理の暗号化 VPN) でつながります。サービスリンクには MTU 1,500 がそのまま通る経路と、コンピュートラックごとに 500 Mbps 以上の冗長化された接続 (往復遅延 175 ms 以下) が必要です (AWS の要件)。",
         })}
       </p>
       <OutpostsDiagram />

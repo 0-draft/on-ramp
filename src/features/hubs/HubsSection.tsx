@@ -95,8 +95,8 @@ const HUBS: Hub[] = [
       {
         k: { en: "Charge", ja: "料金" },
         v: {
-          en: "$0.07 per attachment-hour + $0.02/GB",
-          ja: "アタッチメント 1 時間 $0.07 + $0.02/GB",
+          en: "Tokyo: $0.07 per attachment-hour + $0.02/GB",
+          ja: "東京: アタッチメント 1 時間 $0.07 + $0.02/GB",
         },
       },
     ],
@@ -130,8 +130,8 @@ const HUBS: Hub[] = [
       {
         k: { en: "Charge", ja: "料金" },
         v: {
-          en: "$0.50 per edge-hour + $0.09 per attachment-hour + $0.02/GB",
-          ja: "エッジ 1 時間 $0.50 + アタッチメント 1 時間 $0.09 + $0.02/GB",
+          en: "Tokyo: $0.50 per edge-hour + $0.09 per attachment-hour + $0.02/GB",
+          ja: "東京: エッジ 1 時間 $0.50 + アタッチメント 1 時間 $0.09 + $0.02/GB",
         },
       },
     ],

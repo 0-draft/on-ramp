@@ -29,14 +29,20 @@ const CONDITIONS: { id: Condition; label: L }[] = [
   { id: "sourceVpce", label: { en: "aws:SourceVpce", ja: "aws:SourceVpce" } },
   {
     id: "both",
-    label: { en: "Either (two statements)", ja: "どちらか (2 つのステートメント)" },
+    label: {
+      en: "Either (one Deny, both conditions)",
+      ja: "どちらか (1 つの Deny に両方の条件)",
+    },
   },
 ];
 
 const POLICY: Record<Condition, string> = {
   sourceIp: `"Condition": { "NotIpAddress": { "aws:SourceIp": "${OFFICE_CIDR}" } }`,
   sourceVpce: `"Condition": { "StringNotEquals": { "aws:SourceVpce": "${VPCE_ID}" } }`,
-  both: `allow if aws:SourceIp in ${OFFICE_CIDR}\n  or aws:SourceVpce = ${VPCE_ID}`,
+  // One Deny with both negated conditions: it fires only when neither
+  // matches. Two separate Deny statements would block everything, because a
+  // request through an endpoint has no aws:SourceIp at all.
+  both: `"Condition": {\n  "NotIpAddress": { "aws:SourceIp": "${OFFICE_CIDR}" },\n  "StringNotEquals": { "aws:SourceVpce": "${VPCE_ID}" }\n}`,
 };
 
 const WHY: Record<Arrival, L> = {

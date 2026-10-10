@@ -30,8 +30,8 @@ export const LZ: Record<LzPath, { label: L; hairpin: boolean; why: L }> = {
     label: { en: "Internet", ja: "インターネット" },
     hairpin: false,
     why: {
-      en: "Internet traffic enters and leaves from the Local Zone itself.",
-      ja: "インターネット通信は Local Zone 自体から出入りします。",
+      en: "Outbound internet traffic leaves from the Local Zone itself.",
+      ja: "インターネット向けの送信は Local Zone 自体から出ます。",
     },
   },
 };

@@ -138,8 +138,8 @@ export function SdwanSection() {
           ]}
           answer="no"
           why={t({
-            en: "A Connect peer is capped at 5 Gbps, and one GRE tunnel is a single flow to EC2 networking, which caps a flow at 5 Gbps outside a cluster placement group. Add peers (up to 4) with identical prefixes and AS_PATH so the TGW can spread flows with ECMP.",
-            ja: "Connect ピアの上限は 5 Gbps。しかも GRE トンネル 1 本は EC2 から見て 1 フローで、クラスタープレイスメントグループ外では 1 フロー 5 Gbps が上限です。同じプレフィックス・同じ AS_PATH でピアを足せば (最大 4)、TGW が ECMP でフローを分散します。",
+            en: "A Connect peer is capped at 5 Gbps, and one GRE tunnel is a single flow to EC2 networking, which caps a flow at 5 Gbps outside a cluster placement group. Add peers (up to 4) with identical prefixes, AS_PATH and ASN so the TGW can spread flows with ECMP.",
+            ja: "Connect ピアの上限は 5 Gbps。しかも GRE トンネル 1 本は EC2 から見て 1 フローで、クラスタープレイスメントグループ外では 1 フロー 5 Gbps が上限です。同じプレフィックス・同じ AS_PATH・同じ ASN でピアを足せば (最大 4)、TGW が ECMP でフローを分散します。",
           })}
         >
           <CapacityLab />

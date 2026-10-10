@@ -354,8 +354,8 @@ const ENC: {
     color: "var(--layer-1)",
     border: "solid",
     note: {
-      en: "Only your router ↔ the AWS DX router, on dedicated 10/100/400 Gbps ports.",
-      ja: "自社ルーター ↔ AWS DX ルーター間だけ。専用接続 10/100/400 Gbps のみ。",
+      en: "Hop by hop between your MACsec device and the AWS DX device, on dedicated 10/100/400 Gbps ports. Not on hosted connections; a carrier circuit in between is covered only if it is Layer 2 transparent.",
+      ja: "自社の MACsec 機器と AWS DX 機器の間をホップ単位で暗号化 (専用接続 10/100/400 Gbps)。ホスト接続では不可、間に事業者回線があるなら L2 透過の場合のみ。",
     },
   },
   {

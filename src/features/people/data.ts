@@ -156,8 +156,8 @@ export const QUESTION: Record<Question, L> = {
 /** What a Session Manager session actually does, one step at a time. */
 export const SSM_STEPS: L[] = [
   {
-    en: "The SSM Agent on the instance dials out over HTTPS 443 to ssm and ssmmessages. The instance has no inbound rule at all; it needs either a NAT path or interface endpoints.",
-    ja: "インスタンスの SSM Agent が ssm と ssmmessages へ HTTPS 443 で外向きに接続。インスタンスに受信ルールは一切不要。NAT 経路かインターフェイスエンドポイントが必要です。",
+    en: "The SSM Agent on the instance dials out over HTTPS 443 to ssm and ssmmessages. The instance has no inbound rule at all; it needs either an internet path (public IP or NAT) or interface endpoints.",
+    ja: "インスタンスの SSM Agent が ssm と ssmmessages へ HTTPS 443 で外向きに接続。インスタンスに受信ルールは一切不要。インターネットへの経路 (パブリック IP か NAT) かインターフェイスエンドポイントが必要です。",
   },
   {
     en: "You sign in through IAM Identity Center (federated from your corporate IdP) and get temporary credentials.",

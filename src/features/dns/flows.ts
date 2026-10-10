@@ -118,7 +118,7 @@ export const SCENARIOS: Scenario[] = [
         },
       },
       fwd("inbound", {
-        en: "A conditional forwarder for exactly that name matches, so corp DNS forwards the query over DX or VPN (UDP 53) to the Resolver inbound endpoint's IP.",
+        en: "A conditional forwarder for exactly that name matches, so corp DNS forwards the query over DX or VPN (UDP 53) to the VPC Resolver inbound endpoint's IP.",
         ja: "まさにその名前の条件付きフォワーダーに一致し、社内 DNS はクエリを DX / VPN 越し (UDP 53) に Resolver インバウンドエンドポイントの IP へ転送します。",
       }),
       {

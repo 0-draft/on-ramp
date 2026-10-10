@@ -134,8 +134,8 @@ export function InternetSection() {
       </h3>
       <p className="mb-4 max-w-3xl">
         {t({
-          en: "Teams lock S3 buckets to the office with aws:SourceIp. It works until the same traffic moves onto a VPC endpoint over DX or VPN: requests through an endpoint carry no aws:SourceIp, so the policy denies everything. A policy that must work on both roads needs two statements, one on aws:SourceIp and one on aws:SourceVpce.",
-          ja: "S3 バケットを aws:SourceIp でオフィス限定にするのはよくある手。ところが同じ通信を DX や VPN 経由の VPC エンドポイントに移すと、エンドポイント経由のリクエストには aws:SourceIp がないので全部拒否されます。両方の道で通したいなら aws:SourceIp と aws:SourceVpce の 2 ステートメントが必要です。",
+          en: "Teams lock S3 buckets to the office with aws:SourceIp. It works until the same traffic moves onto a VPC endpoint over DX or VPN: requests through an endpoint carry no aws:SourceIp, so the policy denies everything. A policy that must work on both roads needs an OR: two Allow statements (one on aws:SourceIp, one on aws:SourceVpce), or, Deny-style, one Deny carrying both NotIpAddress aws:SourceIp and StringNotEquals aws:SourceVpce so it denies only when neither matches. Two separate Deny statements block everything.",
+          ja: "S3 バケットを aws:SourceIp でオフィス限定にするのはよくある手。ところが同じ通信を DX や VPN 経由の VPC エンドポイントに移すと、エンドポイント経由のリクエストには aws:SourceIp がないので全部拒否されます。両方の道で通すには OR が必要です。Allow なら aws:SourceIp と aws:SourceVpce の 2 ステートメント、Deny なら NotIpAddress と StringNotEquals を 1 つの Deny にまとめます (両方外れたときだけ拒否)。Deny を 2 つに分けると全部拒否されます。",
         })}
       </p>
       <PolicyLab />
@@ -149,8 +149,8 @@ export function InternetSection() {
           }}
         >
           {t({
-            en: "With a Direct Connect public VIF, AWS advertises all its public prefixes to you over BGP, and traffic to S3 enters AWS at the DX location without touching the internet. The flip side: a public VIF reaches every AWS public IP, including other customers' EC2, and it is not encrypted. Keep TLS, or put a VPN on it.",
-            ja: "Direct Connect のパブリック VIF なら、AWS は自社のパブリックプレフィックスを全部 BGP で広告し、S3 への通信は DX ロケーションで AWS に入るのでインターネットを通りません。裏返すと、パブリック VIF は他社の EC2 も含むすべての AWS パブリック IP に届き、しかも暗号化されません。TLS は維持するか、上に VPN を。",
+            en: "With a Direct Connect public VIF, AWS advertises all its public prefixes to you over BGP, and traffic to S3 enters AWS at the DX location without touching the internet. The flip side: a public VIF reaches every AWS public IP, including other customers' EC2, and it is not encrypted by default. Keep TLS, or put a VPN on it.",
+            ja: "Direct Connect のパブリック VIF なら、AWS は自社のパブリックプレフィックスを全部 BGP で広告し、S3 への通信は DX ロケーションで AWS に入るのでインターネットを通りません。裏返すと、パブリック VIF は他社の EC2 も含むすべての AWS パブリック IP に届き、しかもデフォルトでは暗号化されません。TLS は維持するか、上に VPN を。",
           })}
         </Callout>
         <Callout

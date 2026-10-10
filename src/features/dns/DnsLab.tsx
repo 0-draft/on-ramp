@@ -25,11 +25,11 @@ const STROKE: Record<Kind, string> = {
  * messages down the page) on wide screens, and as a vertical strip of
  * stations on phones. Walked one message at a time.
  */
-export function DnsLab() {
+export function DnsLab({ initial = "endpoint" }: { initial?: ScenarioId }) {
   const { t, lang } = useLang();
   const narrow = useNarrow();
   const uid = useId();
-  const [id, setId] = useState<ScenarioId>("endpoint");
+  const [id, setId] = useState<ScenarioId>(initial);
   const [step, setStep] = useState(0);
   const s = SCENARIO[id];
   const last = s.hops.length - 1;
