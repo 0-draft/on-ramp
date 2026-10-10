@@ -55,7 +55,7 @@ const WAYS: { way: L; talks: L; dns: L; cost: L }[] = [
   {
     way: {
       en: "Gateway endpoint (S3, DynamoDB)",
-      ja: "ゲートウェイ型エンドポイント (S3・DynamoDB)",
+      ja: "ゲートウェイエンドポイント (S3・DynamoDB)",
     },
     talks: {
       en: "Nothing: not reachable from on-prem",
@@ -84,7 +84,7 @@ export function PrivateSection() {
         <p>
           {t({
             en: "An interface endpoint (AWS PrivateLink) is one network interface per Availability Zone, each with a private IP from your subnet. A gateway endpoint for S3 or DynamoDB is different: it has no IP at all, only a line in the subnet route table. Traffic arriving from DX, VPN, peering or a transit gateway cannot leave the VPC through a gateway endpoint, so on-prem needs an interface endpoint or a public VIF.",
-            ja: "インターフェイスエンドポイント (AWS PrivateLink) は AZ ごとに 1 つのネットワークインターフェイスで、それぞれがサブネットのプライベート IP を持ちます。S3 / DynamoDB のゲートウェイ型エンドポイントは別物で、IP を持たずサブネットのルートテーブルに 1 行あるだけ。DX・VPN・ピアリング・Transit Gateway から入ってきた通信はゲートウェイ型から出られないので、オンプレにはインターフェイス型かパブリック VIF が必要です。",
+            ja: "インターフェイスエンドポイント (AWS PrivateLink) は AZ ごとに 1 つのネットワークインターフェイスで、それぞれがサブネットのプライベート IP を持ちます。S3 / DynamoDB のゲートウェイエンドポイントは別物で、IP を持たずサブネットのルートテーブルに 1 行あるだけ。DX・VPN・ピアリング・Transit Gateway から入ってきた通信はゲートウェイエンドポイントから出られないので、オンプレにはインターフェイスエンドポイントかパブリック VIF が必要です。",
           })}
         </p>
         <p>
@@ -124,7 +124,7 @@ export function PrivateSection() {
         >
           {t({
             en: 'Turn on private DNS for an S3 interface endpoint and the option "private DNS only for inbound endpoint" is ticked by default (since March 2023). Queries arriving through a VPC Resolver inbound endpoint get the endpoint\'s private IPs; queries from inside the VPC get public IPs and use the free gateway endpoint. It requires a gateway endpoint in the VPC.',
-            ja: "S3 インターフェイスエンドポイントでプライベート DNS を有効にすると「インバウンドエンドポイントのみプライベート DNS」が既定でオン (2023 年 3 月から)。VPC Resolver インバウンドエンドポイント経由のクエリにはエンドポイントのプライベート IP、VPC 内からのクエリにはパブリック IP が返り、無料のゲートウェイ型を使います。VPC 内にゲートウェイ型エンドポイントが必須です。",
+            ja: "S3 インターフェイスエンドポイントでプライベート DNS を有効にすると「インバウンドエンドポイントのみプライベート DNS」が既定でオン (2023 年 3 月から)。VPC Resolver インバウンドエンドポイント経由のクエリにはエンドポイントのプライベート IP、VPC 内からのクエリにはパブリック IP が返り、無料のゲートウェイエンドポイントを使います。VPC 内にゲートウェイエンドポイントが必須です。",
           })}
         </Callout>
         <Callout
@@ -210,7 +210,7 @@ export function PrivateSection() {
             <li>
               {t({
                 en: "Interface endpoints only, Regional DNS names only, needs the IAM permission vpce:AllowMultiRegion, and not supported in AZ apne1-az3. The provider pays $0.05 per active remote Region per hour.",
-                ja: "インターフェイス型のみ、リージョン DNS 名のみ、IAM 権限 vpce:AllowMultiRegion が必要、AZ apne1-az3 では非対応。提供側はアクティブなリモートリージョンごとに $0.05/時。",
+                ja: "インターフェイスエンドポイントのみ、リージョン DNS 名のみ、IAM 権限 vpce:AllowMultiRegion が必要、AZ apne1-az3 では非対応。提供側はアクティブなリモートリージョンごとに $0.05/時。",
               })}
             </li>
           </ul>
@@ -237,7 +237,7 @@ export function PrivateSection() {
           items={[
             {
               en: "Creating an S3 gateway endpoint and expecting on-prem to use it over DX. There is no IP to send to.",
-              ja: "S3 のゲートウェイ型エンドポイントを作り、DX 越しにオンプレから使えると思う。送り先の IP がありません。",
+              ja: "S3 のゲートウェイエンドポイントを作り、DX 越しにオンプレから使えると思う。送り先の IP がありません。",
             },
             {
               en: "Private DNS works in the VPC but on-prem still resolves public IPs. Forward the specific service names to a VPC Resolver inbound endpoint (see the next exit).",

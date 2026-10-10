@@ -525,7 +525,9 @@ export const ROUTES: Route[] = [
     id: "edge",
     shield: "E",
     color: "var(--r-edge)",
-    kind: "underlay",
+    // The service link is an AWS-managed VPN riding whatever transport you
+    // give it, so on the map this road is a tunnel, not a road of its own.
+    kind: "overlay",
     name: {
       en: "AWS in your building, and bulk data",
       ja: "社内に AWS を置く・大量データ",

@@ -161,8 +161,8 @@ export function HubsSection() {
           ]}
           answer="no"
           why={t({
-            en: "A DX gateway is a set of BGP route reflectors outside the data path. It tells each side which prefixes exist, but no packet ever passes through it, so VPC-to-VPC through a DXGW is not supported. If VPCs must talk, use a Transit Gateway or Cloud WAN (or peering).",
-            ja: "DX ゲートウェイはデータパスの外にある BGP ルートリフレクターの集まりです。どのプレフィックスがあるかを双方に伝えるだけで、パケットは一切通りません。DXGW 経由の VPC 間通信はサポート外。VPC 同士を通信させるなら Transit Gateway か Cloud WAN (またはピアリング) を使います。",
+            en: "A DX gateway is a set of BGP route reflectors outside the data path. It tells each side which prefixes exist, but no packet ever passes through it, so VPC-to-VPC through a DXGW is not supported, not even by hairpinning through your on-prem router on the same DXGW. The one documented exception is SiteLink, which lets VIFs (on-prem sites) reach each other. If VPCs must talk, use a Transit Gateway or Cloud WAN (or peering).",
+            ja: "DX ゲートウェイはデータパスの外にある BGP ルートリフレクターの集まりです。どのプレフィックスがあるかを双方に伝えるだけで、パケットは一切通りません。DXGW 経由の VPC 間通信はサポート外で、同じ DXGW を通ってオンプレでヘアピンさせる形もサポート外です。唯一の例外は SiteLink で、VIF (オンプレ拠点) 同士をつなげます。VPC 同士を通信させるなら Transit Gateway か Cloud WAN (またはピアリング) を使います。",
           })}
         >
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

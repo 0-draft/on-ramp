@@ -547,7 +547,10 @@ export function RoutingLab() {
         ))}
         {hub === "tgw" && (
           <Toggle
-            label={{ en: "TGW VPN ECMP option on", ja: "TGW の VPN ECMP を有効化" }}
+            label={{
+              en: "TGW VPN ECMP option on (the AWS default)",
+              ja: "TGW の VPN ECMP を有効化 (AWS の既定値)",
+            }}
             checked={ecmp}
             onChange={setEcmp}
           />

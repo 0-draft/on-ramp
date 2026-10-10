@@ -1,4 +1,4 @@
-import { advise, DEFAULTS, type Answers } from "./advisor";
+import { advise, DEFAULTS, REC, type Answers } from "./advisor";
 
 const ids = (a: Partial<Answers>) => advise({ ...DEFAULTS, ...a }).recs.map((r) => r.id);
 
@@ -125,5 +125,14 @@ describe("advise (docs/13 codeable rules)", () => {
     const p = advise({ ...DEFAULTS, who: "people", need: "apps", transport: "closed" });
     expect(p.recs.map((r) => r.id)).toEqual(["verifiedAccess"]);
     expect(p.avoid).toEqual([]);
+  });
+
+  it("never claims hosted connections stop at 1 Gbps (they go up to 25 Gbps)", () => {
+    for (const id of ["dxSingleRegion", "dxSingleRegionClosed"] as const) {
+      const why = REC[id].why;
+      expect(why.en, id).toContain("up to 25 Gbps");
+      expect(why.ja, id).toContain("最大 25 Gbps");
+      expect(why.en, id).not.toContain("Hosted connections below 1 Gbps");
+    }
   });
 });

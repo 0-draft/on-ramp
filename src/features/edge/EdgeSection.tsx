@@ -50,8 +50,8 @@ const DATA: DataSvc[] = [
     name: "AWS Snowball Edge",
     status: "closed",
     what: {
-      en: "No new customers since 2025-11-07. AWS points new customers to DataSync, Data Transfer Terminal or partners.",
-      ja: "2025-11-07 以降、新規顧客は利用不可。AWS は DataSync・Data Transfer Terminal・パートナーを案内。",
+      en: "No new customers since 2025-11-07. AWS points new customers to DataSync, Data Transfer Terminal or partners, and to Outposts for edge compute.",
+      ja: "2025-11-07 以降、新規顧客は利用不可。AWS は DataSync・Data Transfer Terminal・パートナーを、エッジでの計算には Outposts を案内。",
     },
   },
 ];
@@ -218,8 +218,8 @@ export function EdgeSection() {
           }}
         >
           {t({
-            en: "New AWS accounts cannot order Snowball Edge. For a new migration plan, size DataSync over DX or VPN, or book a Data Transfer Terminal.",
-            ja: "新しい AWS アカウントは Snowball Edge を注文できません。新規の移行計画では DX / VPN 上の DataSync か、Data Transfer Terminal を検討してください。",
+            en: "New AWS accounts cannot order Snowball Edge. For a new migration plan, size DataSync over DX or VPN, or book a Data Transfer Terminal; for compute at the edge, look at Outposts.",
+            ja: "新しい AWS アカウントは Snowball Edge を注文できません。新規の移行計画では DX / VPN 上の DataSync か、Data Transfer Terminal を検討してください。エッジでの計算なら Outposts です。",
           })}
         </Callout>
       </div>

@@ -26,8 +26,8 @@ const SINGLE: Record<string, L> = {
     ja: "ECMP には BGP が必要。静的ルーティングでは 1 本のトンネルが運びます。",
   },
   ecmpOff: {
-    en: "The Transit Gateway's VPN ECMP option is off, so it uses one path.",
-    ja: "Transit Gateway の VPN ECMP オプションがオフなので 1 経路だけ。",
+    en: "The Transit Gateway's VPN ECMP option has been turned off (it is on by default), so it uses one path.",
+    ja: "Transit Gateway の VPN ECMP オプションがオフ (既定は有効) なので 1 経路だけ。",
   },
 };
 
@@ -144,8 +144,8 @@ export function ThroughputLab() {
         {hub === "tgw" && (
           <Toggle
             label={{
-              en: "Transit Gateway VPN ECMP option",
-              ja: "Transit Gateway の VPN ECMP オプション",
+              en: "Transit Gateway VPN ECMP option (on by default)",
+              ja: "Transit Gateway の VPN ECMP オプション (既定で有効)",
             }}
             checked={ecmp}
             onChange={setEcmp}

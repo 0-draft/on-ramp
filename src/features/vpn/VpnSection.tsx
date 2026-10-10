@@ -53,7 +53,7 @@ const ENDS: { name: string; ecmp: L; large: string; accel: string; ipv6: L; note
     },
     {
       name: "Transit Gateway",
-      ecmp: { en: "✓ BGP, option on", ja: "✓ BGP、オプション有効時" },
+      ecmp: { en: "✓ BGP, on by default", ja: "✓ BGP、既定で有効" },
       large: Y,
       accel: Y,
       ipv6: { en: "✓ inside and outside", ja: "✓ 内側・外側とも" },
@@ -69,8 +69,8 @@ const ENDS: { name: string; ecmp: L; large: string; accel: string; ipv6: L; note
       accel: N,
       ipv6: { en: "✓", ja: "✓" },
       notes: {
-        en: "BGP only; lands in a segment. The VPN must be in the same account as the core network.",
-        ja: "BGP のみ。セグメントに所属。VPN はコアネットワークと同じアカウントに必要。",
+        en: "BGP only; lands in a segment. The VPN must be in the same account as the core network. No Private IP VPN: front it with a peered Transit Gateway.",
+        ja: "BGP のみ。セグメントに所属。VPN はコアネットワークと同じアカウントに必要。プライベート IP VPN は不可 (ピアリングした Transit Gateway 経由で)。",
       },
     },
     {
@@ -100,8 +100,8 @@ const VARIANTS: { title: L; body: L }[] = [
       ja: "Direct Connect 上のプライベート IP VPN",
     },
     body: {
-      en: "IPsec over a DX transit VIF to a Transit Gateway, with private outside IPs on both ends. It encrypts DX without a public VIF. Large tunnels work with it; the Concentrator does not.",
-      ja: "DX のトランジット VIF 上で Transit Gateway まで IPsec を張り、両端の外部 IP はプライベート。パブリック VIF なしで DX を暗号化できます。広帯域幅トンネルは可、VPN コンセントレータは不可。",
+      en: "IPsec over a DX transit VIF to a Transit Gateway, with private outside IPs on both ends. It encrypts DX without a public VIF. Large tunnels work with it; the Concentrator does not. Transit Gateway is the only termination; Cloud WAN reaches it through a peered TGW.",
+      ja: "DX のトランジット VIF 上で Transit Gateway まで IPsec を張り、両端の外部 IP はプライベート。パブリック VIF なしで DX を暗号化できます。広帯域幅トンネルは可、VPN コンセントレータは不可。終端は Transit Gateway のみで、Cloud WAN からはピアリングした TGW 経由になります。",
     },
   },
   {

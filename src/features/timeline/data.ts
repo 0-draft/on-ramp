@@ -330,7 +330,7 @@ const RAW: Launch[] = [
     family: "vpn",
     title: {
       en: "Private IP VPN over Direct Connect",
-      ja: "Direct Connect 上の Private IP VPN",
+      ja: "Direct Connect 上のプライベート IP VPN",
     },
     why: {
       en: "IPsec over a transit VIF with private addresses",

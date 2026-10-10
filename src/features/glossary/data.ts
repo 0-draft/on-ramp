@@ -322,8 +322,8 @@ export const GLOSSARY: Group[] = [
         ja: "Direct Connect ゲートウェイ (DX ゲートウェイ)",
         verified: true,
         def: {
-          en: "Global, route-only object linking VIFs to VGWs, TGWs or Cloud WAN; does not forward between its associations",
-          ja: "VIF と VGW・TGW・Cloud WAN を結ぶグローバルな経路専用オブジェクト。関連付け同士の転送はしない",
+          en: "Global, route-only object linking VIFs to VGWs, TGWs or Cloud WAN; does not forward between its associations (VIF to VIF only with SiteLink)",
+          ja: "VIF と VGW・TGW・Cloud WAN を結ぶグローバルな経路専用オブジェクト。関連付け同士の転送はしない (VIF 同士は SiteLink 有効時のみ)",
         },
         confused: { en: "Transit Gateway", ja: "Transit Gateway" },
       },

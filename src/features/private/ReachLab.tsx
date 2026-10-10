@@ -28,15 +28,15 @@ interface TargetInfo {
 const TARGETS: TargetInfo[] = [
   {
     id: "gateway",
-    label: { en: "Gateway endpoint", ja: "ゲートウェイ型" },
-    title: { en: "Gateway endpoint", ja: "ゲートウェイ型" },
+    label: { en: "Gateway endpoint", ja: "ゲートウェイエンドポイント" },
+    title: { en: "Gateway endpoint", ja: "ゲートウェイエンドポイント" },
     sub: { en: "route-table target, no IP", ja: "ルートの宛先のみ (IP なし)" },
     service: { en: "S3 / DynamoDB", ja: "S3 / DynamoDB" },
   },
   {
     id: "interface",
-    label: { en: "Interface endpoint", ja: "インターフェイス型" },
-    title: { en: "Interface endpoint", ja: "インターフェイス型" },
+    label: { en: "Interface endpoint", ja: "インターフェイスエンドポイント" },
+    title: { en: "Interface endpoint", ja: "インターフェイスエンドポイント" },
     sub: { en: "ENI 10.0.1.15", ja: "ENI 10.0.1.15" },
     service: { en: "AWS API (e.g. KMS)", ja: "AWS API (KMS など)" },
   },
@@ -44,10 +44,13 @@ const TARGETS: TargetInfo[] = [
     id: "s3Inbound",
     label: {
       en: "S3 interface, inbound-only DNS",
-      ja: "S3 インターフェイス型 (DNS はインバウンドのみ)",
+      ja: "S3 インターフェイスエンドポイント (DNS はインバウンドのみ)",
     },
-    title: { en: "S3 interface endpoint", ja: "S3 インターフェイス型" },
-    sub: { en: "private DNS: inbound only", ja: "DNS はインバウンドのみ" },
+    title: { en: "S3 interface endpoint", ja: "S3 インターフェイス" },
+    sub: {
+      en: "private DNS: inbound only",
+      ja: "エンドポイント (DNS は受信のみ)",
+    },
     service: { en: "Amazon S3", ja: "Amazon S3" },
   },
   {
@@ -313,7 +316,7 @@ export function ReachLab() {
           <p className="mt-2 text-xs text-[var(--muted)]">
             {t({
               en: "A dashed box is a gateway endpoint: it has no IP address of its own, only an entry in the route table.",
-              ja: "破線の箱はゲートウェイ型エンドポイント。自前の IP アドレスはなく、ルートテーブルの 1 行にすぎません。",
+              ja: "破線の箱はゲートウェイエンドポイント。自前の IP アドレスはなく、ルートテーブルの 1 行にすぎません。",
             })}
           </p>
         </div>

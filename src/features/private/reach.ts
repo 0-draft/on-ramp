@@ -28,7 +28,7 @@ export interface Verdict {
 
 const TRANSITIVE: L = {
   en: "A gateway endpoint is only a route-table target (a prefix list), not an IP address. Traffic that enters the VPC from VPN, DX, peering or a transit gateway cannot leave through it: AWS docs say gateway endpoints do not allow access from on-premises networks, from peered VPCs in other Regions, or through a transit gateway.",
-  ja: "ゲートウェイ型エンドポイントはルートテーブルのターゲット (プレフィックスリスト) で、IP アドレスを持ちません。VPN・DX・ピアリング・Transit Gateway から VPC に入った通信はそこから出られません。AWS ドキュメントにも、オンプレミス、他リージョンのピア VPC、Transit Gateway 経由ではアクセスできないと明記されています。",
+  ja: "ゲートウェイエンドポイントはルートテーブルのターゲット (プレフィックスリスト) で、IP アドレスを持ちません。VPN・DX・ピアリング・Transit Gateway から VPC に入った通信はそこから出られません。AWS ドキュメントにも、オンプレミス、他リージョンのピア VPC、Transit Gateway 経由ではアクセスできないと明記されています。",
 };
 
 const LINK_LOCAL: L = {
@@ -44,7 +44,7 @@ export function reach(client: Client, target: Target): Verdict {
           result: "yes",
           why: {
             en: "Inside its own VPC a gateway endpoint works and is free: the subnet route table sends S3 or DynamoDB prefixes to it.",
-            ja: "自分の VPC の中ならゲートウェイ型エンドポイントは使え、しかも無料。サブネットのルートテーブルが S3 / DynamoDB のプレフィックスをそこへ送ります。",
+            ja: "自分の VPC の中ならゲートウェイエンドポイントは使え、しかも無料。サブネットのルートテーブルが S3 / DynamoDB のプレフィックスをそこへ送ります。",
           },
         };
       return { result: "no", why: TRANSITIVE };
@@ -88,14 +88,14 @@ export function reach(client: Client, target: Target): Verdict {
           result: "yes",
           why: {
             en: "Same name, different answer: from inside the VPC, S3 names resolve to public IPs, so traffic uses the free gateway endpoint. That is why the option requires a gateway endpoint in the VPC.",
-            ja: "同じ名前で答えが違う: VPC の中からは S3 の名前がパブリック IP に解決され、無料のゲートウェイ型エンドポイントを通ります。だからこのオプションには VPC 内のゲートウェイ型エンドポイントが必須です。",
+            ja: "同じ名前で答えが違う: VPC の中からは S3 の名前がパブリック IP に解決され、無料のゲートウェイエンドポイントを通ります。だからこのオプションには VPC 内のゲートウェイエンドポイントが必須です。",
           },
         };
       return {
         result: "partial",
         why: {
           en: "Packets can reach the endpoint IPs through a transit gateway, but with 'private DNS only for inbound endpoint' queries from VPCs get S3's public IPs. A spoke should use its own free S3 gateway endpoint, or the vpce- name if it must use this endpoint.",
-          ja: "Transit Gateway 経由でエンドポイント IP には届きますが、「インバウンドエンドポイントのみプライベート DNS」では VPC からのクエリに S3 のパブリック IP が返ります。スポークは自前の無料ゲートウェイ型エンドポイントを使うか、どうしてもこのエンドポイントを使うなら vpce- 名を指定します。",
+          ja: "Transit Gateway 経由でエンドポイント IP には届きますが、「インバウンドエンドポイントのみプライベート DNS」では VPC からのクエリに S3 のパブリック IP が返ります。スポークは自前の無料ゲートウェイエンドポイントを使うか、どうしてもこのエンドポイントを使うなら vpce- 名を指定します。",
         },
       };
 
@@ -112,7 +112,7 @@ export function reach(client: Client, target: Target): Verdict {
         result: "na",
         why: {
           en: "A public VIF is a Direct Connect construct for your routers. VPCs reach public endpoints their own way (gateway endpoint, interface endpoint, NAT or internet gateway).",
-          ja: "パブリック VIF は社内ルーター向けの Direct Connect の仕組み。VPC はパブリックエンドポイントへ自前の経路 (ゲートウェイ型 / インターフェイス型エンドポイント、NAT、インターネットゲートウェイ) で到達します。",
+          ja: "パブリック VIF は社内ルーター向けの Direct Connect の仕組み。VPC はパブリックエンドポイントへ自前の経路 (ゲートウェイ / インターフェイスエンドポイント、NAT、インターネットゲートウェイ) で到達します。",
         },
       };
 

@@ -251,8 +251,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "Transit Gateway への Site-to-Site VPN",
     },
     why: {
-      en: "One VPN reaches every attached VPC. Turn on VPN ECMP with BGP to add tunnels for more bandwidth.",
-      ja: "1 本の VPN で接続中の全 VPC へ。BGP で VPN ECMP を有効にすればトンネルを足して帯域を増やせる。",
+      en: "One VPN reaches every attached VPC. VPN ECMP is on by default on a Transit Gateway; with BGP, add tunnels for more bandwidth.",
+      ja: "1 本の VPN で接続中の全 VPC へ。Transit Gateway の VPN ECMP は既定で有効。BGP ならトンネルを足して帯域を増やせる。",
     },
   },
   largeTunnel: {
@@ -275,8 +275,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "Direct Connect + DX ゲートウェイ + Transit Gateway、VPN をバックアップに",
     },
     why: {
-      en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway, plus a BGP VPN on the same Transit Gateway. Advertise the same prefixes on both. Hosted connections below 1 Gbps, dedicated from 1 Gbps.",
-      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け、同じ Transit Gateway に BGP VPN を。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続、1 Gbps からは専用接続。",
+      en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway, plus a BGP VPN on the same Transit Gateway. Advertise the same prefixes on both. Under 1 Gbps only hosted connections exist; from 1 Gbps choose hosted (through a partner, up to 25 Gbps) or dedicated (1, 10 or 100 Gbps; you bring the circuit, and MACsec needs it).",
+      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け、同じ Transit Gateway に BGP VPN を。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続のみ。1 Gbps 以上はホスト接続 (パートナー経由、最大 25 Gbps) か専用接続 (1・10・100 Gbps、回線は自前、MACsec には専用接続が必要) を選びます。",
     },
   },
   dxSingleRegionClosed: {
@@ -285,8 +285,8 @@ export const REC: Record<RecId, { title: L; why: L }> = {
       ja: "Direct Connect + DX ゲートウェイ + Transit Gateway、バックアップは 2 つ目の DX ロケーション",
     },
     why: {
-      en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway. In a closed network, back up with the second DX location (or Private IP VPN over another DX), not an internet VPN. Advertise the same prefixes on both. Hosted connections below 1 Gbps, dedicated from 1 Gbps.",
-      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け。閉域ではインターネット VPN ではなく、2 つ目の DX ロケーション (または別 DX 上のプライベート IP VPN) をバックアップに。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続、1 Gbps からは専用接続。",
+      en: "Transit VIFs from two DX locations to one DX gateway, associated with a Transit Gateway. In a closed network, back up with the second DX location (or Private IP VPN over another DX), not an internet VPN. Advertise the same prefixes on both. Under 1 Gbps only hosted connections exist; from 1 Gbps choose hosted (through a partner, up to 25 Gbps) or dedicated (1, 10 or 100 Gbps; you bring the circuit, and MACsec needs it).",
+      ja: "2 つの DX ロケーションからトランジット VIF を 1 つの DX ゲートウェイへ、それを Transit Gateway に関連付け。閉域ではインターネット VPN ではなく、2 つ目の DX ロケーション (または別 DX 上のプライベート IP VPN) をバックアップに。両方で同じプレフィックスを広告。1 Gbps 未満はホスト接続のみ。1 Gbps 以上はホスト接続 (パートナー経由、最大 25 Gbps) か専用接続 (1・10・100 Gbps、回線は自前、MACsec には専用接続が必要) を選びます。",
     },
   },
   dxMultiRegion: {
@@ -326,7 +326,7 @@ export const REC: Record<RecId, { title: L; why: L }> = {
     },
     why: {
       en: "No internet gateway (enforce with VPC Block Public Access), interface endpoints for every AWS API you call (an S3 interface endpoint for on-prem clients; each VPC keeps its own free S3 gateway endpoint, which 'private DNS only for inbound endpoint' requires), and Route 53 VPC Resolver inbound and outbound endpoints for DNS.",
-      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (オンプレ向けは S3 インターフェイス型、各 VPC には無料のゲートウェイ型も置く。「インバウンドエンドポイントのみプライベート DNS」に必須)、DNS には Route 53 VPC Resolver のインバウンド/アウトバウンドエンドポイント。",
+      ja: "インターネットゲートウェイなし (VPC Block Public Access で強制)、呼び出す AWS API すべてにインターフェイスエンドポイント (オンプレ向けは S3 インターフェイスエンドポイント、各 VPC には無料のゲートウェイエンドポイントも置く。「インバウンドエンドポイントのみプライベート DNS」に必須)、DNS には Route 53 VPC Resolver のインバウンド/アウトバウンドエンドポイント。",
     },
   },
   overlap: {
@@ -407,7 +407,7 @@ export const ANTI: Record<AntiId, { title: L; fix: L }> = {
     },
     fix: {
       en: "Gateway endpoints work only inside the VPC. Use the S3 interface endpoint.",
-      ja: "ゲートウェイ型は VPC 内専用。S3 のインターフェイスエンドポイントを。",
+      ja: "ゲートウェイエンドポイントは VPC 内専用。S3 のインターフェイスエンドポイントを。",
     },
   },
   publicDns: {
