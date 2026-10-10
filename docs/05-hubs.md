@@ -62,7 +62,7 @@ The DXGW is covered in [04-direct-connect.md](04-direct-connect.md#direct-connec
 
 - One DXGW is in exactly one mode: VGW associations, TGW associations, or one Cloud WAN attachment.
 - In TGW mode, on-prem learns only the allowed prefixes you configure (up to 200 per TGW), not the VPC CIDRs. In Cloud WAN mode it learns the whole segment (up to 5,000 prefixes) and AS_PATH is preserved.
-- A DXGW does not route VPC to VPC. Two VPCs behind VGWs on one DXGW talk only if on-prem hairpins a covering supernet through the same VIF (a documented exception), so block that with security groups or specific routes if you need isolation.
+- A DXGW does not route VPC to VPC. The current DX user guide lists as unsupported both direct VPC-to-VPC traffic and "traffic from one VPC to another by using a hairpin through an on-premises network through a single Direct Connect gateway", as well as VIF-to-VIF traffic (which SiteLink enables) ([virtualgateways](https://docs.aws.amazon.com/directconnect/latest/UserGuide/virtualgateways.html)). An older AWS blog described a supernet-hairpin exception; do not rely on it.
 
 ## Transit Gateway
 
@@ -197,7 +197,7 @@ flowchart LR
 
 - A DXGW attachment covers one segment, with edge locations set to all or specific. Each CNE advertises only its local routes to the DXGW, AS_PATH preserved.
 - DX BGP communities (7224:7xxx) and allowed prefixes are not supported on the Cloud WAN side. Routing policy is the replacement.
-- Static routes pointing at a DXGW attachment are not supported. Private IP VPN and Connect attachments cannot use a DXGW attachment as transport.
+- Static routes pointing at a DXGW attachment are not supported. Private IP VPN and Connect attachments cannot use a DXGW attachment as transport. Private IP VPN terminates on a transit gateway only ([private-ip-dx](https://docs.aws.amazon.com/vpn/latest/s2svpn/private-ip-dx.html)); to bring it into Cloud WAN, terminate it on a TGW and peer that TGW with the core network.
 - Routing policies are not supported on NFGs. Summarization resets attributes (MED 100, local preference 0, empty AS_PATH, no communities).
 - Tunnel-less Connect (2023-10) lets SD-WAN appliances peer by plain BGP at up to 100 Gbps per AZ.
 - New Regions in 2025: GovCloud (US) (2025-10), Thailand, Taipei and New Zealand (2025-11).

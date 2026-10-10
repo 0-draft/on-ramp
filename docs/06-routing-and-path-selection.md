@@ -92,7 +92,7 @@ ECMP on TGW:
 
 | Attachment | ECMP |
 | --- | --- |
-| VPN | Only if the TGW's VPN ECMP option is enabled and the VPN uses BGP. Off: TGW uses internal metrics |
+| VPN | Only if the TGW's VPN ECMP option is enabled (the default at creation, per [TransitGatewayRequestOptions](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_TransitGatewayRequestOptions.html)) and the VPN uses BGP. Off: TGW uses internal metrics |
 | DXGW | Automatic across DXGW attachments when prefix, length and AS_PATH are exactly the same. One DXGW also does ECMP across its transit VIFs |
 | Connect | Automatic |
 | VPC, peering, VPN Concentrator | No |

@@ -128,7 +128,7 @@ Large Bandwidth Tunnels launched on 2025-11-12. Constraints: TGW or Cloud WAN on
 
 Since 2026-05-06 you can modify tunnel bandwidth between Standard and Large on an existing connection while keeping tunnel IPs, inside CIDRs, PSKs and other settings. The launch post lists Tokyo and Osaka among the supported Regions. Before that date, changing bandwidth meant creating a new connection.
 
-On a transit gateway or Cloud WAN, ECMP aggregates tunnels and connections, but only with BGP. On a transit gateway it is the VPN ECMP support option; Cloud WAN enables VPN ECMP by default (`vpn-ecmp-support: true` in the core network policy). Two LBT connections give four 5 Gbps tunnels, which AWS describes as 20 Gbps aggregate. A single TCP or UDP flow is hashed onto one tunnel, so one flow never exceeds that tunnel's limit (1.25 or 5 Gbps). Public-IP and private-IP VPN connections cannot be combined in one ECMP set.
+On a transit gateway or Cloud WAN, ECMP aggregates tunnels and connections, but only with BGP. On a transit gateway it is the VPN ECMP support option, enabled by default when you create the TGW ([TransitGatewayRequestOptions](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_TransitGatewayRequestOptions.html): "Enabled by default"); Cloud WAN enables VPN ECMP by default (`vpn-ecmp-support: true` in the core network policy). Two LBT connections give four 5 Gbps tunnels, which AWS describes as 20 Gbps aggregate. A single TCP or UDP flow is hashed onto one tunnel, so one flow never exceeds that tunnel's limit (1.25 or 5 Gbps). Public-IP and private-IP VPN connections cannot be combined in one ECMP set.
 
 ```mermaid
 flowchart LR
@@ -171,7 +171,7 @@ Accelerated VPN is billed as the normal VPN connection fee plus two accelerator 
 
 ## Private IP VPN over Direct Connect
 
-Private IP VPN runs IPsec over a Direct Connect transit VIF, through a Direct Connect gateway, to a transit gateway, with private (RFC 1918 or RFC 6598) outside IPs on both ends. It encrypts DX traffic without a public VIF or third-party VPN appliances. It was announced on 2022-06-22.
+Private IP VPN runs IPsec over a Direct Connect transit VIF, through a Direct Connect gateway, to a transit gateway (the only supported termination; Cloud WAN reaches it through a peered TGW, per [private-ip-dx](https://docs.aws.amazon.com/vpn/latest/s2svpn/private-ip-dx.html)), with private (RFC 1918 or RFC 6598) outside IPs on both ends. It encrypts DX traffic without a public VIF or third-party VPN appliances. It was announced on 2022-06-22.
 
 Prerequisites: a TGW with a TGW CIDR block for tunnel outside addresses, a Direct Connect gateway associated with the TGW, and that TGW CIDR listed in the allowed prefixes of the association. The VPN attachment references the DX attachment as transport, and many private IP VPNs can share one DX attachment.
 

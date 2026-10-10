@@ -33,7 +33,7 @@ This glossary covers about 60 terms used across the research set. Each entry giv
 | AWS Interconnect – last mile | AWS Interconnect - last mile | – | Managed partner last-mile connection, 1–100 Gbps, MACsec on by default | Hosted connection |
 | AWS Interconnect – multicloud | AWS Interconnect - multicloud | – | Managed private L3 link between AWS and another cloud | Site-to-Site VPN to another cloud |
 | Closed network | 閉域網 / 閉域接続 | – | Japanese industry term for a private carrier network that does not touch the internet; on AWS it usually means DX plus no internet egress | Encrypted network |
-| BGP / ASN | BGP / 自律システム番号 (ASN) | ✓ | Dynamic routing protocol and the number that identifies each side; DXGW and TGW ASNs must differ | Static routing |
+| BGP / ASN | BGP / 自律システム番号 (ASN) | ✓ | Dynamic routing protocol and the number that identifies each side; DXGW and TGW ASNs must differ ([re:Post](https://repost.aws/knowledge-center/direct-connect-associate-transit-gateway)) | Static routing |
 
 ## AWS-side hubs and gateways
 

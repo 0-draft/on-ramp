@@ -85,7 +85,7 @@ SiteLink lets on-prem sites talk to each other across the AWS backbone between D
 | Option | Layer | Where it applies |
 | --- | --- | --- |
 | MACsec (IEEE 802.1AE) | L2, hop by hop | Dedicated 10, 100 and 400 Gbps ports at locations marked "(M)"; not 1 Gbps, not hosted connections. Partner interconnects since 2025-07 |
-| Private IP Site-to-Site VPN | L3 IPsec | Over a transit VIF to a Transit Gateway (or Cloud WAN), outer IPs private |
+| Private IP Site-to-Site VPN | L3 IPsec | Over a transit VIF to a Transit Gateway only (Cloud WAN cannot use its DXGW attachment as VPN transport; front it with a TGW), outer IPs private |
 | Public IP VPN over a public VIF | L3 IPsec | To the public VPN endpoints, not accelerated |
 
 MACsec is hop by hop: it encrypts the link between your MACsec device and the AWS device, which need a direct Layer 2 adjacency. If your MACsec device sits in the colocation cage, that is just the cross connect; the carrier circuit to your building is covered only if your device is at your end and the carrier passes Layer 2 through transparently (ask the carrier). 100 and 400 Gbps require GCM-AES-XPN-256; 10 Gbps allows GCM-AES-256 or the XPN variant. Only static CAK mode is supported. Depth: [cross-connect 03-lag-and-macsec](https://github.com/0-draft/cross-connect/blob/main/docs/03-lag-and-macsec.md).

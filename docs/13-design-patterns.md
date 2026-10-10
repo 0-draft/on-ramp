@@ -48,7 +48,7 @@ Each rule reads `if <condition> then <recommendation>`. Earlier rules win. `alt`
 8. `who = site AND vpcs > 1 AND bw <= 1.25 Gbps AND internet_ok` → **Site-to-Site VPN to TGW**; ECMP for more.
 9. `who = site AND 1.25 < bw <= 5 Gbps AND internet_ok` → **Large bandwidth tunnel** on TGW or Cloud WAN.
 10. `who = site AND remote_site_far_from_region AND internet_ok` → **Accelerated VPN** on TGW (cannot be combined with large tunnels).
-11. `who = site AND (needs_consistent_latency OR bw > 5 Gbps OR internet_not_allowed)` → **Direct Connect**; dedicated if `bw >= 1 Gbps AND own_presence`, hosted if partner-delivered or `bw < 1 Gbps`, **Interconnect – last mile** if `country = US AND partner_available`.
+11. `who = site AND (needs_consistent_latency OR bw > 5 Gbps OR internet_not_allowed)` → **Direct Connect**; dedicated if `bw >= 1 Gbps AND own_presence`, hosted if partner-delivered or `bw < 1 Gbps` (hosted connections go up to 25 Gbps, so partner delivery is an option above 1 Gbps too), **Interconnect – last mile** if `country = US AND partner_available`.
 12. `uses_dx AND regions = 1` → **P2**: DX ×2 locations + DXGW + TGW + Site-to-Site VPN backup.
 13. `uses_dx AND regions > 1` → **P3**: DXGW + Cloud WAN (native DXGW attachment since 2024-11) or DXGW + TGW per Region with TGW peering.
 14. `uses_dx AND encryption_required AND dedicated_speed >= 10 Gbps AND macsec_location AND (own_port OR carrier_is_l2_transparent)` → **MACsec** (it needs a dedicated port and a direct Layer 2 adjacency, so it does not cover a hosted connection or a carrier that is not L2 transparent); else **Private IP VPN over transit VIF** (needs TGW).
