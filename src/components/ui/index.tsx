@@ -102,7 +102,13 @@ export function Shield({
   return (
     <span
       className={`inline-flex shrink-0 items-center justify-center rounded-md border-2 border-[var(--paper)] font-black leading-none text-[var(--on-color)] outline-2 ${s}`}
-      style={{ background: color, outlineColor: color, outlineStyle: "solid" }}
+      style={{
+        background: color,
+        outlineColor: color,
+        outlineStyle: "solid",
+        // Hub shields sit on the hub colour, which has its own text colour.
+        color: color === "var(--hub)" ? "var(--on-hub)" : undefined,
+      }}
     >
       {label}
     </span>
