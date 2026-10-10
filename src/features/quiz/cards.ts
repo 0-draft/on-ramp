@@ -131,8 +131,8 @@ export const CARDS: QuizCard[] = [
     },
     fact: false,
     why: {
-      en: "VPN tops out at an MTU of 1,446 (MSS 1,406), with no jumbo frames and no path MTU discovery. Big packets can vanish after a failover from DX to VPN.",
-      ja: "VPN の MTU は最大 1,446 (MSS 1,406)。ジャンボフレームもパス MTU 検出 (PMTUD) もありません。DX から VPN へ切り替わった途端に大きなパケットが消えることも。",
+      en: "VPN tops out at an MTU of 1446 (MSS 1406), with no jumbo frames and no path MTU discovery. Big packets can vanish after a failover from DX to VPN.",
+      ja: "VPN の MTU は最大 1446 (MSS 1406)。ジャンボフレームもパス MTU 検出 (PMTUD) もありません。DX から VPN へ切り替わった途端に大きなパケットが消えることも。",
     },
     to: "mtu",
   },
@@ -143,8 +143,8 @@ export const CARDS: QuizCard[] = [
     },
     fact: false,
     why: {
-      en: "No inbound port at all. The SSM Agent connects outward over HTTPS 443 to ssm and ssmmessages, through a NAT path or interface endpoints.",
-      ja: "受信ポートは一切不要。SSM Agent が NAT 経路かインターフェイスエンドポイント経由で、ssm と ssmmessages へ HTTPS 443 で外向きに接続します。",
+      en: "No inbound port at all. The SSM Agent connects outward over HTTPS 443 to ssm and ssmmessages, through an internet path (public IP or NAT) or interface endpoints.",
+      ja: "受信ポートは一切不要。SSM Agent がインターネット経路 (パブリック IP か NAT) かインターフェイスエンドポイント経由で、ssm と ssmmessages へ HTTPS 443 で外向きに接続します。",
     },
     to: "people",
   },
@@ -167,8 +167,8 @@ export const CARDS: QuizCard[] = [
     },
     fact: false,
     why: {
-      en: "Since 2025-11-07 Snowball Edge is not offered to new customers. AWS points them to DataSync, Data Transfer Terminal or partners.",
-      ja: "2025-11-07 以降、Snowball Edge は新規顧客に提供されていません。AWS は DataSync・Data Transfer Terminal・パートナーを案内しています。",
+      en: "Since 2025-11-07 Snowball Edge is not offered to new customers. AWS points them to DataSync, Data Transfer Terminal, partners or Outposts.",
+      ja: "2025-11-07 以降、Snowball Edge は新規顧客に提供されていません。AWS は DataSync・Data Transfer Terminal・パートナー・Outposts を案内しています。",
     },
     to: "edge",
   },

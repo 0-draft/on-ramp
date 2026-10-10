@@ -25,77 +25,81 @@ export function GlossarySection() {
         ja: "各用語の AWS ドキュメント上の日本語名と、最もよく混同される相手。✓ は docs.aws.amazon.com/ja_jp のページで日本語名を確認済み (AWS はそれらのページを機械翻訳と明記しており、英語版が優先されます)、? は AWS ドキュメントで確認できない一般的な呼び方です。",
       }}
     >
-      {/* The filter stays in reach while you scroll a long group. */}
-      <div className="sticky top-14 z-10 -mx-1 bg-[var(--bg)] px-1 pt-1 pb-2">
-        <label htmlFor={id} className="block text-sm font-semibold">
-          {t({ en: "Filter", ja: "絞り込み" })}
-        </label>
-        <input
-          id={id}
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={t({
-            en: "e.g. transit, 伝播, endpoint",
-            ja: "例: transit、伝播、エンドポイント",
-          })}
-          className="mt-1 w-full max-w-md rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-2"
-        />
-        <p className="mt-1 text-sm text-[var(--muted)]" aria-live="polite">
-          {total === 0
-            ? t({
-                en: "No terms match. Try an English or Japanese word, or clear the filter.",
-                ja: "一致する用語がありません。英語か日本語の別の語で試すか、絞り込みを消してください。",
-              })
-            : t({ en: `${total} terms`, ja: `${total} 語` })}
-        </p>
-      </div>
+      {/* The sticky filter is scoped to this wrapper, so it lets go once the
+          last group scrolls past. */}
+      <div>
+        {/* The filter stays in reach while you scroll a long group. */}
+        <div className="sticky top-14 z-10 -mx-1 bg-[var(--bg)] px-1 pt-1 pb-2">
+          <label htmlFor={id} className="block text-sm font-semibold">
+            {t({ en: "Filter", ja: "絞り込み" })}
+          </label>
+          <input
+            id={id}
+            type="search"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={t({
+              en: "e.g. transit, 伝播, endpoint",
+              ja: "例: transit、伝播、エンドポイント",
+            })}
+            className="mt-1 w-full max-w-md rounded-lg border border-[var(--line)] bg-[var(--paper)] px-3 py-2"
+          />
+          <p className="mt-1 text-sm text-[var(--muted)]" aria-live="polite">
+            {total === 0
+              ? t({
+                  en: "No terms match. Try an English or Japanese word, or clear the filter.",
+                  ja: "一致する用語がありません。英語か日本語の別の語で試すか、絞り込みを消してください。",
+                })
+              : t({ en: `${total} terms`, ja: `${total} 語` })}
+          </p>
+        </div>
 
-      <div className="mt-4 space-y-3">
-        {groups.map((g, gi) => {
-          // While filtering every matching group is open; otherwise only the
-          // first starts open so the section stays short.
-          const isOpen = q.trim() !== "" || (open[g.name.en] ?? gi === 0);
-          return (
-            <details
-              key={g.name.en}
-              open={isOpen}
-              onToggle={(e) => {
-                const now = e.currentTarget.open;
-                if (now !== isOpen && q.trim() === "")
-                  setOpen((o) => ({ ...o, [g.name.en]: now }));
-              }}
-              className="panel"
-            >
-              <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 text-lg font-extrabold">
-                {t(g.name)}
-                <span className="num text-sm font-semibold text-[var(--muted)]">
-                  {g.terms.length}
-                </span>
-              </summary>
-              <div className="border-t border-[var(--line)] px-3 pt-3 pb-4 sm:px-4">
-                {GLOSSARY[0].name.en === g.name.en && (
-                  <div className="mb-3">
-                    <Callout tone="info">
-                      {t({
-                        en: "Direct Connect terms (VIFs, LAG, LOA-CFA, SiteLink and more) are covered in depth in ",
-                        ja: "Direct Connect の用語 (VIF・LAG・LOA-CFA・SiteLink など) は、こちらで詳しく: ",
-                      })}
-                      <a
-                        className="font-bold underline"
-                        href="https://0-draft.github.io/cross-connect/#glossary"
-                      >
-                        Cross Connect: {t({ en: "Glossary", ja: "用語集" })}
-                      </a>
-                    </Callout>
-                  </div>
-                )}
-                <TermTable terms={g.terms} />
-                <TermList terms={g.terms} />
-              </div>
-            </details>
-          );
-        })}
+        <div className="mt-4 space-y-3">
+          {groups.map((g, gi) => {
+            // While filtering every matching group is open; otherwise only the
+            // first starts open so the section stays short.
+            const isOpen = q.trim() !== "" || (open[g.name.en] ?? gi === 0);
+            return (
+              <details
+                key={g.name.en}
+                open={isOpen}
+                onToggle={(e) => {
+                  const now = e.currentTarget.open;
+                  if (now !== isOpen && q.trim() === "")
+                    setOpen((o) => ({ ...o, [g.name.en]: now }));
+                }}
+                className="panel"
+              >
+                <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-4 py-2 text-lg font-extrabold">
+                  {t(g.name)}
+                  <span className="num text-sm font-semibold text-[var(--muted)]">
+                    {g.terms.length}
+                  </span>
+                </summary>
+                <div className="border-t border-[var(--line)] px-3 pt-3 pb-4 sm:px-4">
+                  {GLOSSARY[0].name.en === g.name.en && (
+                    <div className="mb-3">
+                      <Callout tone="info">
+                        {t({
+                          en: "Direct Connect terms (VIFs, LAG, LOA-CFA, SiteLink and more) are covered in depth in ",
+                          ja: "Direct Connect の用語 (VIF・LAG・LOA-CFA・SiteLink など) は、こちらで詳しく: ",
+                        })}
+                        <a
+                          className="font-bold underline"
+                          href="https://0-draft.github.io/cross-connect/#glossary"
+                        >
+                          Cross Connect: {t({ en: "Glossary", ja: "用語集" })}
+                        </a>
+                      </Callout>
+                    </div>
+                  )}
+                  <TermTable terms={g.terms} />
+                  <TermList terms={g.terms} />
+                </div>
+              </details>
+            );
+          })}
+        </div>
       </div>
 
       <Sources

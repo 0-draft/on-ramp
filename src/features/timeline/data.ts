@@ -18,6 +18,92 @@ const W = "https://aws.amazon.com/about-aws/whats-new/";
 /** docs/15-timeline.md, in date order. */
 const RAW: Launch[] = [
   {
+    date: "2023-06-13",
+    family: "people",
+    title: { en: "EC2 Instance Connect Endpoint", ja: "EC2 Instance Connect Endpoint" },
+    why: {
+      en: "SSH/RDP to private instances with IAM, no bastion and no public IP",
+      ja: "踏み台もパブリック IP もなしで、IAM でプライベートなインスタンスへ SSH/RDP",
+    },
+    url: "https://aws.amazon.com/blogs/compute/secure-connectivity-from-public-to-private-introducing-ec2-instance-connect-endpoint-june-13-2023/",
+  },
+  {
+    date: "2024-04-24",
+    family: "dx",
+    title: { en: "25 Gbps hosted connections", ja: "25 Gbps のホスト接続" },
+    why: {
+      en: "Partner-delivered capacity up to 25 Gbps without a dedicated port",
+      ja: "専用ポートなしでパートナー経由 25 Gbps まで",
+    },
+    url: "https://docs.aws.amazon.com/directconnect/latest/UserGuide/limits.html",
+  },
+  {
+    date: "2025-07-08",
+    family: "vpn",
+    title: {
+      en: "Site-to-Site VPN with IPv6 outer tunnel IPs",
+      ja: "Site-to-Site VPN の外側トンネル IP が IPv6 に対応",
+    },
+    why: { en: "IPv6 underlay for VPN tunnels", ja: "VPN トンネルの下回りに IPv6" },
+    url: `${W}2025/07/aws-site-to-site-vpn-supports-ipv6-addresses-outer-tunnel-ips/`,
+  },
+  {
+    date: "2025-07",
+    family: "dx",
+    title: {
+      en: "MACsec on partner interconnects",
+      ja: "パートナーのインターコネクトで MACsec",
+    },
+    why: {
+      en: "Encrypts the AWS-to-partner hop for hosted connections, not your circuit to the partner",
+      ja: "ホスト接続の AWS〜パートナー区間を暗号化。パートナーまでの自社回線は対象外",
+    },
+    url: `${W}2025/07/aws-direct-connect-extends-macsec-support-partner-interconnects/`,
+  },
+  {
+    date: "2025-11",
+    family: "vpn",
+    title: { en: "Site-to-Site VPN with eero", ja: "eero による Site-to-Site VPN" },
+    why: {
+      en: "Zero-touch VPN for small sites (US)",
+      ja: "小規模拠点向けのゼロタッチ VPN (米国)",
+    },
+    url: `${W}2025/11/site-to-site-vpn-eero-simplify-remote-connectivity/`,
+  },
+  {
+    date: "2025-11-19",
+    family: "hub",
+    title: { en: "Regional NAT gateway", ja: "リージョナル NAT ゲートウェイ" },
+    why: {
+      en: "One NAT gateway that spans AZs, no public subnet needed",
+      ja: "AZ をまたぐ 1 つの NAT ゲートウェイ。パブリックサブネット不要",
+    },
+    url: `${W}2025/11/aws-nat-gateway-regional-availability/`,
+  },
+  {
+    date: "2026-08",
+    family: "dx",
+    title: {
+      en: "Interconnect – multicloud with Azure (preview)",
+      ja: "Interconnect – multicloud の Azure 対応 (プレビュー)",
+    },
+    why: { en: "Third partner cloud", ja: "3 社目のパートナークラウド" },
+    url: `${W}2026/08/aws-announces-AWS-interconnect-multicloud-microsoft-azure-preview/`,
+  },
+  {
+    date: "2026-09-18",
+    family: "private",
+    title: {
+      en: "PrivateLink tunnel endpoints",
+      ja: "PrivateLink トンネルエンドポイント",
+    },
+    why: {
+      en: "One endpoint reaches a whole shared CIDR range, including on-premises",
+      ja: "1 つのエンドポイントで共有された CIDR 範囲全体 (オンプレ含む) へ",
+    },
+    url: `${W}2026/9/privatelink-tunnel-endpoint/`,
+  },
+  {
     date: "2009-08-25",
     family: "vpn",
     title: { en: "Amazon VPC with IPsec VPN", ja: "Amazon VPC と IPsec VPN" },
@@ -62,8 +148,8 @@ const RAW: Launch[] = [
     family: "dx",
     title: { en: "Direct Connect gateway", ja: "Direct Connect ゲートウェイ" },
     why: {
-      en: "One DX connection reaches VPCs in any Region",
-      ja: "1 本の DX で全リージョンの VPC へ",
+      en: "One DX connection reaches VPCs in any Region (except China)",
+      ja: "1 本の DX で全リージョン (中国を除く) の VPC へ",
     },
     url: `${W}2017/11/aws-direct-connect-enables-global-access`,
   },
@@ -100,7 +186,10 @@ const RAW: Launch[] = [
   {
     date: "2018-11-19",
     family: "dns",
-    title: { en: "Route 53 Resolver endpoints", ja: "Route 53 Resolver エンドポイント" },
+    title: {
+      en: "Route 53 Resolver endpoints (now VPC Resolver)",
+      ja: "Route 53 Resolver エンドポイント (現 VPC Resolver)",
+    },
     why: {
       en: "Managed hybrid DNS forwarding in both directions",
       ja: "双方向のハイブリッド DNS 転送をマネージドで",
@@ -392,7 +481,7 @@ const RAW: Launch[] = [
     url: `${W}2025/02/aws-verified-access-zero-trust-resources-non-https-protocols/`,
   },
   {
-    date: "2025-06",
+    date: "2025-06-24",
     family: "dns",
     title: {
       en: "Resolver endpoints: DNS delegation",
@@ -405,7 +494,7 @@ const RAW: Launch[] = [
     url: `${W}2025/06/amazon-route-53-resolver-endpoints-dns-delegation-private-hosted-zones/`,
   },
   {
-    date: "2025-08",
+    date: "2025-08-26",
     family: "people",
     title: { en: "Client VPN to IPv6 workloads", ja: "Client VPN が IPv6 に対応" },
     why: {
@@ -461,7 +550,7 @@ const RAW: Launch[] = [
     url: `${W}2025/11/aws-transit-gateway-flexible-cost-allocation/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-20",
     family: "hub",
     title: { en: "Cloud WAN Routing Policy", ja: "Cloud WAN ルーティングポリシー" },
     why: {
@@ -471,7 +560,7 @@ const RAW: Launch[] = [
     url: `${W}2025/11/aws-cloud-wan-routing-policy/`,
   },
   {
-    date: "2025-11",
+    date: "2025-11-19",
     family: "private",
     title: {
       en: "Cross-Region PrivateLink for AWS services",
@@ -527,7 +616,7 @@ const RAW: Launch[] = [
     url: `${W}2025/12/direct-connect-resilience-testing-fault-injection-service/`,
   },
   {
-    date: "2026-01",
+    date: "2026-01-07",
     family: "people",
     title: { en: "Client VPN Quickstart", ja: "Client VPN クイックスタート" },
     why: { en: "An endpoint from three inputs", ja: "3 項目でエンドポイント作成" },
@@ -645,7 +734,10 @@ const RAW: Launch[] = [
       en: "Interconnect – multicloud with OCI (preview)",
       ja: "Interconnect – multicloud が OCI に (プレビュー)",
     },
-    why: { en: "A third cloud partner", ja: "3 社目のクラウドパートナー" },
+    why: {
+      en: "Second partner cloud after Google Cloud",
+      ja: "Google Cloud に続く 2 社目のパートナークラウド",
+    },
     url: `${W}2026/05/aws-announces-AWS-interconnect-multicloud-oci-preview/`,
   },
   {
@@ -712,7 +804,7 @@ const RAW: Launch[] = [
     url: `${W}2026/08/aws-direct-connect-new-prefix-controls/`,
   },
   {
-    date: "2026-08",
+    date: "2026-08-13",
     family: "people",
     title: {
       en: "Client VPN client v6 with CLI",

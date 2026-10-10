@@ -85,8 +85,8 @@ export const GLOSSARY: Group[] = [
         ja: "高速 Site-to-Site VPN 接続 (高速 VPN)",
         verified: true,
         def: {
-          en: "VPN that enters AWS at the nearest Global Accelerator edge; TGW or Cloud WAN only",
-          ja: "最寄りの Global Accelerator エッジから AWS に入る VPN。TGW / Cloud WAN 専用",
+          en: "VPN that enters AWS at the nearest Global Accelerator edge; Transit Gateway only (including the VPN Concentrator), not VGW or Cloud WAN",
+          ja: "最寄りの Global Accelerator エッジから AWS に入る VPN。Transit Gateway 専用 (VPN コンセントレータを含む。VGW と Cloud WAN は不可)",
         },
         confused: { en: "Large bandwidth tunnel", ja: "広帯域幅トンネル" },
       },
@@ -116,7 +116,7 @@ export const GLOSSARY: Group[] = [
       {
         en: "Private IP VPN",
         ja: "プライベート IP VPN",
-        verified: true,
+        verified: false,
         def: {
           en: "IPsec VPN over a DX transit VIF using private outside addresses; requires TGW",
           ja: "DX のトランジット VIF 上でプライベートアドレスを使う IPsec VPN。TGW が必要",
@@ -187,8 +187,8 @@ export const GLOSSARY: Group[] = [
         ja: "リンク集約グループ (LAG)",
         verified: true,
         def: {
-          en: "Same-speed dedicated connections at one location bundled as one",
-          ja: "同じロケーションの同速度の専用接続を 1 本に束ねたもの",
+          en: "Same-speed dedicated connections on one AWS device at one location, bundled as one",
+          ja: "1 ロケーションの同一 AWS 機器上にある同速度の専用接続を 1 本に束ねたもの",
         },
         confused: { en: "ECMP across locations", ja: "ロケーション間の ECMP" },
       },
@@ -237,8 +237,8 @@ export const GLOSSARY: Group[] = [
         ja: "MACsec",
         verified: true,
         def: {
-          en: "IEEE 802.1AE line-rate layer 2 encryption between your router and the AWS DX router",
-          ja: "自社ルーターと AWS DX ルーター間の IEEE 802.1AE によるワイヤーレートの L2 暗号化",
+          en: "IEEE 802.1AE line-rate layer 2 encryption between your router and the AWS DX router; needs a dedicated port, and covers a carrier circuit only if it is Layer 2 transparent",
+          ja: "自社ルーターと AWS DX ルーター間の IEEE 802.1AE によるワイヤーレートの L2 暗号化。専用接続が必要で、通信事業者の回線区間はレイヤー 2 透過のときだけ対象",
         },
         confused: { en: "IPsec", ja: "IPsec" },
       },
@@ -257,8 +257,8 @@ export const GLOSSARY: Group[] = [
         ja: "Resiliency Toolkit",
         verified: false,
         def: {
-          en: "DX ordering wizard with Maximum, High, and Development and test models",
-          ja: "最大・高・開発/テストの冗長モデルを選べる DX の発注ウィザード",
+          en: "DX ordering wizard with Maximum, High, and Development and test models; a single connection is the fourth (95% SLA) layout",
+          ja: "最大・高・開発/テストの冗長モデルを選べる DX の発注ウィザード。単一接続が 4 つ目の構成 (SLA 95%)",
         },
         confused: { en: "Failover testing", ja: "フェイルオーバーテスト" },
       },
@@ -369,8 +369,8 @@ export const GLOSSARY: Group[] = [
         ja: "関連付け",
         verified: true,
         def: {
-          en: "Which TGW route table an attachment uses for lookups (exactly one)",
-          ja: "アタッチメントが参照する TGW ルートテーブル (必ず 1 つ)",
+          en: "The one TGW route table (or, since 2026-07, policy table) an attachment uses for lookups",
+          ja: "アタッチメントが参照する TGW ルートテーブル 1 つ (2026-07 からはポリシーテーブルも可)",
         },
         confused: { en: "Propagation", ja: "ルート伝播" },
       },
@@ -428,8 +428,8 @@ export const GLOSSARY: Group[] = [
         ja: "ポリシーベースルーティング",
         verified: false,
         def: {
-          en: "TGW rules that pick a route table by source, port or protocol (2026-07)",
-          ja: "送信元・ポート・プロトコルでルートテーブルを選ぶ TGW のルール (2026-07)",
+          en: "TGW policy-table rules that pick a route table by source or destination CIDR, port or protocol; traffic matching no rule is dropped (2026-07)",
+          ja: "送信元・宛先 CIDR、ポート、プロトコルでルートテーブルを選ぶ TGW のポリシーテーブルのルール。どのルールにも一致しない通信は破棄 (2026-07)",
         },
         confused: { en: "Route table association", ja: "ルートテーブルの関連付け" },
       },
@@ -673,8 +673,8 @@ export const GLOSSARY: Group[] = [
         ja: "Route 53 Profiles",
         verified: false,
         def: {
-          en: "Shareable bundle of private hosted zones, Resolver rules and DNS Firewall for many VPCs (2024-04)",
-          ja: "プライベートホストゾーン・Resolver ルール・DNS Firewall を多数の VPC へ共有する束 (2024-04)",
+          en: "Shareable bundle of private hosted zones, Resolver rules, DNS Firewall rule groups and interface endpoint DNS for many VPCs (2024-04)",
+          ja: "プライベートホストゾーン・Resolver ルール・DNS Firewall ルールグループ・インターフェイスエンドポイントの DNS を多数の VPC へ共有する束 (2024-04)",
         },
         confused: { en: "Resolver rule sharing", ja: "Resolver ルールの共有" },
       },
@@ -738,8 +738,8 @@ export const GLOSSARY: Group[] = [
         ja: "スプリットトンネル (モード)",
         verified: true,
         def: {
-          en: "Only AWS-bound routes go through the VPN",
-          ja: "AWS 宛ての経路だけを VPN に通す",
+          en: "Only the routes in the endpoint's route table go through the VPN (they can include on-premises); everything else uses the local internet",
+          ja: "エンドポイントのルートテーブルにある経路 (オンプレも含められる) だけを VPN に通し、それ以外は端末のインターネットへ",
         },
         confused: { en: "Full tunnel", ja: "フルトンネル" },
       },
