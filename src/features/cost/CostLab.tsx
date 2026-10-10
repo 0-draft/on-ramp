@@ -176,11 +176,18 @@ export function CostLab() {
       <div className="mt-4 flex flex-wrap gap-4 text-xs font-semibold text-[var(--muted)]">
         {(["hourly", "transfer", "processing"] as const).map((k) => (
           <span key={k} className="inline-flex items-center gap-1.5">
-            <span
-              className="inline-block h-3 w-6 rounded-sm"
-              style={{ background: "var(--data)", ...PART[k].style }}
-            />
+            {k === "transfer" ? (
+              // Transfer is drawn in each road's own colour, so show three.
+              <span className="inline-flex h-3 w-6 overflow-hidden rounded-sm">
+                <span className="flex-1" style={{ background: "var(--r-internet)" }} />
+                <span className="flex-1" style={{ background: "var(--r-vpn)" }} />
+                <span className="flex-1" style={{ background: "var(--r-dx)" }} />
+              </span>
+            ) : (
+              <span className="inline-block h-3 w-6 rounded-sm" style={PART[k].style} />
+            )}
             {t(PART[k].label)}
+            {k === "transfer" && t({ en: " (road colour)", ja: " (道の色)" })}
           </span>
         ))}
       </div>
