@@ -23,15 +23,25 @@ function setup(onPick = vi.fn()) {
 }
 
 describe("Predict", () => {
-  it("does not render the lab until the reader answers", () => {
+  it("a wrong pick neither reveals the answer nor opens the lab", () => {
     const onPick = setup();
     expect(screen.queryByText("lab control")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "A" }));
     expect(onPick).toHaveBeenCalledWith("a", false);
-    expect(screen.getByText("Not quite.")).toBeInTheDocument();
+    expect(screen.getByText("Not quite. Try another.")).toBeInTheDocument();
+    expect(screen.queryByText("because")).toBeNull();
+    expect(screen.queryByText("lab control")).toBeNull();
+    // The second try finds it: the why and the lab appear.
+    fireEvent.click(screen.getByRole("button", { name: "B" }));
+    expect(screen.getByText("because")).toBeInTheDocument();
     expect(screen.getByText("lab control")).toBeInTheDocument();
-    // A wrong answer can be retried; the lab stays open.
-    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+  });
+
+  it("can reveal the answer after a wrong pick", () => {
+    setup();
+    fireEvent.click(screen.getByRole("button", { name: "A" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show the answer" }));
+    expect(screen.getByText("because")).toBeInTheDocument();
     expect(screen.getByText("lab control")).toBeInTheDocument();
   });
 
@@ -39,15 +49,14 @@ describe("Predict", () => {
     setup();
     fireEvent.click(screen.getByRole("button", { name: "Skip and open the lab" }));
     expect(screen.getByText("lab control")).toBeInTheDocument();
-    expect(screen.queryByText("Not quite.")).toBeNull();
+    expect(screen.queryByText("Not quite. Try another.")).toBeNull();
   });
 
-  it("ignores a second pick", () => {
+  it("locks the options once solved", () => {
     const onPick = setup();
     fireEvent.click(screen.getByRole("button", { name: "B" }));
     fireEvent.click(screen.getByRole("button", { name: "A" }));
     expect(onPick).toHaveBeenCalledTimes(1);
     expect(screen.getByText("Right.")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Try again" })).toBeNull();
   });
 });

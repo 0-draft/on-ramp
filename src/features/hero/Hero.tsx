@@ -49,7 +49,7 @@ export function Hero() {
               <h1 className="text-5xl leading-none font-black tracking-tight sm:text-6xl">
                 On-ramp
               </h1>
-              <p className="mt-2 text-lg font-semibold sm:text-xl">
+              <p className="phrase mt-2 text-lg font-semibold [text-wrap:balance] sm:text-xl">
                 {t({
                   en: "Every way from your network into AWS",
                   ja: "社内ネットワークから AWS に入る、すべての道",
@@ -62,14 +62,14 @@ export function Hero() {
         <p className="mt-5 max-w-3xl text-lg lg:mt-0 lg:text-base">
           {t({
             en: "Connecting an office to AWS is a stack of decisions: which road carries the bits, which gateway they land on, how AWS picks between two roads, and whether your DNS sends anyone down it at all. Here is every road on one map. Pick one and drive it.",
-            ja: "社内と AWS をつなぐのは判断の積み重ねです。どの道でビットを運ぶか、どのゲートウェイに着地させるか、道が 2 本あるとき AWS はどちらを選ぶか、そもそも DNS がその道に案内するか。全部の道を 1 枚の地図にしました。1 本選んで走ってみてください。",
+            ja: "社内と AWS をつなぐのは判断の積み重ねです。どの道でビットを運ぶか、どのゲートウェイに着地させるか、道が 2\u00a0本あるとき AWS はどちらを選ぶか、そもそも DNS がその道に案内するか。全部の道を 1\u00a0枚の地図にしました。1\u00a0本選んで走ってみてください。",
           })}
         </p>
       </div>
 
       <div className="panel mt-5 p-3 sm:p-4">
         {/* The legend is the route picker. */}
-        <div className="-mx-1 overflow-x-auto px-1 pb-1 max-sm:[&>[role=radiogroup]]:flex-nowrap">
+        <div className="-mx-1 overflow-x-auto px-1 pb-1 max-sm:[mask-image:linear-gradient(to_right,#000_80%,transparent)] max-sm:[&>[role=radiogroup]]:flex-nowrap">
           <Segmented
             label={{ en: "Routes", ja: "経路" }}
             options={ROUTES.map((r) => ({ id: r.id, label: r.name }))}

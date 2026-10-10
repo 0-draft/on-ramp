@@ -207,7 +207,7 @@ export function Header() {
           onScroll={updateFade}
           className="hidden min-w-0 flex-1 snap-x overflow-x-auto scroll-px-2 [scrollbar-width:none] sm:block"
           style={{
-            maskImage: `linear-gradient(to right, ${fade.left ? "transparent" : "#000"}, #000 2rem, #000 calc(100% - 2rem), ${fade.right ? "transparent" : "#000"})`,
+            maskImage: `linear-gradient(to right, ${fade.left ? "transparent" : "#000"}, #000 3.5rem, #000 calc(100% - 3.5rem), ${fade.right ? "transparent" : "#000"})`,
           }}
         >
           <ol className="flex gap-1 whitespace-nowrap">

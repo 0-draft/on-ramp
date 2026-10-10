@@ -29,7 +29,7 @@ export function Footer() {
           <p className="text-2xl font-black">
             {t({ en: "You have arrived", ja: "到着しました" })}
           </p>
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-1.5 sm:gap-2">
             {ROUTES.map((r) => (
               <li key={r.id}>
                 <a
@@ -38,7 +38,7 @@ export function Footer() {
                   aria-label={t(r.name)}
                   className="inline-flex min-h-10 items-center"
                 >
-                  <Shield label={r.shield} color={r.color} />
+                  <Shield label={r.shield} color={r.color} size="sm" />
                 </a>
               </li>
             ))}
