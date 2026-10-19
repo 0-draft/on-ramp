@@ -35,7 +35,9 @@ export function Footer() {
                 <a
                   href={`#${r.section}`}
                   title={t(r.name)}
-                  aria-label={t(r.name)}
+                  // Lead with the visible shield text so voice users can say
+                  // what they see (WCAG 2.5.3 Label in Name).
+                  aria-label={`${r.shield}: ${t(r.name)}`}
                   className="inline-flex min-h-10 items-center"
                 >
                   <Shield label={r.shield} color={r.color} size="sm" />
